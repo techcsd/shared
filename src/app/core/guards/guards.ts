@@ -16,7 +16,11 @@ export const authGuard: CanActivateFn = async (_ruta, estado) => {
 /** Exige un grupo activo; si el usuario no tiene ninguno, manda a /grupos. */
 export const grupoGuard: CanActivateFn = async () => {
   const grupos = inject(GrupoService);
+  const auth = inject(AuthService);
   const router = inject(Router);
+  // Angular evalúa los guards de una ruta en paralelo: hay que esperar la sesión aquí también.
+  await auth.listo;
+  if (!auth.autenticado()) return true; // authGuard redirige a /login
   if (!grupos.cargado()) {
     try {
       await grupos.cargar();

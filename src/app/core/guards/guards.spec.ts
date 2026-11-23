@@ -37,7 +37,10 @@ describe('guards', () => {
   });
 
   it('grupoGuard manda a /grupos si no hay grupo activo', async () => {
-    configurar({}, { cargado: (() => true) as never, activa: (() => null) as never });
+    configurar(
+      { listo: Promise.resolve(), autenticado: (() => true) as never },
+      { cargado: (() => true) as never, activa: (() => null) as never },
+    );
     const r = await TestBed.runInInjectionContext(() => grupoGuard(ruta, estado('/')));
     expect(TestBed.inject(Router).serializeUrl(r as UrlTree)).toBe('/grupos');
   });
