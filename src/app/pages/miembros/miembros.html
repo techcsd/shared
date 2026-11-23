@@ -1,0 +1,103 @@
+<!-- Miembros del grupo -->
+<main class="miembros">
+  <h1>{{ t('miembros.titulo') }}</h1>
+
+  <section class="tarjeta">
+    <h2>{{ t('miembros.lista') }}</h2>
+    <ul class="filas">
+      @for (m of miembros(); track m.id) {
+        <li>
+          <span>{{ m.perfil?.nombre || m.perfil?.correo }}</span>
+          <span class="suave">
+            {{ rolTexto(m.rol) }}
+            @if (m.rol === 'socio') {
+              · {{ m.porcentaje }} %
+            }
+          </span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  @if (grupos.esSocio()) {
+    <!-- Invitar -->
+    <form class="tarjeta" (ngSubmit)="invitar()" #f="ngForm">
+      <h2>{{ t('miembros.invitar_titulo') }}</h2>
+      <div class="campo">
+        <label for="correo">{{ t('miembros.correo') }}</label>
+        <input id="correo" name="correo" type="email" required [(ngModel)]="correo" />
+      </div>
+      <div class="campo">
+        <label for="rol">{{ t('miembros.rol') }}</label>
+        <select id="rol" name="rol" [(ngModel)]="rol">
+          @for (r of roles; track r) {
+            <option [value]="r">{{ rolTexto(r) }}</option>
+          }
+        </select>
+      </div>
+      @if (rol === 'socio') {
+        <div class="campo">
+          <label for="porcentaje">{{ t('miembros.porcentaje') }}</label>
+          <input
+            id="porcentaje"
+            name="porcentaje"
+            type="number"
+            min="0.01"
+            max="100"
+            step="0.01"
+            required
+            [(ngModel)]="porcentaje"
+          />
+        </div>
+      }
+      @if (error()) {
+        <p class="error-texto" role="alert">{{ error() }}</p>
+      }
+      <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
+        {{ t('miembros.invitar') }}
+      </button>
+    </form>
+
+    @if (enlace(); as e) {
+      <section class="tarjeta" role="status">
+        <h2>{{ t('miembros.enlace_titulo') }}</h2>
+        <p class="suave">{{ t('miembros.enlace_aviso') }}</p>
+        <input
+          class="enlace-campo"
+          type="text"
+          readonly
+          [value]="e"
+          aria-label="{{ t('miembros.enlace_titulo') }}"
+        />
+        <button class="boton secundario" type="button" (click)="copiar()">
+          {{ copiado() ? t('miembros.copiado') : t('miembros.copiar') }}
+        </button>
+      </section>
+    }
+
+    <!-- Invitaciones -->
+    <section class="tarjeta">
+      <h2>{{ t('miembros.pendientes') }}</h2>
+      <ul class="filas">
+        @for (i of invitaciones(); track i.id) {
+          <li>
+            <span
+              >{{ i.correo }} · {{ rolTexto(i.rol) }}
+              @if (i.rol === 'socio') {
+                · {{ i.porcentaje }} %
+              }
+            </span>
+            <span class="suave">{{ estadoInvitacionTexto(i.estado) }}</span>
+            @if (i.estado === 'pendiente') {
+              <button class="boton secundario" type="button" (click)="cancelar(i.id)">
+                {{ t('miembros.cancelar_invitacion') }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  } @else {
+    <p class="suave">{{ t('miembros.solo_socios') }}</p>
+  }
+</main>

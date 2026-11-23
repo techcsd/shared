@@ -1,0 +1,36 @@
+<!-- Correos de notificación -->
+<section class="tarjeta">
+  <h2>{{ t('config.correos') }}</h2>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  <ul class="filas">
+    @for (c of correos(); track c.id) {
+      <li>
+        <span
+          >{{ c.correo }} · <span class="suave">{{ tipoTexto(c.tipo) }}</span></span
+        >
+        <button class="boton secundario" type="button" (click)="quitar(c)">
+          {{ t('config.quitar') }}
+        </button>
+      </li>
+    } @empty {
+      <li class="suave">{{ t('app.vacio') }}</li>
+    }
+  </ul>
+  <form (ngSubmit)="agregar()" #f="ngForm">
+    <div class="campo">
+      <label for="c-correo">{{ t('miembros.correo') }}</label>
+      <input id="c-correo" name="correo" type="email" required [(ngModel)]="correo" />
+    </div>
+    <div class="campo">
+      <label for="c-tipo">{{ t('config.correo.tipo') }}</label>
+      <select id="c-tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="ordenes">{{ t('config.correo.ordenes') }}</option>
+        <option value="alertas">{{ t('config.correo.alertas') }}</option>
+        <option value="invitados">{{ t('config.correo.invitados') }}</option>
+      </select>
+    </div>
+    <button class="boton" type="submit" [disabled]="f.invalid">{{ t('config.agregar') }}</button>
+  </form>
+</section>

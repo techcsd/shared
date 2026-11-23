@@ -1,0 +1,227 @@
+<!-- Tipos de activo -->
+<section class="tarjeta">
+  <h2>{{ t('tipos.titulo') }}</h2>
+  <ul class="filas">
+    @for (tp of tipos(); track tp.id) {
+      <li>
+        <span>
+          {{ tp.nombre }}
+          @if (tp.es_sistema) {
+            <span class="suave">· {{ t('tipos.sistema') }}</span>
+          }
+        </span>
+        @if (!tp.es_sistema) {
+          <button class="boton secundario" type="button" (click)="editar(tp)">
+            {{ t('tipos.editar') }}
+          </button>
+        }
+      </li>
+    }
+  </ul>
+
+  <!-- Clonar -->
+  <form (ngSubmit)="clonar()">
+    <h3>{{ t('tipos.clonar') }}</h3>
+    <p class="suave">{{ t('tipos.clonar_ayuda') }}</p>
+    <div class="campo">
+      <label for="t-origen">{{ t('tipos.origen') }}</label>
+      <select id="t-origen" name="origen" [(ngModel)]="origen">
+        @for (tp of tipos(); track tp.id) {
+          <option [value]="tp.id">{{ tp.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div class="campo">
+      <label for="t-nombre-clon">{{ t('tipos.nombre') }}</label>
+      <input
+        id="t-nombre-clon"
+        name="nombreClon"
+        type="text"
+        maxlength="80"
+        [(ngModel)]="nombreClon"
+      />
+    </div>
+    <button class="boton" type="submit" [disabled]="nombreClon.trim().length < 2">
+      {{ t('tipos.clonar') }}
+    </button>
+  </form>
+  @if (!editando() && error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+</section>
+
+<!-- Editor -->
+@if (editando(); as tp) {
+  <section class="tarjeta">
+    <h2>{{ t('tipos.editando') }}: {{ tp.nombre }}</h2>
+    <div class="campo">
+      <label for="e-nombre">{{ t('tipos.nombre') }}</label>
+      <input
+        id="e-nombre"
+        type="text"
+        maxlength="80"
+        [(ngModel)]="nombre"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <div class="campo">
+      <label for="e-prefijo">{{ t('grupos.prefijo') }}</label>
+      <input
+        id="e-prefijo"
+        type="text"
+        maxlength="5"
+        [(ngModel)]="prefijo"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+
+    <!-- Campos personalizados -->
+    <h3>{{ t('tipos.campos') }}</h3>
+    @for (c of campos; track $index) {
+      <div class="bloque">
+        <input
+          type="text"
+          [placeholder]="t('tipos.etiqueta')"
+          [(ngModel)]="c.etiqueta"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <select
+          [(ngModel)]="c.tipo"
+          [ngModelOptions]="{ standalone: true }"
+          [attr.aria-label]="t('tipos.tipo_campo')"
+        >
+          <option value="texto">{{ t('tipos.campo.texto') }}</option>
+          <option value="numero">{{ t('tipos.campo.numero') }}</option>
+          <option value="fecha">{{ t('tipos.campo.fecha') }}</option>
+          <option value="booleano">{{ t('tipos.campo.booleano') }}</option>
+          <option value="opcion">{{ t('tipos.campo.opcion') }}</option>
+        </select>
+        <label class="inline">
+          <input
+            type="checkbox"
+            [(ngModel)]="c.obligatorio"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          {{ t('tipos.obligatorio') }}
+        </label>
+        @if (c.tipo === 'opcion') {
+          <input
+            type="text"
+            [placeholder]="t('tipos.opciones')"
+            [(ngModel)]="c.opcionesTexto"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        }
+        <button class="boton secundario" type="button" (click)="quitarCampo($index)">
+          {{ t('config.quitar') }}
+        </button>
+      </div>
+    }
+    <button class="boton secundario" type="button" (click)="agregarCampo()">
+      {{ t('tipos.agregar_campo') }}
+    </button>
+
+    <!-- Componentes con medidor -->
+    <h3>{{ t('tipos.componentes') }}</h3>
+    @for (c of componentes; track $index) {
+      <div class="bloque">
+        <input
+          type="text"
+          [placeholder]="t('tipos.etiqueta')"
+          [(ngModel)]="c.etiqueta"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <input
+          type="number"
+          min="1"
+          max="20"
+          [attr.aria-label]="t('tipos.cantidad')"
+          [(ngModel)]="c.cantidad_defecto"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <select
+          [(ngModel)]="c.medidor.tipo"
+          [ngModelOptions]="{ standalone: true }"
+          [attr.aria-label]="t('tipos.medidor')"
+        >
+          <option value="horometro">{{ t('tipos.medidor.horometro') }}</option>
+          <option value="odometro">{{ t('tipos.medidor.odometro') }}</option>
+        </select>
+        <input
+          type="text"
+          maxlength="10"
+          [placeholder]="t('tipos.unidad')"
+          [(ngModel)]="c.medidor.unidad"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <button class="boton secundario" type="button" (click)="quitarComponente($index)">
+          {{ t('config.quitar') }}
+        </button>
+      </div>
+    }
+    <button class="boton secundario" type="button" (click)="agregarComponente()">
+      {{ t('tipos.agregar_componente') }}
+    </button>
+
+    <!-- Checklists -->
+    <h3>{{ t('tipos.checklists') }}</h3>
+    <p class="suave">{{ t('tipos.checklists_ayuda') }}</p>
+    @for (m of momentos; track m) {
+      <div class="campo">
+        <label [for]="'e-ck-' + m">{{ momentoTexto(m) }}</label>
+        <textarea
+          [id]="'e-ck-' + m"
+          rows="4"
+          [(ngModel)]="checklists[m]"
+          [ngModelOptions]="{ standalone: true }"
+        ></textarea>
+      </div>
+    }
+
+    <!-- Categorías y límites -->
+    <div class="campo">
+      <label for="e-cat">{{ t('tipos.categorias') }}</label>
+      <input
+        id="e-cat"
+        type="text"
+        [(ngModel)]="categoriasTexto"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <div class="bloque">
+      <div class="campo">
+        <label for="e-ls">{{ t('tipos.limite_socio') }}</label>
+        <input
+          id="e-ls"
+          type="number"
+          min="1"
+          [(ngModel)]="limiteSocio"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div class="campo">
+        <label for="e-li">{{ t('tipos.limite_invitado') }}</label>
+        <input
+          id="e-li"
+          type="number"
+          min="1"
+          [(ngModel)]="limiteInvitado"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+    </div>
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    @if (mensaje()) {
+      <p role="status">{{ mensaje() }}</p>
+    }
+    <div class="acciones">
+      <button class="boton" type="button" (click)="guardar()">{{ t('app.guardar') }}</button>
+      <button class="boton secundario" type="button" (click)="cerrar()">
+        {{ t('app.cerrar') }}
+      </button>
+    </div>
+  </section>
+}

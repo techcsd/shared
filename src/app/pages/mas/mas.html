@@ -1,0 +1,14 @@
+<!-- Más -->
+<main class="mas">
+  <h1>{{ t('mas.titulo') }}</h1>
+  <ul class="lista">
+    @for (e of visibles(); track e.ruta) {
+      <li>
+        <a [routerLink]="e.ruta">{{ t(e.etiqueta) }}</a>
+      </li>
+    }
+    <li>
+      <a routerLink="/grupos">{{ t('mas.cambiar_grupo') }}</a>
+    </li>
+  </ul>
+</main>

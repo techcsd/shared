@@ -1,0 +1,62 @@
+<!-- Datos del grupo -->
+<form class="tarjeta" (ngSubmit)="guardar()" #f="ngForm">
+  <h2>{{ t('config.grupo') }}</h2>
+  <div class="campo">
+    <label for="g-nombre">{{ t('grupos.nombre') }}</label>
+    <input
+      id="g-nombre"
+      name="nombre"
+      type="text"
+      required
+      minlength="2"
+      maxlength="80"
+      [(ngModel)]="nombre"
+    />
+  </div>
+  <div class="campo">
+    <label for="g-zona">{{ t('grupos.zona') }}</label>
+    <input id="g-zona" name="zona" type="text" required [(ngModel)]="zona" />
+  </div>
+  <div class="campo">
+    <label for="g-prefijo">{{ t('grupos.prefijo') }}</label>
+    <input
+      id="g-prefijo"
+      name="prefijo"
+      type="text"
+      required
+      pattern="[A-Za-z]{2,5}"
+      maxlength="5"
+      [(ngModel)]="prefijo"
+    />
+  </div>
+  <p class="suave">{{ t('config.moneda') }}: {{ grupos.grupo()?.moneda }}</p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (mensaje()) {
+    <p role="status">{{ mensaje() }}</p>
+  }
+  <button class="boton" type="submit" [disabled]="f.invalid">{{ t('app.guardar') }}</button>
+</form>
+
+<!-- Modelo de tarifa (política) -->
+<section class="tarjeta">
+  <h2>{{ t('config.modelo_tarifa') }}</h2>
+  <p class="suave">{{ t('config.modelo_tarifa_ayuda') }}</p>
+  <div class="campo">
+    <label for="g-modelo">{{ t('config.modelo_tarifa') }}</label>
+    <select id="g-modelo" name="modelo" [(ngModel)]="modeloNuevo">
+      <option value="destino">{{ t('config.modelo.destino') }}</option>
+      <option value="hora">{{ t('config.modelo.hora') }}</option>
+      <option value="ambos">{{ t('config.modelo.ambos') }}</option>
+    </select>
+  </div>
+  <button
+    class="boton secundario"
+    type="button"
+    [disabled]="modeloNuevo === modeloActual()"
+    (click)="proponerModelo()"
+  >
+    {{ t('estatuto.proponer') }}
+  </button>
+</section>
