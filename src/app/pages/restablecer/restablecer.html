@@ -1,0 +1,25 @@
+<!-- Nueva contraseña -->
+<main class="restablecer">
+  <form class="tarjeta" (ngSubmit)="guardar()" #f="ngForm">
+    <h1>{{ t('auth.nueva_clave') }}</h1>
+    <div class="campo">
+      <label for="clave">{{ t('auth.clave') }}</label>
+      <input
+        id="clave"
+        name="clave"
+        type="password"
+        minlength="8"
+        required
+        autocomplete="new-password"
+        [(ngModel)]="clave"
+      />
+      <span class="suave">{{ t('auth.clave_ayuda') }}</span>
+    </div>
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
+      {{ t('auth.guardar_clave') }}
+    </button>
+  </form>
+</main>

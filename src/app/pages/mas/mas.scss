@@ -1,0 +1,27 @@
+.mas {
+  padding: var(--espacio-6) var(--espacio-4);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li a {
+    display: block;
+    padding: var(--espacio-4);
+    margin-bottom: var(--espacio-2);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-2);
+    color: var(--color-texto);
+    text-decoration: none;
+    transition: var(--transicion);
+
+    &:hover {
+      border-color: var(--color-primario);
+    }
+  }
+}

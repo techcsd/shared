@@ -1,0 +1,117 @@
+<!-- Acceso -->
+<main class="login">
+  <h1>{{ marca.nombre }}</h1>
+  <p class="suave">{{ marca.eslogan }}</p>
+
+  @if (!supabase.configurado) {
+    <p class="error-texto" role="alert">{{ t('app.sin_backend') }}</p>
+  }
+
+  <form class="tarjeta" (ngSubmit)="enviar()" #f="ngForm">
+    <h2>
+      @switch (modo()) {
+        @case ('entrar') {
+          {{ t('auth.entrar_titulo') }}
+        }
+        @case ('registro') {
+          {{ t('auth.registro_titulo') }}
+        }
+        @case ('magico') {
+          {{ t('auth.magico_titulo') }}
+        }
+        @case ('recuperar') {
+          {{ t('auth.recuperar_titulo') }}
+        }
+      }
+    </h2>
+
+    @if (modo() === 'registro') {
+      <div class="campo">
+        <label for="nombre">{{ t('auth.nombre') }}</label>
+        <input
+          id="nombre"
+          name="nombre"
+          type="text"
+          autocomplete="name"
+          required
+          [(ngModel)]="nombre"
+        />
+      </div>
+    }
+
+    <div class="campo">
+      <label for="correo">{{ t('auth.correo') }}</label>
+      <input
+        id="correo"
+        name="correo"
+        type="email"
+        autocomplete="email"
+        required
+        [(ngModel)]="correo"
+      />
+    </div>
+
+    @if (modo() === 'entrar' || modo() === 'registro') {
+      <div class="campo">
+        <label for="clave">{{ t('auth.clave') }}</label>
+        <input
+          id="clave"
+          name="clave"
+          type="password"
+          minlength="8"
+          required
+          [attr.autocomplete]="modo() === 'registro' ? 'new-password' : 'current-password'"
+          [(ngModel)]="clave"
+        />
+        @if (modo() === 'registro') {
+          <span class="suave">{{ t('auth.clave_ayuda') }}</span>
+        }
+      </div>
+    }
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    @if (aviso()) {
+      <p role="status">{{ aviso() }}</p>
+    }
+
+    <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
+      @switch (modo()) {
+        @case ('entrar') {
+          {{ t('auth.entrar') }}
+        }
+        @case ('registro') {
+          {{ t('auth.registrarse') }}
+        }
+        @default {
+          {{ t('auth.enviar_enlace') }}
+        }
+      }
+    </button>
+  </form>
+
+  <!-- Cambio de modo -->
+  <nav class="alternos">
+    @if (modo() !== 'entrar') {
+      <button type="button" class="enlace" (click)="cambiarModo('entrar')">
+        {{ t('auth.ir_entrar') }}
+      </button>
+    }
+    @if (modo() !== 'registro') {
+      <button type="button" class="enlace" (click)="cambiarModo('registro')">
+        {{ t('auth.ir_registro') }}
+      </button>
+    }
+    @if (modo() !== 'magico') {
+      <button type="button" class="enlace" (click)="cambiarModo('magico')">
+        {{ t('auth.ir_magico') }}
+      </button>
+    }
+    @if (modo() !== 'recuperar') {
+      <button type="button" class="enlace" (click)="cambiarModo('recuperar')">
+        {{ t('auth.ir_recuperar') }}
+      </button>
+    }
+  </nav>
+</main>

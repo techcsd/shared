@@ -1,0 +1,17 @@
+.grupos {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--espacio-6) var(--espacio-4);
+}
+
+.grupo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}

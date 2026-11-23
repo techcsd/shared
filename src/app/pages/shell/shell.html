@@ -1,0 +1,25 @@
+<!-- Encabezado -->
+<header class="encabezado">
+  <a class="grupo-actual" routerLink="/grupos" [attr.aria-label]="t('mas.cambiar_grupo')">
+    {{ grupos.grupo()?.nombre }}
+  </a>
+</header>
+
+<!-- Banner de modo demo (DF-40) -->
+@if (grupos.modoDemo()) {
+  <div class="banner-demo" role="status">{{ t('app.demo.banner') }}</div>
+}
+
+<!-- Contenido -->
+<div class="contenido">
+  <router-outlet />
+</div>
+
+<!-- Menú inferior: Calendario · Mis salidas · Gastos · Mantenimiento · Más -->
+<nav class="menu-inferior" [attr.aria-label]="t('nav.principal')">
+  <a routerLink="/calendario" routerLinkActive="activo">{{ t('nav.calendario') }}</a>
+  <a routerLink="/mis-salidas" routerLinkActive="activo">{{ t('nav.mis_salidas') }}</a>
+  <a routerLink="/gastos" routerLinkActive="activo">{{ t('nav.gastos') }}</a>
+  <a routerLink="/mantenimiento" routerLinkActive="activo">{{ t('nav.mantenimiento') }}</a>
+  <a routerLink="/mas" routerLinkActive="activo">{{ t('nav.mas') }}</a>
+</nav>

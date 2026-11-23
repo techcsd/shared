@@ -1,0 +1,53 @@
+{
+  "name": "shared",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test --watch=false",
+    "lint": "eslint \"src/**/*.{ts,html}\" \"e2e/**/*.ts\" \"scripts/**/*.mjs\"",
+    "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss}\"",
+    "verify:i18n": "node scripts/verify-i18n.mjs",
+    "verify:politicas": "node scripts/gen-politicas.mjs --check",
+    "gen:politicas": "node scripts/gen-politicas.mjs",
+    "test:db": "node scripts/test-db.mjs",
+    "e2e": "playwright test",
+    "prestart": "node scripts/gen-env.mjs",
+    "prebuild": "node scripts/gen-env.mjs",
+    "pretest": "node scripts/gen-env.mjs",
+    "prelint": "node scripts/gen-env.mjs"
+  },
+  "private": true,
+  "packageManager": "npm@10.9.8",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@angular/service-worker": "^21.2.0",
+    "@supabase/supabase-js": "^2.119.2",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.16",
+    "@angular/cli": "^21.2.16",
+    "@angular/compiler-cli": "^21.2.0",
+    "@electric-sql/pglite": "^0.6.0",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "angular-eslint": "^21.4.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^4.0.8"
+  }
+}

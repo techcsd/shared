@@ -1,0 +1,84 @@
+<!-- Grupos del usuario -->
+<main class="grupos">
+  <h1>{{ t('grupos.titulo') }}</h1>
+
+  @if (!grupos.cargado()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  } @else if (grupos.membresias().length === 0) {
+    <p class="suave">{{ t('grupos.sin_grupos') }}</p>
+  }
+
+  @for (m of grupos.membresias(); track m.id) {
+    <article class="tarjeta grupo">
+      <div>
+        <h2>{{ m.grupo.nombre }}</h2>
+        <p class="suave">{{ rolTexto(m.rol) }} · {{ estadoGrupoTexto(m.grupo.estado) }}</p>
+      </div>
+      <button class="boton" type="button" (click)="abrir(m.grupo.id)">
+        {{ t('grupos.abrir') }}
+      </button>
+    </article>
+  }
+
+  <!-- Crear grupo -->
+  <form class="tarjeta" (ngSubmit)="crear()" #f="ngForm">
+    <h2>{{ t('grupos.crear_titulo') }}</h2>
+    <div class="campo">
+      <label for="nombre">{{ t('grupos.nombre') }}</label>
+      <input
+        id="nombre"
+        name="nombre"
+        type="text"
+        required
+        minlength="2"
+        maxlength="80"
+        [(ngModel)]="nombre"
+      />
+    </div>
+    <div class="campo">
+      <label for="moneda">{{ t('grupos.moneda') }}</label>
+      <select id="moneda" name="moneda" [(ngModel)]="moneda">
+        <option value="DOP">DOP (RD$)</option>
+        <option value="USD">USD (US$)</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label for="zona">{{ t('grupos.zona') }}</label>
+      <input id="zona" name="zona" type="text" required [(ngModel)]="zonaHoraria" />
+    </div>
+    <div class="campo">
+      <label for="prefijo">{{ t('grupos.prefijo') }}</label>
+      <input
+        id="prefijo"
+        name="prefijo"
+        type="text"
+        required
+        pattern="[A-Za-z]{2,5}"
+        maxlength="5"
+        [(ngModel)]="prefijo"
+      />
+    </div>
+    <div class="campo">
+      <label for="porcentaje">{{ t('grupos.porcentaje') }}</label>
+      <input
+        id="porcentaje"
+        name="porcentaje"
+        type="number"
+        min="1"
+        max="100"
+        step="0.01"
+        required
+        [(ngModel)]="porcentaje"
+      />
+      <span class="suave">{{ t('grupos.porcentaje_ayuda') }}</span>
+    </div>
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
+      {{ t('grupos.crear') }}
+    </button>
+  </form>
+
+  <button class="boton secundario" type="button" (click)="salir()">{{ t('auth.salir') }}</button>
+</main>

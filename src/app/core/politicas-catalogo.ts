@@ -1,0 +1,427 @@
+// GENERADO por scripts/gen-politicas.mjs desde supabase/catalogo/politicas.json — no editar a mano.
+export type TipoPolitica = 'booleano' | 'entero' | 'numero' | 'enum' | 'lista';
+
+export interface PoliticaCatalogo {
+  clave: string;
+  categoria: string;
+  tipo: TipoPolitica;
+  defecto: unknown;
+  nullable: boolean;
+  minimo?: number;
+  maximo?: number;
+  opciones?: string[];
+  df: string;
+  etiqueta: string;
+  descripcion: string;
+}
+
+export const POLITICAS_CATALOGO: PoliticaCatalogo[] = [
+  {
+    "clave": "derechos_uso",
+    "categoria": "reservas",
+    "tipo": "enum",
+    "defecto": "iguales",
+    "nullable": false,
+    "opciones": [
+      "iguales",
+      "proporcional",
+      "cuota"
+    ],
+    "df": "DF-16",
+    "etiqueta": "Derechos de uso",
+    "descripcion": "Iguales para todos, proporcionales al porcentaje, o con cuota de horas por socio."
+  },
+  {
+    "clave": "derechos_uso.cuota_horas_mes",
+    "categoria": "reservas",
+    "tipo": "entero",
+    "defecto": null,
+    "nullable": true,
+    "minimo": 0,
+    "maximo": 744,
+    "df": "DF-16",
+    "etiqueta": "Cuota de horas al mes",
+    "descripcion": "Solo aplica si los derechos son por cuota. Vacío = sin cuota."
+  },
+  {
+    "clave": "reservas.multi_dia_permitido",
+    "categoria": "reservas",
+    "tipo": "booleano",
+    "defecto": true,
+    "nullable": false,
+    "df": "DF-10",
+    "etiqueta": "Reservas de varios días",
+    "descripcion": "Permite reservar más de un día seguido."
+  },
+  {
+    "clave": "reservas.dias_max_seguidos",
+    "categoria": "reservas",
+    "tipo": "entero",
+    "defecto": 3,
+    "nullable": true,
+    "minimo": 1,
+    "maximo": 365,
+    "df": "DF-10",
+    "etiqueta": "Máximo de días seguidos",
+    "descripcion": "Tope por socio. Vacío = sin tope."
+  },
+  {
+    "clave": "reservas.buffer_horas",
+    "categoria": "reservas",
+    "tipo": "numero",
+    "defecto": 0,
+    "nullable": false,
+    "minimo": 0,
+    "maximo": 48,
+    "df": "DF-18",
+    "etiqueta": "Horas de preparación",
+    "descripcion": "Margen bloqueado antes y después de cada salida."
+  },
+  {
+    "clave": "reservas.acuse_requerido",
+    "categoria": "reservas",
+    "tipo": "booleano",
+    "defecto": true,
+    "nullable": false,
+    "df": "DF-15",
+    "etiqueta": "Pedir «Leído y enterado»",
+    "descripcion": "Los demás socios marcan que vieron la reserva. No es una aprobación."
+  },
+  {
+    "clave": "reservas.acuse_recordatorio_horas",
+    "categoria": "reservas",
+    "tipo": "lista",
+    "defecto": [
+      24,
+      2
+    ],
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 168,
+    "df": "DF-15",
+    "etiqueta": "Recordatorios del acuse (horas antes)",
+    "descripcion": "Horas antes de la salida en que se recuerda el acuse pendiente."
+  },
+  {
+    "clave": "reservas.borrador_horas",
+    "categoria": "reservas",
+    "tipo": "entero",
+    "defecto": 24,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 168,
+    "df": "DF-14",
+    "etiqueta": "Vida del borrador (horas)",
+    "descripcion": "Cuánto se conserva una reserva sin confirmar."
+  },
+  {
+    "clave": "cancelacion.horas_sin_cargo",
+    "categoria": "cancelacion",
+    "tipo": "entero",
+    "defecto": 48,
+    "nullable": false,
+    "minimo": 0,
+    "maximo": 720,
+    "df": "DF-09",
+    "etiqueta": "Cancelación sin cargo (horas antes)",
+    "descripcion": "Más tarde que esto se registra como cancelación tardía."
+  },
+  {
+    "clave": "cancelacion.cargo_tardio_pct",
+    "categoria": "cancelacion",
+    "tipo": "numero",
+    "defecto": 0,
+    "nullable": false,
+    "minimo": 0,
+    "maximo": 100,
+    "df": "DF-09",
+    "etiqueta": "Cargo por cancelación tardía (%)",
+    "descripcion": "Porcentaje del fee que se carga a quien cancela tarde."
+  },
+  {
+    "clave": "capacidad.socio",
+    "categoria": "capacidad",
+    "tipo": "entero",
+    "defecto": 15,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 1000,
+    "df": "DF-17",
+    "etiqueta": "Personas máx. (uso de socio)",
+    "descripcion": "Total a bordo, incluido el socio. El límite legal del activo siempre manda."
+  },
+  {
+    "clave": "capacidad.invitado",
+    "categoria": "capacidad",
+    "tipo": "entero",
+    "defecto": 8,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 1000,
+    "df": "DF-17",
+    "etiqueta": "Personas máx. (uso de invitado)",
+    "descripcion": "Invitado responsable más acompañantes. El límite legal manda."
+  },
+  {
+    "clave": "tarifa.modelo",
+    "categoria": "tarifas",
+    "tipo": "enum",
+    "defecto": "destino",
+    "nullable": false,
+    "opciones": [
+      "destino",
+      "hora",
+      "ambos"
+    ],
+    "df": "DF-06",
+    "etiqueta": "Modelo de tarifa",
+    "descripcion": "Cobro por destino, por hora de uso, o ambos."
+  },
+  {
+    "clave": "tarifa.destino_fee_a",
+    "categoria": "tarifas",
+    "tipo": "enum",
+    "defecto": "fondo",
+    "nullable": false,
+    "opciones": [
+      "fondo",
+      "socios_proporcional",
+      "informativo"
+    ],
+    "df": "DF-07",
+    "etiqueta": "Destino del fee",
+    "descripcion": "A dónde va el fee del destino."
+  },
+  {
+    "clave": "combustible.modelo",
+    "categoria": "tarifas",
+    "tipo": "enum",
+    "defecto": "consumido",
+    "nullable": false,
+    "opciones": [
+      "consumido",
+      "devolver_lleno",
+      "incluido"
+    ],
+    "df": "DF-08",
+    "etiqueta": "Combustible",
+    "descripcion": "Se cobra lo consumido, se devuelve lleno, o va incluido en el fee."
+  },
+  {
+    "clave": "danos.modelo",
+    "categoria": "finanzas",
+    "tipo": "enum",
+    "defecto": "acuerdo",
+    "nullable": false,
+    "opciones": [
+      "acuerdo"
+    ],
+    "df": "DF-11",
+    "etiqueta": "Daños",
+    "descripcion": "Siempre se deciden por acuerdo entre socios; nunca se cobran automáticamente."
+  },
+  {
+    "clave": "finanzas.modo",
+    "categoria": "finanzas",
+    "tipo": "enum",
+    "defecto": "registro",
+    "nullable": false,
+    "opciones": [
+      "registro",
+      "estricto"
+    ],
+    "df": "DF-27",
+    "etiqueta": "Modo de finanzas",
+    "descripcion": "Registro: se calcula y se muestra, nada bloquea. Estricto: reservado para una fase futura."
+  },
+  {
+    "clave": "fondo.aporte_mensual",
+    "categoria": "finanzas",
+    "tipo": "numero",
+    "defecto": 0,
+    "nullable": false,
+    "minimo": 0,
+    "maximo": 100000000,
+    "df": "DF-24",
+    "etiqueta": "Aporte mensual al fondo común",
+    "descripcion": "0 = apagado."
+  },
+  {
+    "clave": "administracion.requiere_admin",
+    "categoria": "gobierno",
+    "tipo": "booleano",
+    "defecto": false,
+    "nullable": false,
+    "df": "DF-12",
+    "etiqueta": "Requiere administrador operativo",
+    "descripcion": "Si el grupo opera con un administrador que carga facturas."
+  },
+  {
+    "clave": "administracion.valida_facturas",
+    "categoria": "gobierno",
+    "tipo": "enum",
+    "defecto": "otro_socio",
+    "nullable": false,
+    "opciones": [
+      "otro_socio",
+      "cualquier_socio"
+    ],
+    "df": "DF-12",
+    "etiqueta": "Quién valida las facturas",
+    "descripcion": "Otro socio distinto de quien la cargó, o cualquiera."
+  },
+  {
+    "clave": "mantenimiento.criterio",
+    "categoria": "mantenimiento",
+    "tipo": "enum",
+    "defecto": "primero",
+    "nullable": false,
+    "opciones": [
+      "fecha",
+      "horas",
+      "primero"
+    ],
+    "df": "DF-13",
+    "etiqueta": "Criterio de mantenimiento",
+    "descripcion": "Por fecha, por horas de uso, o lo que ocurra primero."
+  },
+  {
+    "clave": "temporada_alta.activa",
+    "categoria": "temporada",
+    "tipo": "booleano",
+    "defecto": false,
+    "nullable": false,
+    "df": "DF-19",
+    "etiqueta": "Temporada alta con rotación",
+    "descripcion": "Rota entre socios los periodos de mayor demanda."
+  },
+  {
+    "clave": "temporada_alta.rotacion",
+    "categoria": "temporada",
+    "tipo": "enum",
+    "defecto": "anual",
+    "nullable": false,
+    "opciones": [
+      "anual",
+      "ninguna"
+    ],
+    "df": "DF-19",
+    "etiqueta": "Rotación",
+    "descripcion": "Cada año cambia quién elige primero."
+  },
+  {
+    "clave": "temporada_alta.periodos",
+    "categoria": "temporada",
+    "tipo": "lista",
+    "defecto": [
+      "semana_santa",
+      "navidad",
+      "ano_nuevo"
+    ],
+    "nullable": false,
+    "opciones": [
+      "semana_santa",
+      "navidad",
+      "ano_nuevo",
+      "verano",
+      "otro"
+    ],
+    "df": "DF-19",
+    "etiqueta": "Periodos de temporada alta",
+    "descripcion": "Periodos que entran en la rotación."
+  },
+  {
+    "clave": "capitanes.licencia_vigente_requerida",
+    "categoria": "seguridad",
+    "tipo": "booleano",
+    "defecto": true,
+    "nullable": false,
+    "df": "DF-20",
+    "etiqueta": "Exigir licencia vigente al capitán",
+    "descripcion": "Sin capitán con licencia vigente no se hace el check-in."
+  },
+  {
+    "clave": "seguro.alerta_dias",
+    "categoria": "seguridad",
+    "tipo": "lista",
+    "defecto": [
+      30,
+      7
+    ],
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 365,
+    "df": "DF-21",
+    "etiqueta": "Alertas de vencimiento del seguro (días antes)",
+    "descripcion": "Días antes del vencimiento en que se avisa."
+  },
+  {
+    "clave": "seguro.deducible_modelo",
+    "categoria": "seguridad",
+    "tipo": "enum",
+    "defecto": "acuerdo",
+    "nullable": false,
+    "opciones": [
+      "acuerdo"
+    ],
+    "df": "DF-21",
+    "etiqueta": "Deducible de un siniestro",
+    "descripcion": "Entra al flujo de daños: se decide por acuerdo."
+  },
+  {
+    "clave": "seguridad.checklist_salida_obligatorio",
+    "categoria": "seguridad",
+    "tipo": "booleano",
+    "defecto": true,
+    "nullable": false,
+    "df": "DF-22",
+    "etiqueta": "Checklist de salida obligatorio",
+    "descripcion": "Capitán sobrio, chalecos, menores, clima."
+  },
+  {
+    "clave": "entrega.checklist_regreso_obligatorio",
+    "categoria": "seguridad",
+    "tipo": "booleano",
+    "defecto": true,
+    "nullable": false,
+    "df": "DF-23",
+    "etiqueta": "Checklist de regreso obligatorio",
+    "descripcion": "Limpio, revisado, combustible."
+  },
+  {
+    "clave": "salida_socio.preferencia_dias",
+    "categoria": "gobierno",
+    "tipo": "entero",
+    "defecto": 30,
+    "nullable": false,
+    "minimo": 0,
+    "maximo": 365,
+    "df": "DF-25",
+    "etiqueta": "Derecho de preferencia (días)",
+    "descripcion": "Plazo en que los demás socios pueden comprar la parte de quien sale."
+  },
+  {
+    "clave": "desacuerdos.dias_mediador",
+    "categoria": "gobierno",
+    "tipo": "entero",
+    "defecto": 7,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 90,
+    "df": "DF-26",
+    "etiqueta": "Días para invitar un mediador",
+    "descripcion": "Sin acuerdo directo en este plazo se puede invitar un mediador."
+  },
+  {
+    "clave": "invitados.enlace_horas_tras_regreso",
+    "categoria": "invitados",
+    "tipo": "entero",
+    "defecto": 24,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 168,
+    "df": "DF-31",
+    "etiqueta": "Vigencia del enlace de invitado (horas tras el regreso)",
+    "descripcion": "Después de este plazo el enlace deja de funcionar."
+  }
+];

@@ -1,0 +1,21 @@
+<!-- Aceptar invitación -->
+<main class="unirse">
+  <h1>{{ t('unirse.titulo') }}</h1>
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (vista(); as v) {
+    <section class="tarjeta">
+      <p>{{ t('unirse.detalle', { grupo: v.grupo_nombre, rol: rolTexto(v.rol) }) }}</p>
+      @if (v.rol === 'socio') {
+        <p>{{ t('unirse.porcentaje', { valor: v.porcentaje }) }}</p>
+      }
+      <button class="boton" type="button" [disabled]="ocupado()" (click)="aceptar()">
+        {{ t('unirse.aceptar') }}
+      </button>
+    </section>
+  }
+</main>

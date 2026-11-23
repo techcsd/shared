@@ -1,0 +1,8 @@
+<!-- Aviso de actualización -->
+@if (hayNueva()) {
+  <div class="aviso-actualizacion" role="status">
+    <span>{{ t('app.actualizacion') }}</span>
+    <button type="button" class="boton" (click)="actualizar()">{{ t('app.actualizar') }}</button>
+    <button type="button" class="boton secundario" (click)="cerrar()">{{ t('app.cerrar') }}</button>
+  </div>
+}
