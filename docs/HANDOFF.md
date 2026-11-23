@@ -30,6 +30,11 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 
 ## Estado de despliegue (2026-11-23, actualización)
 - Supabase: `shared-dev` (`afjnmhofqsktprrptivl`, datos demo) y `shared-prod` (`mxqbyeohzlawcxfwfivd`, solo migraciones, sin seed). Ambos con las 10 migraciones y Resend como secret (remitente pendiente: sin dominio verificado).
-- Vercel `shared` (equipo CSD): producción → `shared-prod`; preview/development → `shared-dev`. URL: https://shared-xaviel-csd.vercel.app
+- Vercel `shared` (equipo CSD): producción → `shared-prod`; preview/development → `shared-dev`. URL pública: https://shared-activos.vercel.app (alias sin nombres; los alias automáticos de Vercel con el slug del equipo existen pero no se usan)
 - Repo: https://github.com/techcsd/shared (cuenta techcsd; XavielT colaborador con push). Vercel conectado por git: push a `dev` = preview, push a `main` = producción.
 - Si algún deploy por git queda BLOCKED, el autor del commit no mapea a un miembro del equipo Vercel; alternativa: `git archive main` a un temporal, copiar `.vercel` y `vercel deploy --prod --scope xaviel-csd`.
+
+## Pendiente para después (decidido por Xaviel)
+- Convertir la cuenta `techcsd` (hoy usuario) en **organización** de GitHub, dejando a `XavielT` como owner antes. Ventajas: varios owners y equipos, secrets de Actions a nivel de org, apps instaladas una vez, auditoría. Es de una sola vía y la cuenta deja de poder iniciar sesión. Se hace desde `techcsd`: Settings → Account → Turn into an organization.
+- Dominio verificado de Resend (hoy no hay); edge function de invitaciones por correo.
+- Edición de textos: etiquetas del catálogo de políticas solo en español.
