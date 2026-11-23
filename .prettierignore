@@ -1,0 +1,3 @@
+src/app/core/politicas-catalogo.ts
+src/app/core/env.generated.ts
+supabase/migrations

@@ -3,12 +3,16 @@
 ## Estado
 PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitarios, 5 archivos de test SQL, e2e smoke, `verify:i18n` (201 claves), `verify:politicas` (32). **Nada commiteado ni desplegado.**
 
-## Lo que Xaviel debe hacer (físico)
-1. Crear proyecto Supabase **`shared-dev`** (nuevo, no SGC/x-core). Poner `NG_APP_SUPABASE_URL` y `NG_APP_SUPABASE_ANON_KEY` en `.env.local`. Luego: `npx supabase link --project-ref <ref>` y `npx supabase db push` (migraciones `supabase/migrations/`). En Auth → URL: `http://localhost:4200` y la de Vercel dev.
-2. Crear proyecto Vercel `shared` y repo privado GitHub `shared`.
-3. `RESEND_API_KEY` y remitente como secrets de edge (aún no hay edge function de correo: las invitaciones son enlaces copiables, DF-48).
-4. Dar OK para commit/PR `feature/f1-scaffold` → `dev`.
-5. Datos reales del bote (capacidad legal certificada, motores, horómetros) y abogado para el estatuto.
+## Hecho en vivo (2026-11-23)
+- Proyecto Supabase **shared-dev** (ref `afjnmhofqsktprrptivl`, org Tech CSD, us-east-1) creado y vinculado; 10 migraciones aplicadas; seed demo cargado.
+- Prueba viva contra la API real: login de usuarios demo, aislamiento entre grupos, admin operativo sin tarifas ni propuestas, escritura directa denegada, criterio 3→5, activo sin capacidad no se activa. Todo OK.
+- Repo privado XavielT/shared, PR #1 abierto contra `dev`.
+
+## Pendiente (físico)
+1. `vercel login` y crear el proyecto Vercel `shared` (conectar al repo).
+2. `RESEND_API_KEY` y remitente (secrets de edge; en archivo .local).
+3. Revisar y mergear el PR #1; datos reales del bote; abogado del estatuto.
+4. En Supabase → Auth → URL Configuration: agregar la URL de Vercel cuando exista (hoy solo localhost:4200).
 
 ## Cómo probar en dev (cuando exista shared-dev)
 1. `npx supabase db push`; para datos demo aplicar `supabase/seed.sql` (solo dev). Usuarios demo `felipe.demo@shared.test` / `xaviel.demo@shared.test`, clave `Demo1234!`.

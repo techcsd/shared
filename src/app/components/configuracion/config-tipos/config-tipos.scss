@@ -1,0 +1,51 @@
+.filas {
+  list-style: none;
+  margin: 0 0 var(--espacio-4);
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-2);
+    padding: var(--espacio-2) 0;
+    border-bottom: 1px solid var(--color-borde);
+  }
+}
+
+.bloque {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  align-items: center;
+  margin-bottom: var(--espacio-3);
+
+  input[type='text'],
+  input[type='number'],
+  select {
+    min-height: 2.5rem;
+    padding: var(--espacio-2);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-1);
+    flex: 1 1 8rem;
+  }
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-1);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--espacio-2);
+}
+
+textarea {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-1);
+  padding: var(--espacio-2);
+}

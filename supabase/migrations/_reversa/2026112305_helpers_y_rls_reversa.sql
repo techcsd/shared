@@ -1,0 +1,18 @@
+drop policy if exists auditoria_select on auditoria;
+drop policy if exists notificaciones_update on notificaciones;
+drop policy if exists notificaciones_select on notificaciones;
+drop policy if exists errores_cliente_select on errores_cliente;
+drop policy if exists errores_cliente_insert on errores_cliente;
+drop policy if exists estatuto_acuses_select on estatuto_acuses;
+drop policy if exists estatuto_versiones_select on estatuto_versiones;
+drop policy if exists grupo_politicas_select on grupo_politicas;
+drop policy if exists politicas_catalogo_select on politicas_catalogo;
+drop policy if exists invitaciones_select on invitaciones_miembro;
+drop policy if exists miembros_select on miembros;
+drop policy if exists grupos_select on grupos;
+drop policy if exists perfiles_update on perfiles;
+drop policy if exists perfiles_select on perfiles;
+drop function if exists comparte_grupo(uuid);
+drop function if exists es_socio(uuid);
+drop function if exists rol_en(uuid);
+drop function if exists es_miembro(uuid);

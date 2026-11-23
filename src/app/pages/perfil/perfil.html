@@ -1,0 +1,29 @@
+<!-- Perfil -->
+<main class="perfil">
+  <h1>{{ t('perfil.titulo') }}</h1>
+  <form class="tarjeta" (ngSubmit)="guardar()" #f="ngForm">
+    <div class="campo">
+      <label for="nombre">{{ t('auth.nombre') }}</label>
+      <input id="nombre" name="nombre" type="text" required maxlength="120" [(ngModel)]="nombre" />
+    </div>
+    <div class="campo">
+      <label for="telefono">{{ t('perfil.telefono') }}</label>
+      <input id="telefono" name="telefono" type="tel" maxlength="40" [(ngModel)]="telefono" />
+    </div>
+    <div class="campo">
+      <label for="idioma">{{ t('perfil.idioma') }}</label>
+      <select id="idioma" name="idioma" [(ngModel)]="idioma">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    @if (mensaje()) {
+      <p role="status">{{ mensaje() }}</p>
+    }
+    <button class="boton" type="submit" [disabled]="f.invalid">{{ t('app.guardar') }}</button>
+  </form>
+  <button class="boton secundario" type="button" (click)="salir()">{{ t('auth.salir') }}</button>
+</main>

@@ -1,0 +1,8 @@
+<!-- Pantalla principal: calendario (SA15) -->
+<main class="calendario">
+  <h1>{{ t('inicio.titulo') }}</h1>
+  <p class="suave">{{ t('inicio.vacio') }}</p>
+  @if (!supabase.configurado) {
+    <p class="error-texto" role="alert">{{ t('app.sin_backend') }}</p>
+  }
+</main>

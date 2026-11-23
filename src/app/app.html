@@ -1,0 +1,10 @@
+<!-- Aviso de conexión -->
+@if (!conexion.enLinea()) {
+  <div class="sin-conexion" role="status">{{ t('app.sin_conexion') }}</div>
+}
+
+<!-- Aviso de nueva versión de la PWA -->
+<app-aviso-actualizacion />
+
+<!-- Contenido de la página -->
+<router-outlet />

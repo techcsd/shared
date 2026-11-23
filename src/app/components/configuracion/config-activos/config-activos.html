@@ -1,0 +1,218 @@
+<!-- Activos -->
+<section class="tarjeta">
+  <h2>{{ t('activos.titulo') }}</h2>
+  <ul class="filas">
+    @for (a of activos(); track a.id) {
+      <li>
+        <span>
+          {{ a.nombre }}
+          <span class="suave">· {{ tipo(a.tipo_id)?.nombre }} · {{ estadoTexto(a.estado) }}</span>
+        </span>
+        <button class="boton secundario" type="button" (click)="abrir(a)">
+          {{ t('activos.abrir') }}
+        </button>
+      </li>
+    } @empty {
+      <li class="suave">{{ t('app.vacio') }}</li>
+    }
+  </ul>
+</section>
+
+<!-- Editar activo -->
+@if (seleccionado(); as a) {
+  <section class="tarjeta">
+    <h2>{{ a.nombre }} · {{ estadoTexto(a.estado) }}</h2>
+    <div class="campo">
+      <label for="a-cap">{{ t('activos.capacidad') }}</label>
+      <input
+        id="a-cap"
+        type="number"
+        min="1"
+        max="1000"
+        [(ngModel)]="edit.capacidad"
+        [ngModelOptions]="{ standalone: true }"
+      />
+      <span class="suave">{{ t('activos.capacidad_ayuda') }}</span>
+    </div>
+    @for (c of camposDe(a.tipo_id); track c.clave) {
+      <div class="campo">
+        <label [for]="'a-v-' + c.clave">{{ c.etiqueta }}{{ c.obligatorio ? ' *' : '' }}</label>
+        @switch (c.tipo) {
+          @case ('numero') {
+            <input
+              [id]="'a-v-' + c.clave"
+              type="number"
+              [(ngModel)]="valoresEdit[c.clave]"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          }
+          @case ('fecha') {
+            <input
+              [id]="'a-v-' + c.clave"
+              type="date"
+              [(ngModel)]="valoresEdit[c.clave]"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          }
+          @case ('booleano') {
+            <input
+              [id]="'a-v-' + c.clave"
+              type="checkbox"
+              [(ngModel)]="valoresEdit[c.clave]"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          }
+          @case ('opcion') {
+            <select
+              [id]="'a-v-' + c.clave"
+              [(ngModel)]="valoresEdit[c.clave]"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              <option value=""></option>
+              @for (o of c.opciones; track o) {
+                <option [value]="o">{{ o }}</option>
+              }
+            </select>
+          }
+          @default {
+            <input
+              [id]="'a-v-' + c.clave"
+              type="text"
+              maxlength="300"
+              [(ngModel)]="valoresEdit[c.clave]"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          }
+        }
+      </div>
+    }
+
+    @if (componentes().length) {
+      <h3>{{ t('activos.lecturas_iniciales') }}</h3>
+      @for (c of componentes(); track c.id) {
+        <div class="campo">
+          <label [for]="'a-l-' + c.id">{{ c.etiqueta }} ({{ c.unidad }})</label>
+          <input
+            [id]="'a-l-' + c.id"
+            type="number"
+            min="0"
+            step="0.1"
+            [(ngModel)]="lecturas[c.id]"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+      }
+    }
+
+    <h3>{{ t('activos.invitados') }}</h3>
+    <div class="campo">
+      <label for="a-punto">{{ t('activos.punto_encuentro') }}</label>
+      <input
+        id="a-punto"
+        type="text"
+        maxlength="300"
+        [(ngModel)]="edit.punto"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+    <div class="campo">
+      <label for="a-reglas">{{ t('activos.reglas') }}</label>
+      <textarea
+        id="a-reglas"
+        rows="3"
+        maxlength="2000"
+        [(ngModel)]="edit.reglas"
+        [ngModelOptions]="{ standalone: true }"
+      ></textarea>
+    </div>
+    <div class="campo">
+      <label for="a-contacto">{{ t('activos.contacto') }}</label>
+      <input
+        id="a-contacto"
+        type="text"
+        maxlength="200"
+        [(ngModel)]="edit.contacto"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </div>
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    @if (mensaje()) {
+      <p role="status">{{ mensaje() }}</p>
+    }
+    <div class="acciones">
+      <button class="boton secundario" type="button" (click)="guardar()">
+        {{ t('app.guardar') }}
+      </button>
+      @if (a.estado !== 'activo') {
+        <button class="boton" type="button" (click)="guardar(true)">
+          {{ t('activos.activar') }}
+        </button>
+      } @else {
+        <button class="boton secundario" type="button" (click)="guardar(false)">
+          {{ t('activos.desactivar') }}
+        </button>
+      }
+    </div>
+  </section>
+}
+
+<!-- Crear activo -->
+<form class="tarjeta" (ngSubmit)="crear()" #f="ngForm">
+  <h2>{{ t('activos.crear') }}</h2>
+  <div class="campo">
+    <label for="n-tipo">{{ t('activos.tipo') }}</label>
+    <select id="n-tipo" name="tipo" [ngModel]="tipoId" (ngModelChange)="elegirTipo($event)">
+      @for (tp of tipos(); track tp.id) {
+        <option [value]="tp.id">{{ tp.nombre }}</option>
+      }
+    </select>
+  </div>
+  <div class="campo">
+    <label for="n-nombre">{{ t('activos.nombre') }}</label>
+    <input
+      id="n-nombre"
+      name="nombre"
+      type="text"
+      required
+      minlength="2"
+      maxlength="80"
+      [(ngModel)]="nombre"
+    />
+  </div>
+  <div class="campo">
+    <label for="n-cap">{{ t('activos.capacidad') }}</label>
+    <input id="n-cap" name="capacidad" type="number" min="1" max="1000" [(ngModel)]="capacidad" />
+  </div>
+  @for (c of camposDe(tipoId); track c.clave) {
+    @if (c.tipo === 'texto' || c.tipo === 'numero') {
+      <div class="campo">
+        <label [for]="'n-v-' + c.clave">{{ c.etiqueta }}</label>
+        <input
+          [id]="'n-v-' + c.clave"
+          [name]="'v-' + c.clave"
+          [type]="c.tipo === 'numero' ? 'number' : 'text'"
+          [(ngModel)]="valoresNuevo[c.clave]"
+        />
+      </div>
+    }
+  }
+  @for (c of componentesDe(tipoId); track c.clave) {
+    <div class="campo">
+      <label [for]="'n-c-' + c.clave">{{ t('activos.cantidad_de') }} {{ c.etiqueta }}</label>
+      <input
+        [id]="'n-c-' + c.clave"
+        [name]="'c-' + c.clave"
+        type="number"
+        min="0"
+        max="20"
+        [(ngModel)]="cantidades[c.clave]"
+      />
+    </div>
+  }
+  <button class="boton" type="submit" [disabled]="f.invalid || !tipoId">
+    {{ t('activos.crear_boton') }}
+  </button>
+</form>

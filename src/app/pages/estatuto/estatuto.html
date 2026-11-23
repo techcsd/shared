@@ -1,0 +1,159 @@
+<!-- Estatuto -->
+<main class="estatuto">
+  <h1>{{ t('estatuto.titulo') }}</h1>
+  <p class="suave">{{ t('estatuto.aviso_legal') }}</p>
+
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (mensaje()) {
+    <p role="status">{{ mensaje() }}</p>
+  }
+
+  <!-- Versión pendiente -->
+  @if (pendiente(); as v) {
+    <section class="tarjeta pendiente" aria-label="{{ t('estatuto.pendiente') }}">
+      <h2>{{ t('estatuto.pendiente') }} · v{{ v.numero }}</h2>
+      @if (v.motivo) {
+        <p class="suave">{{ v.motivo }}</p>
+      }
+      <ul class="cambios">
+        @for (c of cambiosTexto(v); track c.clave) {
+          <li>
+            <strong>{{ c.clave }}</strong>: {{ c.valor }}
+          </li>
+        }
+      </ul>
+      <p class="suave">{{ t('estatuto.rige_cuando') }}</p>
+      <ul class="acuses">
+        @for (m of socios(); track m.id) {
+          <li>
+            {{ m.perfil?.nombre || m.perfil?.correo }}:
+            @if (acepto(v, m) === true) {
+              <span class="ok">{{ t('estatuto.acepto') }}</span>
+            } @else if (acepto(v, m) === false) {
+              <span class="error-texto">{{ t('estatuto.rechazo') }}</span>
+            } @else {
+              <span class="suave">{{ t('estatuto.sin_respuesta') }}</span>
+            }
+          </li>
+        }
+      </ul>
+      @if (grupos.esSocio()) {
+        <div class="acciones">
+          @if (!yaRespondi(v)) {
+            <button class="boton" type="button" (click)="responder(v, true)">
+              {{ t('estatuto.aceptar') }}
+            </button>
+            <button class="boton secundario" type="button" (click)="responder(v, false)">
+              {{ t('estatuto.rechazar') }}
+            </button>
+          }
+          @if (esMio(v)) {
+            <button class="boton secundario" type="button" (click)="retirar(v)">
+              {{ t('estatuto.retirar') }}
+            </button>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Versión vigente -->
+  <section class="tarjeta">
+    <h2>{{ t('estatuto.vigente') }}</h2>
+    @if (vigente(); as v) {
+      <p class="suave">v{{ v.numero }}</p>
+    } @else {
+      <p class="suave">{{ t('estatuto.base') }}</p>
+    }
+  </section>
+
+  <!-- Políticas -->
+  @for (cat of categorias(); track cat.nombre) {
+    <section class="tarjeta">
+      <h2>{{ cat.nombre }}</h2>
+      @for (p of cat.items; track p.def.clave) {
+        <div class="politica">
+          <div class="politica-info">
+            <label [for]="p.def.clave">{{ p.def.etiqueta }}</label>
+            <span class="suave">{{ p.def.descripcion }}</span>
+            @if (erroresCampo()[p.def.clave]; as e) {
+              <span class="error-texto" role="alert">{{ e }}</span>
+            }
+          </div>
+          @if (grupos.esSocio() && !pendiente()) {
+            @switch (p.def.tipo) {
+              @case ('booleano') {
+                <input
+                  type="checkbox"
+                  [id]="p.def.clave"
+                  [checked]="valorActual(p) === true"
+                  (change)="cambiar(p, $any($event.target).checked)"
+                />
+              }
+              @case ('enum') {
+                <select [id]="p.def.clave" (change)="cambiar(p, $any($event.target).value)">
+                  @for (o of p.def.opciones; track o) {
+                    <option [value]="o" [selected]="valorActual(p) === o">{{ o }}</option>
+                  }
+                </select>
+              }
+              @case ('lista') {
+                <input
+                  type="text"
+                  [id]="p.def.clave"
+                  [value]="textoLista(valorActual(p))"
+                  (change)="cambiar(p, $any($event.target).value)"
+                />
+              }
+              @default {
+                <input
+                  type="number"
+                  step="any"
+                  [id]="p.def.clave"
+                  [value]="valorActual(p) ?? ''"
+                  [placeholder]="p.def.nullable ? t('estatuto.sin_tope') : ''"
+                  (change)="cambiar(p, $any($event.target).value)"
+                />
+              }
+            }
+          } @else {
+            <span class="valor">{{ mostrar(p.valor) }}</span>
+          }
+          @if (p.esDefecto) {
+            <span class="etiqueta-defecto">{{ t('estatuto.por_defecto') }} {{ p.def.df }}</span>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Enviar propuesta -->
+  @if (hayBorrador() && !pendiente()) {
+    <section class="tarjeta barra-propuesta">
+      <div class="campo">
+        <label for="motivo">{{ t('estatuto.motivo') }}</label>
+        <input id="motivo" type="text" maxlength="500" [(ngModel)]="motivo" name="motivo" />
+      </div>
+      <button class="boton" type="button" [disabled]="hayErrores()" (click)="proponer()">
+        {{ t('estatuto.proponer') }}
+      </button>
+    </section>
+  }
+
+  <!-- Historial -->
+  @if (versiones().length) {
+    <section class="tarjeta">
+      <h2>{{ t('estatuto.historial') }}</h2>
+      <ul class="cambios">
+        @for (v of versiones(); track v.id) {
+          <li>v{{ v.numero }} · {{ v.estado }} · {{ v.creado_en.slice(0, 10) }}</li>
+        }
+      </ul>
+    </section>
+  }
+</main>

@@ -1,0 +1,66 @@
+.estatuto {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--espacio-6) var(--espacio-4);
+}
+
+.politica {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--espacio-2) var(--espacio-4);
+  align-items: center;
+  padding: var(--espacio-3) 0;
+  border-bottom: 1px solid var(--color-borde);
+
+  &-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-1);
+  }
+  input[type='text'],
+  input[type='number'],
+  select {
+    min-height: 2.5rem;
+    padding: var(--espacio-2);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-1);
+    max-width: 11rem;
+  }
+}
+
+.valor {
+  font-weight: 600;
+}
+
+.etiqueta-defecto {
+  grid-column: 1 / -1;
+  font-size: var(--texto-s);
+  color: var(--color-texto-suave);
+}
+
+.pendiente {
+  border-color: var(--color-aviso);
+}
+
+.cambios,
+.acuses {
+  margin: 0 0 var(--espacio-3);
+  padding-left: var(--espacio-4);
+}
+
+.ok {
+  color: var(--color-exito);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--espacio-2);
+  flex-wrap: wrap;
+}
+
+.barra-propuesta {
+  position: sticky;
+  bottom: calc(var(--alto-nav-inferior) + var(--espacio-2));
+  box-shadow: var(--sombra-2);
+}
