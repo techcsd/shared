@@ -53,3 +53,5 @@ test-results/
 graphify-out/
 dist/
 .angular/
+.vercel
+.env*
