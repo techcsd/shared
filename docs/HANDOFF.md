@@ -27,3 +27,9 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - `UPDATE` bloqueado por RLS afecta 0 filas sin error: no asumir éxito en la UI sin comprobar.
 - Etiquetas del catálogo de políticas están solo en español (viven en el JSON); `en` pendiente.
 - Cambiar % de propiedad tras activar y sumar socios a un grupo activo: bloqueado hasta PROMPT-4 (DF-47).
+
+## Estado de despliegue (2026-11-23, actualización)
+- Supabase: `shared-dev` (`afjnmhofqsktprrptivl`, datos demo) y `shared-prod` (`mxqbyeohzlawcxfwfivd`, solo migraciones, sin seed). Ambos con las 10 migraciones y Resend como secret (remitente pendiente: sin dominio verificado).
+- Vercel `shared` (equipo CSD): producción → `shared-prod`; preview/development → `shared-dev`. URL: https://shared-xaviel-csd.vercel.app
+- Repo: https://github.com/XavielT/shared (privado, cuenta personal; XavielT es solo colaborador de `techcsd`, no puede crear repos allí). Mover a `techcsd` requiere un owner de la org.
+- Vercel no está conectado a GitHub (la app de Vercel no ve el repo). Los deploys con git quedan BLOCKED por política del equipo; se despliega desde una copia sin `.git`: `git archive main | tar -x -C <tmp>`, copiar `.vercel`, `vercel deploy --prod --scope xaviel-csd`.
