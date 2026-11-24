@@ -1,0 +1,124 @@
+// Estilos compartidos de las pantallas del PROMPT-4 (mantenimiento, seguro, capitanes, reportes, gobierno).
+:host {
+  display: block;
+}
+
+.pagina {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--espacio-4);
+}
+
+.fila-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--espacio-3);
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin: var(--espacio-3) 0;
+}
+
+.chip {
+  display: inline-block;
+  border: 1px solid var(--color-borde);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.2rem 0.8rem;
+  font-size: var(--texto-s);
+  margin-right: var(--espacio-1);
+
+  &.activo {
+    border-color: var(--color-primario);
+    color: var(--color-primario);
+    font-weight: 700;
+  }
+  &.alerta {
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
+}
+
+.aviso {
+  border: 1px solid var(--color-primario);
+  border-radius: var(--radio-1);
+  padding: var(--espacio-3);
+  margin-bottom: var(--espacio-3);
+}
+
+.aviso-permanente {
+  border: 1px solid var(--color-error);
+  border-radius: var(--radio-1);
+  padding: var(--espacio-3);
+  margin-bottom: var(--espacio-3);
+}
+
+.cab {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin: var(--espacio-2) 0;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+
+  th,
+  td {
+    padding: var(--espacio-2);
+    border-bottom: 1px solid var(--color-borde);
+    text-align: left;
+  }
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-4);
+
+  div {
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-2);
+    padding: var(--espacio-3);
+  }
+  strong {
+    display: block;
+    font-size: 1.3rem;
+  }
+}
+
+.barra {
+  height: 0.6rem;
+  background: var(--color-primario);
+  border-radius: 999px;
+  min-width: 2px;
+}
+
+.msg {
+  margin: var(--espacio-1) 0;
+
+  &.sistema {
+    color: var(--color-texto-suave);
+    font-style: italic;
+  }
+}

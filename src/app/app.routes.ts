@@ -1,13 +1,5 @@
-import { Route, Routes } from '@angular/router';
-import { ClaveI18n } from './core/i18n/es';
+import { Routes } from '@angular/router';
 import { authGuard, grupoGuard, rolGuard } from './core/guards/guards';
-
-const pendiente = (path: string, titulo: ClaveI18n, soloSocio = false): Route => ({
-  path,
-  loadComponent: () => import('./pages/proximamente/proximamente').then((m) => m.ProximamentePage),
-  data: { titulo },
-  ...(soloSocio ? { canActivate: [rolGuard(['socio'])] } : {}),
-});
 
 // Rutas lazy. Finanzas y acuerdos: solo `socio` (SA16). El calendario es la pantalla principal (SA15).
 export const routes: Routes = [
@@ -22,8 +14,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/unirse/unirse').then((m) => m.UnirsePage),
   },
   {
+    path: 'propuesta/:token',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/propuesta-unirse/propuesta-unirse').then((m) => m.PropuestaUnirsePage),
+  },
+  {
     path: 'g/:token',
     loadComponent: () => import('./pages/invitado/invitado').then((m) => m.InvitadoPage),
+  },
+  {
+    path: 'mediar/:token',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/mediar/mediar').then((m) => m.MediarPage),
   },
   {
     path: 'grupos',
@@ -67,7 +69,10 @@ export const routes: Routes = [
         path: 'operacion/:id',
         loadComponent: () => import('./pages/operacion/operacion').then((m) => m.OperacionPage),
       },
-      pendiente('mantenimiento', 'nav.mantenimiento'),
+      {
+        path: 'mantenimiento',
+        loadComponent: () => import('./pages/mantenimiento/mantenimiento').then((m) => m.MantenimientoPage),
+      },
       { path: 'mas', loadComponent: () => import('./pages/mas/mas').then((m) => m.MasPage) },
       {
         path: 'mas/prioridad-911',
@@ -91,11 +96,41 @@ export const routes: Routes = [
         path: 'mas/estatuto',
         loadComponent: () => import('./pages/estatuto/estatuto').then((m) => m.EstatutoPage),
       },
-      pendiente('mas/reportes', 'mas.reportes'),
-      pendiente('mas/disputas', 'mas.disputas', true),
-      pendiente('mas/seguro', 'mas.seguro'),
-      pendiente('mas/capitanes', 'mas.capitanes'),
-      pendiente('mas/propuestas', 'mas.propuestas', true),
+      {
+        path: 'mas/reportes',
+        loadComponent: () => import('./pages/reportes/reportes').then((m) => m.ReportesPage),
+      },
+      {
+        path: 'mas/disputas',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/disputas/disputas').then((m) => m.DisputasPage),
+      },
+      {
+        path: 'mas/salida-socio',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/salida-socio/salida-socio').then((m) => m.SalidaSocioPage),
+      },
+      {
+        path: 'mas/seguro',
+        loadComponent: () => import('./pages/seguro/seguro').then((m) => m.SeguroPage),
+      },
+      {
+        path: 'mas/capitanes',
+        loadComponent: () => import('./pages/capitanes/capitanes').then((m) => m.CapitanesPage),
+      },
+      {
+        path: 'mas/propuestas',
+        loadComponent: () => import('./pages/propuestas/propuestas').then((m) => m.PropuestasPage),
+      },
+      {
+        path: 'mas/lanzamiento',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/lanzamiento/lanzamiento').then((m) => m.LanzamientoPage),
+      },
+      {
+        path: 'mas/salud',
+        loadComponent: () => import('./pages/salud/salud').then((m) => m.SaludPage),
+      },
       {
         path: 'mas/grupo',
         loadComponent: () => import('./pages/miembros/miembros').then((m) => m.MiembrosPage),

@@ -1,0 +1,69 @@
+<!-- Desacuerdos -->
+<main class="pagina">
+  <h1>{{ t('mas.disputas') }}</h1>
+  <p class="suave">{{ t('dis.ayuda') }}</p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  @for (d of lista(); track d.id) {
+    <article class="tarjeta">
+      <header class="cab">
+        <strong>{{ d.titulo }}</strong>
+        <span class="chip" [class.activo]="d.estado === 'abierta'">{{ d.estado === 'abierta' ? t('dis.abierta') : d.resultado === 'acuerdo' ? t('dis.cerrada_acuerdo') : t('dis.cerrada_sin') }}</span>
+      </header>
+      <p class="suave">{{ d.creado_en.slice(0, 10) }}</p>
+      <button class="boton secundario" type="button" (click)="ver(d)">{{ t('fin.abrir') }}</button>
+
+      @if (abierta() === d.id) {
+        <div>
+          @for (m of mensajes(); track m.id) {
+            <p class="msg" [class.sistema]="m.rol === 'sistema'">
+              <strong>{{ m.autor_nombre ?? t('det.sistema') }}{{ m.rol === 'mediador' ? ' (' + t('dis.mediador') + ')' : '' }}</strong>: {{ m.texto }}
+            </p>
+          }
+          @if (d.estado === 'abierta') {
+            <div class="campo">
+              <label for="d-msg">{{ t('fin.mensaje') }}</label>
+              <input id="d-msg" name="mensaje" type="text" [(ngModel)]="mensaje" />
+              <button class="boton secundario" type="button" (click)="enviar()">{{ t('fin.enviar') }}</button>
+            </div>
+            <h3>{{ t('dis.mediador') }}</h3>
+            <p class="suave">{{ t('dis.mediador_ayuda') }}</p>
+            <div class="campo">
+              <label for="d-correo">{{ t('dis.correo_mediador') }}</label>
+              <input id="d-correo" name="correo" type="email" [(ngModel)]="correo" />
+              <button class="boton secundario" type="button" (click)="invitar()">{{ t('dis.invitar') }}</button>
+            </div>
+            @if (enlace(); as e) {
+              <p class="aviso" role="status">{{ t('dis.enlace') }}: <code>{{ e }}</code></p>
+            }
+            <div class="campo">
+              <label for="d-nota">{{ t('fin.nota') }}</label>
+              <input id="d-nota" name="nota" type="text" [(ngModel)]="nota" />
+            </div>
+            <div class="acciones">
+              <button class="boton" type="button" (click)="cerrar('acuerdo')">{{ t('dis.cerrar_acuerdo') }}</button>
+              <button class="boton secundario" type="button" (click)="cerrar('sin_acuerdo')">{{ t('dis.cerrar_sin') }}</button>
+            </div>
+          }
+        </div>
+      }
+    </article>
+  } @empty {
+    <p class="suave">{{ t('app.vacio') }}</p>
+  }
+
+  <section class="tarjeta">
+    <h2>{{ t('dis.nueva') }}</h2>
+    <div class="campo">
+      <label for="n-titulo">{{ t('dis.tema') }}</label>
+      <input id="n-titulo" name="titulo" type="text" [(ngModel)]="titulo" />
+    </div>
+    <div class="campo">
+      <label for="n-texto">{{ t('fin.mensaje') }}</label>
+      <input id="n-texto" name="texto" type="text" [(ngModel)]="texto" />
+    </div>
+    <button class="boton" type="button" (click)="abrirNueva()">{{ t('dis.nueva') }}</button>
+  </section>
+</main>

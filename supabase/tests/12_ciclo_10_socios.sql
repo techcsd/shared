@@ -23,6 +23,7 @@ begin
   insert into destinos (grupo_id, nombre) values (g, 'Cayo') returning id into dest;
   insert into tarifas (grupo_id, destino_id, tipo, monto, moneda) values (g, dest, 'fee_destino', 7000, 'DOP');
 
+  perform capitan_guardar(g, null, 'Capitán Pedro', null, 'LIC-9', current_date + 100, 2, null);
   select jsonb_agg(jsonb_build_object('componente_id', id, 'valor', 10 * indice) order by indice) into lect from activo_componentes where activo_id = act;
   select jsonb_agg(jsonb_build_object('componente_id', id, 'valor', 10 * indice + 4.5) order by indice) into lfin from activo_componentes where activo_id = act;
   ck := jsonb_build_array(

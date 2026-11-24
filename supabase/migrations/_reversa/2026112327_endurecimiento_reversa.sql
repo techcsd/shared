@@ -1,0 +1,1 @@
+-- Reversa de 27: sin acción (volver a abrir funciones a anon no se recomienda).

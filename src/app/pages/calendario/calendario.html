@@ -1,5 +1,8 @@
 <!-- Pantalla principal: calendario (SA15) -->
 <main class="calendario">
+  @if (tareasVencidas().length) {
+    <a class="error-texto" routerLink="/mantenimiento" role="alert">{{ t('cal.tareas_vencidas') }} {{ tareasVencidas().join(', ') }}</a>
+  }
   <!-- Selector de activo (N activos) -->
   @if (activos.activos().length > 1) {
     <div class="campo">

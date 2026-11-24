@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormacionService } from '../../core/formacion.service';
 import { RouterLink } from '@angular/router';
 import { GrupoService } from '../../core/grupo.service';
 import { ClaveI18n } from '../../core/i18n/es';
@@ -18,7 +19,8 @@ interface Entrada {
   templateUrl: './mas.html',
   styleUrl: './mas.scss',
 })
-export class MasPage {
+export class MasPage implements OnInit {
+  esAdminPlataforma = signal(false);
   t = t;
   readonly entradas: Entrada[] = [
     { ruta: '/mas/notificaciones', etiqueta: 'mas.notificaciones', soloSocio: false },
@@ -29,14 +31,23 @@ export class MasPage {
     { ruta: '/mas/estatuto', etiqueta: 'mas.estatuto', soloSocio: true },
     { ruta: '/mas/reportes', etiqueta: 'mas.reportes', soloSocio: false },
     { ruta: '/mas/disputas', etiqueta: 'mas.disputas', soloSocio: true },
+    { ruta: '/mas/salida-socio', etiqueta: 'mas.salida_socio', soloSocio: true },
     { ruta: '/mas/seguro', etiqueta: 'mas.seguro', soloSocio: false },
     { ruta: '/mas/capitanes', etiqueta: 'mas.capitanes', soloSocio: false },
-    { ruta: '/mas/propuestas', etiqueta: 'mas.propuestas', soloSocio: true },
+    { ruta: '/mas/propuestas', etiqueta: 'mas.propuestas', soloSocio: false },
+    { ruta: '/mas/lanzamiento', etiqueta: 'mas.lanzamiento', soloSocio: true },
     { ruta: '/mas/grupo', etiqueta: 'mas.grupo', soloSocio: false },
     { ruta: '/mas/perfil', etiqueta: 'mas.perfil', soloSocio: false },
   ];
 
-  constructor(public grupos: GrupoService) {}
+  constructor(
+    public grupos: GrupoService,
+    private formacion: FormacionService,
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.esAdminPlataforma.set(await this.formacion.esAdminPlataforma());
+  }
 
   visibles(): Entrada[] {
     return this.entradas.filter((e) => !e.soloSocio || this.grupos.esSocio());

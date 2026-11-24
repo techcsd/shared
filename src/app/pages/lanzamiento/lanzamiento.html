@@ -1,0 +1,28 @@
+<!-- Lanzamiento: de demo a datos reales -->
+<main class="pagina">
+  <h1>{{ t('mas.lanzamiento') }}</h1>
+  <p class="suave">{{ t('lanz.ayuda') }}</p>
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  <ul class="lista-chequeo">
+    @for (i of lista(); track i.clave) {
+      <li [class.ok]="i.ok">
+        <span aria-hidden="true">{{ i.ok ? '✓' : '○' }}</span>
+        {{ tk('lanz.item.' + i.clave) }}
+      </li>
+    }
+  </ul>
+  <p><a routerLink="/mas/configuracion">{{ t('mas.configuracion') }}</a></p>
+
+  @if (grupos.modoDemo()) {
+    <p class="aviso-permanente">{{ t('lanz.demo_aviso') }}</p>
+    <button class="boton" type="button" (click)="pasar()">{{ t('lanz.pasar') }}</button>
+  } @else {
+    <p class="aviso">{{ t('lanz.es_real') }}</p>
+  }
+</main>

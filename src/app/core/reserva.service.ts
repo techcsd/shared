@@ -6,6 +6,7 @@ import {
   TemporadaModel,
   UsoReserva,
 } from '../../shared/models/reserva.model';
+import { OfflineService } from './offline.service';
 import { SupabaseService } from './supabase.service';
 
 export interface DatosBorrador {
@@ -70,6 +71,22 @@ export function claveError(msg: string): string {
     'estado_invalido',
     'pagador_invalido',
     'receptor_invalido',
+    'sin_cupos',
+    'falta_contrato',
+    'sin_aportes_confirmados',
+    'organizador_sin_aporte',
+    'solo_organizador',
+    'propuesta_no_disponible',
+    'aporte_confirmado',
+    'directorio_apagado',
+    'ya_participa',
+    'solo_otros_socios',
+    'oferta_excede',
+    'oferta_incompleta',
+    'saldo_pendiente',
+    'mediador_aun_no',
+    'mediacion_cerrada',
+    'invitacion_no_valida',
     'activo_no_disponible',
   ].find((x) => msg.includes(x));
   return k ? `error.${k}` : 'app.error.generico';
@@ -77,7 +94,10 @@ export function claveError(msg: string): string {
 
 @Injectable({ providedIn: 'root' })
 export class ReservaService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private offline: OfflineService,
+  ) {}
 
   private get db() {
     return this.supabase.cliente;
@@ -89,7 +109,7 @@ export class ReservaService {
 
   /** Reservas y bloqueos que tocan la ventana (para pintar el calendario). */
   async enVentana(activo: string, desde: Date, hasta: Date): Promise<ReservaModel[]> {
-    const { data } = await this.db
+    const { data, error } = await this.db
       .from('reservas')
       .select(
         'id, grupo_id, activo_id, rango, estado, tipo_bloqueo, motivo_bloqueo, uso, destino_id, personas, reservado_por, responsable_miembro, responsable_invitado, borrador_expira_en, cancelada_en, cancelacion_tardia, cargo_cancelacion, motivo_cancelacion, creado_en, orden:ordenes(codigo)',
@@ -98,6 +118,17 @@ export class ReservaService {
       .in('estado', ['confirmada', 'en_curso', 'finalizada', 'bloqueada_mantenimiento'])
       .overlaps('rango', `[${desde.toISOString()},${hasta.toISOString()})`)
       .order('rango');
+    // Lectura offline (F4): si falla la red se muestra la última copia del calendario de ese activo
+    if (error) {
+      const copia = this.offline.leer<ReservaModel[]>(`calendario.${activo}`);
+      if (copia) {
+        this.offline.marcarCache(true);
+        return copia;
+      }
+      return [];
+    }
+    this.offline.marcarCache(false);
+    this.offline.guardar(`calendario.${activo}`, data);
     return (data ?? []) as unknown as ReservaModel[];
   }
 
@@ -130,13 +161,22 @@ export class ReservaService {
   }
 
   async detalle(id: string) {
-    const { data } = await this.db
+    const { data, error } = await this.db
       .from('reservas')
       .select(
         '*, orden:ordenes(codigo, creado_en), activo:activos(nombre), destino:destinos(nombre), invitado:invitados(nombre, correo)',
       )
       .eq('id', id)
       .maybeSingle();
+    if (error) {
+      const ultima = this.offline.leer<{ id: string }>('orden.ultima');
+      if (ultima && ultima.id === id) {
+        this.offline.marcarCache(true);
+        return ultima as never;
+      }
+    } else if (data) {
+      this.offline.guardar('orden.ultima', data);
+    }
     return data as unknown as
       | (ReservaModel & {
           orden: { codigo: string; creado_en: string } | null;
