@@ -104,3 +104,15 @@ Fecha de todas: **2026-11-23**. Estado: «aplicado por defecto» = nadie lo ha r
 | DF-82 | Exportación PDF/Excel en la edge `exportar-reporte` con el JWT del usuario (los permisos son los de la base), tope 5.000 filas, cabecera `X-Filas` | DF-33 | aplicado por defecto |
 | DF-83 | Salida de socio: ofertas de los demás socios hasta cubrir el %; toda oferta nueva reinicia las aceptaciones; cierra solo si **todos** aceptaron y el saliente tiene saldo 0; traspasa porcentajes (suma 100, auditado) y deja al saliente `salido` con 0 % | DF-25 | aplicado por defecto |
 | DF-84 | Mediador sin cuenta en el grupo: se invita por correo/enlace (token hasheado) pasados `desacuerdos.dias_mediador` días; ve solo la disputa y su hilo (RLS por `disputa_mediadores`), escribe mensajes y expira al cerrarse | DF-26 | aplicado por defecto |
+
+## Decisiones técnicas del PROMPT-5 (Regla A; 2026-11-24)
+| ID | Decisión | Por qué | Estado |
+|---|---|---|---|
+| DF-85 | Propuesta de compra: `borrador → abierta → fondeada → adquirida → convertida` (+ `cancelada`, `expirada`); lo **confirmado** (a mano, por el organizador) manda; fondeada cuando confirmado ≥ precio objetivo; adquirida solo con contrato/factura adjunto del organizador **y** acuse de todos los participantes con aporte | SC10, SB3 | aplicado por defecto |
+| DF-86 | `propuesta_convertir` crea en una transacción grupo + activo (borrador, sin capacidad) + socios con `porcentaje = aporte confirmado / total` (reparto exacto por `repartir_pesos`, suma 100) + estatuto v1 pendiente con acuse del organizador; el organizador debe tener aporte confirmado | SB9 | aplicado por defecto |
+| DF-87 | Reembolsos de una propuesta cancelada: **solo registro** (`reembolsado_en`); la app no mueve dinero | SC10 | aplicado por defecto |
+| DF-88 | Directorio: bandera global `plataforma_config.directorio_habilitado = false`; opt-in por propuesta; lista solo tipo, precio, % fondeado y cupos; solicitudes con tope de 5 por hora; moderación por administrador de plataforma (`plataforma_admins`, sin UI) | DF-28 | aplicado por defecto |
+| DF-89 | Demo → real: `grupo_pasar_a_real` exige activo, capacidad legal, componentes, destinos, tarifas y correos, y **borra los datos demo** de operación y finanzas; capitán, seguro y estatuto se avisan pero no bloquean | SA35 | aplicado por defecto |
+| DF-90 | Offline: copia local del calendario y de la última orden; cola solo de `gasto_registrar` y `lectura_corregir`; nunca reservas ni confirmaciones; la caché se borra al cerrar sesión | F4 | aplicado por defecto |
+| DF-91 | CSP sin `unsafe-inline` en scripts: se desactiva `inlineCritical` del CSS en producción | F5 | aplicado por defecto |
+| DF-92 | El libro mayor admite borrado únicamente al eliminar el grupo completo (el grupo ya no existe) o dentro del reinicio demo | permite limpiar pruebas | aplicado por defecto |

@@ -3,6 +3,10 @@
   <div class="sin-conexion" role="status">{{ t('app.sin_conexion') }}</div>
 }
 
+@if (offline.desdeCache()) {
+  <div class="sin-conexion" role="status">{{ t('off.copia') }}</div>
+}
+
 <!-- Aviso de nueva versión de la PWA -->
 <app-aviso-actualizacion />
 

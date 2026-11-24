@@ -125,3 +125,11 @@ erDiagram
 - **Desacuerdos (24):** `disputas`, `disputa_mensajes` (con `autor_nombre` para que el mediador no necesite ver a los socios), `disputa_mediadores`; RPC `disputa_abrir/mensaje/invitar_mediador/aceptar_mediacion/cerrar`; helper RLS `es_mediador_de`.
 - **Evidencias:** nuevos tipos `poliza`, `siniestro`, `servicio`, `licencia`, `salida_socio`, `disputa`.
 - **Hallazgos de las pruebas:** la alerta de seguro debe emitir solo el umbral más cercano (30 → 7); una columna de salida llamada `moneda` choca con subconsultas sin calificar en `RETURNS TABLE`; el reinicio demo debe borrar `servicios` y `siniestros` antes que gastos y casos de daño (migración 25).
+
+## 13. Formación de grupos, directorio, plataforma y lanzamiento — implementado en P5 (migraciones 26–27)
+- **Formación (26):** `propuestas_compra`, `propuesta_participantes`, `propuesta_aportes` (declarado → confirmado → acuse; reembolso solo registro), `propuesta_mensajes`, `propuesta_evidencias`. RPC `propuesta_crear/abrir/vista_previa/unirse/comprometer/salir/aporte_declarar/aporte_confirmar/aporte_acusar/evidencia_registrar/registrar_adquisicion/acusar_adquisicion/convertir/cancelar/reembolsar/mensaje`, `propuesta_totales`; interna `propuestas_expirar` (en el cron). RLS: solo organizador y participantes; el enlace da una vista previa mínima.
+- **Directorio (26):** `directorio_solicitudes`, `directorio_reportes`; RPC `directorio_listar/solicitar/responder/reportar/ocultar`, `propuesta_directorio_visible`. Apagado por defecto.
+- **Plataforma (26):** `plataforma_config`, `plataforma_admins`; `es_admin_plataforma`, `directorio_habilitado`, `salud_sistema`.
+- **Lanzamiento (26):** `grupo_checklist_lanzamiento`, `grupo_pasar_a_real`.
+- **Endurecimiento (27):** ninguna función de negocio ejecutable por `anon`.
+- **Hallazgos de las pruebas:** una variable `record` llamada igual que un alias de tabla rompe la consulta (`record "a" is not assigned yet`); una variable llamada `tipo` choca con la columna `tipo` en un `INSERT`; la suma de grupos visibles depende del rol (contar como admin en los tests).

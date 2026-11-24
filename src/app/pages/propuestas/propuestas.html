@@ -1,0 +1,220 @@
+<!-- Propuestas de compra -->
+<main class="pagina">
+  <h1>{{ t('mas.propuestas') }}</h1>
+
+  <!-- Aviso legal visible (SC9, SC10) -->
+  <p class="aviso-permanente" role="note" data-testid="aviso-legal">{{ t('prop.aviso_legal') }}</p>
+
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  @if (dirHabilitado()) {
+    <div class="pestanas" role="tablist">
+      <button type="button" role="tab" class="chip" [class.activo]="pestana() === 'mias'" [attr.aria-selected]="pestana() === 'mias'" (click)="pestana.set('mias')">{{ t('prop.mias') }}</button>
+      <button type="button" role="tab" class="chip" [class.activo]="pestana() === 'directorio'" [attr.aria-selected]="pestana() === 'directorio'" (click)="pestana.set('directorio')">{{ t('prop.directorio') }}</button>
+    </div>
+  }
+
+  @if (pestana() === 'directorio') {
+    <p class="suave">{{ t('prop.directorio_ayuda') }}</p>
+    @for (f of directorio(); track f.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ f.tipo }}</strong>
+          <span>{{ f.precio_objetivo | number: '1.0-0' }} {{ f.moneda }}</span>
+        </header>
+        <p class="suave">{{ f.porcentaje_fondeado | number: '1.0-0' }} % {{ t('prop.fondeado') }}{{ f.cupos_libres !== null ? ' · ' + f.cupos_libres + ' ' + t('prop.cupos') : '' }}</p>
+        <div class="campo">
+          <label [for]="'ms-' + f.id">{{ t('fin.mensaje') }}</label>
+          <input [id]="'ms-' + f.id" [name]="'ms-' + f.id" type="text" [(ngModel)]="mensajeSolicitud" />
+        </div>
+        <div class="acciones">
+          <button class="boton" type="button" (click)="solicitar(f)">{{ t('prop.solicitar') }}</button>
+          <button class="boton secundario" type="button" (click)="reportar(f)">{{ t('prop.reportar') }}</button>
+        </div>
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+  }
+
+  @if (pestana() === 'mias') {
+    @for (p of lista(); track p.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ p.titulo }}</strong>
+          <span class="chip" [class.activo]="p.estado === 'abierta' || p.estado === 'fondeada'">{{ tk('prop.estado.' + p.estado) }}</span>
+        </header>
+        <p class="suave">{{ p.precio_objetivo | number: '1.0-0' }} {{ p.moneda }}</p>
+        <button class="boton secundario" type="button" (click)="ver(p)">{{ t('fin.abrir') }}</button>
+
+        @if (abierta()?.id === p.id) {
+          <div>
+            @if (totales(); as tt) {
+              <div class="kpis" data-testid="totales">
+                <div><span class="suave">{{ t('prop.comprometido') }}</span><strong>{{ tt.comprometido | number: '1.0-2' }}</strong></div>
+                <div><span class="suave">{{ t('prop.declarado') }}</span><strong>{{ tt.declarado | number: '1.0-2' }}</strong></div>
+                <div><span class="suave">{{ t('prop.confirmado') }}</span><strong>{{ tt.confirmado | number: '1.0-2' }}</strong></div>
+                <div><span class="suave">{{ t('prop.fondeado') }}</span><strong>{{ tt.porcentaje_fondeado | number: '1.0-0' }} %</strong></div>
+              </div>
+              <div class="barra" [style.width]="(tt.porcentaje_fondeado > 100 ? 100 : tt.porcentaje_fondeado) + '%'"></div>
+              <p class="suave">{{ tt.participantes }} {{ t('prop.participantes') }}</p>
+            }
+
+            @if (soyOrganizador() && p.estado === 'borrador') {
+              <button class="boton" type="button" (click)="abrir(p)">{{ t('prop.abrir_propuesta') }}</button>
+            }
+
+            <!-- Mi compromiso y mis aportes -->
+            @if (['abierta', 'fondeada'].includes(p.estado) && miParticipante()) {
+              <div class="fila-campos">
+                <div class="campo">
+                  <label [for]="'cm-' + p.id">{{ t('prop.mi_compromiso') }}</label>
+                  <input [id]="'cm-' + p.id" [name]="'cm-' + p.id" type="number" min="0" step="0.01" [(ngModel)]="compromiso" />
+                  <button class="boton secundario" type="button" (click)="comprometer(p)">{{ t('app.guardar') }}</button>
+                </div>
+                <div class="campo">
+                  <label [for]="'mo-' + p.id">{{ t('prop.declarar_aporte') }}</label>
+                  <input [id]="'mo-' + p.id" [name]="'mo-' + p.id" type="number" min="0.01" step="0.01" [(ngModel)]="monto" />
+                  <input [name]="'na-' + p.id" type="text" [placeholder]="t('fin.nota')" [(ngModel)]="notaAporte" />
+                  <button class="boton secundario" type="button" (click)="declarar(p)">{{ t('prop.declarar') }}</button>
+                </div>
+              </div>
+            }
+
+            @for (a of aportes(); track a.id) {
+              <div class="cab">
+                <span>{{ participanteDe(a) }} · {{ a.monto | number: '1.2-2' }} · {{ tk('prop.aporte.' + a.estado) }}{{ a.reembolsado_en ? ' · ' + t('prop.reembolsado') : '' }}</span>
+                <span class="acciones">
+                  @if (soyOrganizador() && a.estado === 'declarado') {
+                    <button class="boton secundario" type="button" (click)="confirmar(a, true)">{{ t('prop.confirmar_aporte') }}</button>
+                    <button class="boton secundario" type="button" (click)="confirmar(a, false)">{{ t('fin.rechazar') }}</button>
+                  }
+                  @if (a.estado === 'confirmado' && a.participante_id === miParticipante()?.id && !a.acuse_aportante_en) {
+                    <button class="boton secundario" type="button" (click)="acusarAporte(a)">{{ t('prop.acusar') }}</button>
+                  }
+                  @if (soyOrganizador() && a.estado === 'confirmado' && !a.reembolsado_en && ['cancelada', 'expirada'].includes(p.estado)) {
+                    <button class="boton secundario" type="button" (click)="reembolsar(a)">{{ t('prop.registrar_reembolso') }}</button>
+                  }
+                </span>
+              </div>
+            }
+
+            <!-- Adquisición y conversión -->
+            @if (p.estado === 'fondeada') {
+              @if (soyOrganizador() && !p.adquisicion_registrada_en) {
+                <h3>{{ t('prop.adquisicion') }}</h3>
+                <p class="suave">{{ t('prop.adquisicion_ayuda') }}</p>
+                <div class="campo">
+                  <label [for]="'ct-' + p.id">{{ t('prop.contrato') }}</label>
+                  <input [id]="'ct-' + p.id" type="file" accept="image/*,application/pdf" (change)="contrato(p, $event)" />
+                </div>
+                <div class="campo">
+                  <label [for]="'na2-' + p.id">{{ t('fin.nota') }}</label>
+                  <input [id]="'na2-' + p.id" [name]="'na2-' + p.id" type="text" [(ngModel)]="notaAdquisicion" />
+                </div>
+                <button class="boton" type="button" (click)="registrarAdquisicion(p)">{{ t('prop.registrar_adquisicion') }}</button>
+              }
+              @if (p.adquisicion_registrada_en && !miParticipante()?.acuse_adquisicion_en) {
+                <button class="boton" type="button" (click)="acusarAdquisicion(p)">{{ t('prop.acusar_adquisicion') }}</button>
+              }
+              @if (p.adquisicion_registrada_en) {
+                <p class="suave">{{ t('prop.esperando_acuses') }}</p>
+              }
+            }
+            @if (soyOrganizador() && p.estado === 'adquirida') {
+              <h3>{{ t('prop.convertir') }}</h3>
+              <p class="suave">{{ t('prop.convertir_ayuda') }}</p>
+              <div class="fila-campos">
+                <div class="campo">
+                  <label [for]="'ng-' + p.id">{{ t('prop.nombre_grupo') }}</label>
+                  <input [id]="'ng-' + p.id" [name]="'ng-' + p.id" type="text" [(ngModel)]="nombreGrupo" />
+                </div>
+                <div class="campo">
+                  <label [for]="'pf-' + p.id">{{ t('prop.prefijo') }}</label>
+                  <input [id]="'pf-' + p.id" [name]="'pf-' + p.id" type="text" maxlength="5" pattern="[A-Za-z]{2,5}" [(ngModel)]="prefijo" />
+                </div>
+              </div>
+              <button class="boton" type="button" (click)="convertir(p)">{{ t('prop.convertir') }}</button>
+            }
+
+            <!-- Directorio opt-in -->
+            @if (soyOrganizador() && p.estado === 'abierta' && dirHabilitado()) {
+              <label class="chequeo">
+                <input type="checkbox" [checked]="p.directorio_visible" (change)="directorioVisible(p, !p.directorio_visible)" />
+                <span>{{ t('prop.publicar_directorio') }}</span>
+              </label>
+              @for (s of solicitudes(); track s.id) {
+                @if (s.estado === 'pendiente') {
+                  <div class="cab">
+                    <span>{{ s.mensaje }}</span>
+                    <span class="acciones">
+                      <button class="boton secundario" type="button" (click)="responder(s.id, true)">{{ t('fin.aceptar') }}</button>
+                      <button class="boton secundario" type="button" (click)="responder(s.id, false)">{{ t('fin.rechazar') }}</button>
+                    </span>
+                  </div>
+                }
+              }
+            }
+
+            @if (soyOrganizador() && ['borrador', 'abierta', 'fondeada', 'adquirida'].includes(p.estado)) {
+              <div class="campo">
+                <label [for]="'mc-' + p.id">{{ t('gas.motivo') }}</label>
+                <input [id]="'mc-' + p.id" [name]="'mc-' + p.id" type="text" [(ngModel)]="motivo" />
+                <button class="boton secundario" type="button" (click)="cancelar(p)">{{ t('prop.cancelar') }}</button>
+              </div>
+            }
+          </div>
+        }
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+
+    <section class="tarjeta">
+      <h2>{{ t('prop.nueva') }}</h2>
+      <div class="campo">
+        <label for="pr-titulo">{{ t('prop.titulo') }}</label>
+        <input id="pr-titulo" name="titulo" type="text" [(ngModel)]="titulo" />
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="pr-tipo">{{ t('prop.tipo') }}</label>
+          <select id="pr-tipo" name="tipo" [(ngModel)]="tipo">
+            @for (x of tipos(); track x.id) {
+              <option [value]="x.id">{{ x.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="pr-precio">{{ t('prop.precio') }}</label>
+          <input id="pr-precio" name="precio" type="number" min="1" step="0.01" [(ngModel)]="precio" />
+        </div>
+        <div class="campo">
+          <label for="pr-moneda">{{ t('gas.moneda') }}</label>
+          <input id="pr-moneda" name="moneda" type="text" maxlength="3" [(ngModel)]="moneda" />
+        </div>
+        <div class="campo">
+          <label for="pr-fecha">{{ t('prop.fecha_limite') }}</label>
+          <input id="pr-fecha" name="fecha" type="date" [(ngModel)]="fecha" />
+        </div>
+        <div class="campo">
+          <label for="pr-cupos">{{ t('prop.cupos_max') }}</label>
+          <input id="pr-cupos" name="cupos" type="number" min="2" [(ngModel)]="cupos" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="pr-desc">{{ t('gas.descripcion') }}</label>
+        <input id="pr-desc" name="descripcion" type="text" [(ngModel)]="descripcion" />
+      </div>
+      <button class="boton" type="button" (click)="crear()">{{ t('prop.nueva') }}</button>
+      @if (enlace(); as e) {
+        <p class="aviso" role="status">{{ t('prop.enlace') }}: <code>{{ e }}</code></p>
+      }
+    </section>
+  }
+</main>

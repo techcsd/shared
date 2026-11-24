@@ -12,6 +12,7 @@ import {
   PagoModel,
 } from '../../shared/models/finanzas.model';
 import { Resultado } from './reserva.service';
+import { OfflineService } from './offline.service';
 import { SupabaseService } from './supabase.service';
 
 const COLS_GASTO =
@@ -20,7 +21,10 @@ const COLS_GASTO =
 /** Gastos, libro mayor, pagos, daños y fondo. Finanzas solo `socio`; todo cálculo vive en la base. */
 @Injectable({ providedIn: 'root' })
 export class FinanzasService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private offline: OfflineService,
+  ) {}
 
   private get db() {
     return this.supabase.cliente;
@@ -62,7 +66,7 @@ export class FinanzasService {
   }
 
   async registrarGasto(grupo: string, g: NuevoGasto): Promise<Resultado<string>> {
-    const { data, error } = await this.db.rpc('gasto_registrar', {
+    const args = {
       p_grupo: grupo,
       p_alcance: g.alcance,
       p_categoria: g.categoria,
@@ -76,7 +80,12 @@ export class FinanzasService {
       p_fecha: g.fecha || null,
       p_vencimiento: g.vencimiento || null,
       p_tasa: g.tasa ?? null,
-    });
+    };
+    const { data, error } = await this.db.rpc('gasto_registrar', args);
+    // Sin conexión: un gasto puede esperar en la cola local y se envía al volver la red (nunca una reserva)
+    if (this.offline.esFalloDeRed(error?.message) && this.offline.encolar('gasto_registrar', args)) {
+      return { datos: 'en-cola', error: null };
+    }
     return this.r<string>(data as string, error);
   }
 

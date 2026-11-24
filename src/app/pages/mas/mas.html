@@ -7,6 +7,11 @@
         <a [routerLink]="e.ruta">{{ t(e.etiqueta) }}</a>
       </li>
     }
+    @if (esAdminPlataforma()) {
+      <li>
+        <a routerLink="/mas/salud">{{ t('mas.salud') }}</a>
+      </li>
+    }
     <li>
       <a routerLink="/grupos">{{ t('mas.cambiar_grupo') }}</a>
     </li>

@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Session, User } from '@supabase/supabase-js';
+import { OfflineService } from './offline.service';
 import { SupabaseService } from './supabase.service';
 
 export interface ResultadoAuth {
@@ -16,7 +17,10 @@ export class AuthService {
   /** Se resuelve cuando ya se leyó la sesión guardada (los guards esperan esto). */
   readonly listo: Promise<void>;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private offline: OfflineService,
+  ) {
     this.listo = supabase.cliente.auth
       .getSession()
       .then(({ data }) => this._sesion.set(data.session))
@@ -66,7 +70,14 @@ export class AuthService {
   }
 
   async salir(): Promise<void> {
+    this.offline.limpiarTodo();
     await this.supabase.cliente.auth.signOut();
+  }
+
+  /** Cierra la sesión en TODOS los dispositivos (invalida los refresh tokens). */
+  async salirDeTodo(): Promise<void> {
+    this.offline.limpiarTodo();
+    await this.supabase.cliente.auth.signOut({ scope: 'global' });
   }
 
   async actualizarPerfil(datos: {

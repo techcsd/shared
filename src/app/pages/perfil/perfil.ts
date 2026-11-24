@@ -50,6 +50,11 @@ export class PerfilPage implements OnInit {
     }
   }
 
+  async salirDeTodo(): Promise<void> {
+    await this.auth.salirDeTodo();
+    await this.router.navigateByUrl('/login');
+  }
+
   async salir(): Promise<void> {
     await this.auth.salir();
     this.grupos.limpiar();

@@ -5,11 +5,21 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import * as XLSX from 'npm:xlsx@0.18.5';
 import { PDFDocument, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'content-type, authorization, apikey',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// CORS restringido al dominio de la app (APP_URL, separado por comas) más localhost de desarrollo.
+const PERMITIDOS = (Deno.env.get('APP_URL') ?? 'https://shared-csd.vercel.app')
+  .split(',')
+  .map((x) => x.trim())
+  .concat(['http://localhost:4200', 'http://localhost:4310']);
+let CORS: Record<string, string> = {};
+function fijarCors(req: Request) {
+  const origen = req.headers.get('Origin') ?? '';
+  CORS = {
+    'Access-Control-Allow-Origin': PERMITIDOS.includes(origen) ? origen : PERMITIDOS[0],
+    'Access-Control-Allow-Headers': 'content-type, authorization, apikey',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+}
 const json = (cuerpo: unknown, status = 200) =>
   new Response(JSON.stringify(cuerpo), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 
@@ -29,13 +39,20 @@ const COLUMNAS: [string, string][] = [
 ];
 
 Deno.serve(async (req) => {
+  fijarCors(req);
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'metodo' }, 405);
+  if (Number(req.headers.get('content-length') ?? 0) > 4096) return json({ error: 'cuerpo_muy_grande' }, 413);
   let p: Record<string, string | null>;
   try {
     p = await req.json();
   } catch {
     return json({ error: 'cuerpo_invalido' }, 400);
+  }
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuid.test(String(p['grupo'] ?? ''))) return json({ error: 'grupo_invalido' }, 400);
+  for (const k of ['miembro', 'destino']) {
+    if (p[k] && !uuid.test(String(p[k]))) return json({ error: `${k}_invalido` }, 400);
   }
   const formato = p['formato'] === 'pdf' ? 'pdf' : 'xlsx';
   const auth = req.headers.get('Authorization') ?? '';

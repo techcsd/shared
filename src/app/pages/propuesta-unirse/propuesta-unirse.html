@@ -1,0 +1,15 @@
+<!-- Unirse a una propuesta -->
+<main class="pagina">
+  <h1>{{ t('mas.propuestas') }}</h1>
+  <p class="aviso-permanente" role="note">{{ t('prop.aviso_legal') }}</p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (vista(); as v) {
+    <section class="tarjeta">
+      <h2>{{ v.titulo }}</h2>
+      <p>{{ v.precio_objetivo | number: '1.0-0' }} {{ v.moneda }} · {{ t('prop.organiza') }}: {{ v.organizador }}</p>
+      <button class="boton" type="button" (click)="unirse()">{{ t('prop.unirme') }}</button>
+    </section>
+  }
+</main>
