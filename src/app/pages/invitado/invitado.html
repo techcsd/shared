@@ -1,0 +1,37 @@
+<!-- Vista pública del invitado -->
+<main class="invitado">
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (vista(); as v) {
+    <h1>{{ t('inv.titulo', { activo: v.activo }) }}</h1>
+    <p>{{ t('inv.hola', { nombre: v.invitado }) }}</p>
+    <section class="tarjeta">
+      <dl>
+        <dt>{{ t('res.cuando') }}</dt>
+        <dd>{{ fh(v.inicio, v.zona_horaria) }} → {{ fh(v.fin, v.zona_horaria) }}</dd>
+        @if (v.destino) {
+          <dt>{{ t('res.destino') }}</dt>
+          <dd>{{ v.destino }}</dd>
+        }
+        <dt>{{ t('res.personas') }}</dt>
+        <dd>{{ v.personas }}</dd>
+        @if (v.punto_encuentro) {
+          <dt>{{ t('activos.punto_encuentro') }}</dt>
+          <dd>{{ v.punto_encuentro }}</dd>
+        }
+        @if (v.reglas) {
+          <dt>{{ t('activos.reglas') }}</dt>
+          <dd>{{ v.reglas }}</dd>
+        }
+        @if (v.contacto) {
+          <dt>{{ t('activos.contacto') }}</dt>
+          <dd>{{ v.contacto }}</dd>
+        }
+      </dl>
+    </section>
+  }
+</main>

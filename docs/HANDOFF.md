@@ -38,3 +38,10 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Convertir la cuenta `techcsd` (hoy usuario) en **organización** de GitHub, dejando a `XavielT` como owner antes. Ventajas: varios owners y equipos, secrets de Actions a nivel de org, apps instaladas una vez, auditoría. Es de una sola vía y la cuenta deja de poder iniciar sesión. Se hace desde `techcsd`: Settings → Account → Turn into an organization.
 - Dominio verificado de Resend (hoy no hay); edge function de invitaciones por correo.
 - Edición de textos: etiquetas del catálogo de políticas solo en español.
+
+## PROMPT-2 (reservas) — estado
+- **shared-dev**: migraciones 11–17, edge functions y cron aplicados y probados en vivo.
+- **shared-prod**: **pendiente** aplicar migraciones 11–17, desplegar las 2 edge functions y correr `node scripts/configurar-cron.mjs prod`; luego merge `dev` → `main`. No hacerlo al revés (el código nuevo consulta tablas que prod aún no tiene).
+- Correo: el pipeline funciona; sin dominio verificado Resend solo entrega al correo propietario de la cuenta (el resto queda `fallido` con su motivo y 1 reintento). Cuando haya dominio: verificar en Resend y poner `RESEND_REMITENTE`.
+- `APP_URL` es un secret de edge (por defecto https://shared-csd.vercel.app).
+- Probar en dev: reservar con dos usuarios, choque, 911 completo, enlace de invitado (ver informe del PROMPT-2).

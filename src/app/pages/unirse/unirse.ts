@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { GrupoService } from '../../core/grupo.service';
 import { t } from '../../core/i18n/i18n';
@@ -15,7 +15,7 @@ import { VistaPreviaInvitacion } from '../../../shared/models/grupo.model';
 export class UnirsePage implements OnInit {
   t = t;
   rolTexto = rolTexto;
-  token = ''; // viene de la ruta (withComponentInputBinding)
+  @Input() token = ''; // viene de la ruta (withComponentInputBinding)
   cargando = signal(true);
   vista = signal<VistaPreviaInvitacion | null>(null);
   error = signal<string | null>(null);

@@ -174,16 +174,14 @@ export class ConfiguracionService {
         .eq('id', t.id);
       if (error) return this.res<null>(null, error);
     }
-    const { error } = await this.db
-      .from('tarifas')
-      .insert({
-        grupo_id: grupo,
-        destino_id: destino,
-        tipo: 'fee_destino',
-        monto,
-        moneda,
-        vigente_desde: hoy,
-      });
+    const { error } = await this.db.from('tarifas').insert({
+      grupo_id: grupo,
+      destino_id: destino,
+      tipo: 'fee_destino',
+      monto,
+      moneda,
+      vigente_desde: hoy,
+    });
     return this.res<null>(null, error);
   }
 

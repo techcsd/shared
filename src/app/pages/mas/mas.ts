@@ -21,6 +21,7 @@ interface Entrada {
 export class MasPage {
   t = t;
   readonly entradas: Entrada[] = [
+    { ruta: '/mas/notificaciones', etiqueta: 'mas.notificaciones', soloSocio: false },
     { ruta: '/mas/prioridad-911', etiqueta: 'mas.prioridad_911', soloSocio: false },
     { ruta: '/mas/operacion', etiqueta: 'mas.operacion', soloSocio: false },
     { ruta: '/mas/finanzas', etiqueta: 'mas.finanzas', soloSocio: true },

@@ -80,6 +80,7 @@ Seguridad a bordo (checklist obligatorio, `seguridad.checklist_salida_obligatori
 | Derecho de preferencia (días) | `salida_socio.preferencia_dias` | 30 | 0–365 | DF-25 |
 | Días para invitar un mediador | `desacuerdos.dias_mediador` | 7 | 1–90 | DF-26 |
 | Vigencia del enlace de invitado (horas tras el regreso) | `invitados.enlace_horas_tras_regreso` | 24 | 1–168 | DF-31 |
+| Vigencia de una solicitud 911 (horas) | `prioridad_911.expira_horas` | 72 | 1–720 | DF-42 |
 <!-- END:CATALOGO -->
 
 ## Firma y revisión

@@ -1,0 +1,225 @@
+<!-- Reservar -->
+<main class="reservar">
+  <h1>{{ t('res.titulo') }}</h1>
+  @if (activos.activo(); as a) {
+    <p class="suave">{{ a.nombre }}</p>
+  }
+
+  <!-- Borradores guardados (24 h) -->
+  @if (borradores().length && paso() === 1) {
+    <section class="tarjeta">
+      <h2>{{ t('res.borradores') }}</h2>
+      @for (b of borradores(); track b.id) {
+        <div class="fila">
+          <span>{{ b.personas }} · {{ b.uso }}</span>
+          <button class="boton secundario" type="button" (click)="retomar(b)">
+            {{ t('res.retomar') }}
+          </button>
+          <button class="boton secundario" type="button" (click)="descartar(b)">
+            {{ t('res.descartar') }}
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <ol class="pasos" aria-label="{{ t('res.pasos') }}">
+    @for (n of [1, 2, 3, 4]; track n) {
+      <li [class.activo]="paso() === n" [class.hecho]="paso() > n">{{ n }}</li>
+    }
+  </ol>
+
+  <form class="tarjeta" (ngSubmit)="paso() === 3 ? verResumen() : siguiente()" #f="ngForm">
+    <!-- Paso 1: fecha y horario -->
+    @if (paso() === 1) {
+      <h2>{{ t('res.paso1') }}</h2>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="r-dia-salida">{{ t('res.dia_salida') }}</label>
+          <input
+            id="r-dia-salida"
+            name="diaSalida"
+            type="date"
+            required
+            [(ngModel)]="diaSalida"
+            (ngModelChange)="mismoDia()"
+          />
+        </div>
+        <div class="campo">
+          <label for="r-hora-salida">{{ t('res.hora_salida') }}</label>
+          <input
+            id="r-hora-salida"
+            name="horaSalida"
+            type="time"
+            required
+            [(ngModel)]="horaSalida"
+          />
+        </div>
+        <div class="campo">
+          <label for="r-dia-regreso">{{ t('res.dia_regreso') }}</label>
+          <input
+            id="r-dia-regreso"
+            name="diaRegreso"
+            type="date"
+            required
+            [min]="diaSalida"
+            [(ngModel)]="diaRegreso"
+          />
+        </div>
+        <div class="campo">
+          <label for="r-hora-regreso">{{ t('res.hora_regreso') }}</label>
+          <input
+            id="r-hora-regreso"
+            name="horaRegreso"
+            type="time"
+            required
+            [(ngModel)]="horaRegreso"
+          />
+        </div>
+      </div>
+      @if (!pasoValido()) {
+        <p class="error-texto">{{ t('error.rango_invalido') }}</p>
+      }
+    }
+
+    <!-- Paso 2: uso y destino -->
+    @if (paso() === 2) {
+      <h2>{{ t('res.paso2') }}</h2>
+      <div class="opciones" role="radiogroup" aria-label="{{ t('res.uso') }}">
+        @for (u of usos; track u) {
+          <button
+            type="button"
+            role="radio"
+            class="opcion"
+            [class.elegida]="uso === u"
+            [attr.aria-checked]="uso === u"
+            (click)="elegirUso(u)"
+          >
+            {{ usoTexto(u) }}
+          </button>
+        }
+      </div>
+      @if (destinos().length) {
+        <div class="campo">
+          <label for="r-destino">{{ t('res.destino') }}</label>
+          <select id="r-destino" name="destino" [(ngModel)]="destino">
+            @for (d of destinos(); track d.id) {
+              <option [value]="d.id">{{ d.nombre }}</option>
+            }
+          </select>
+        </div>
+      }
+    }
+
+    <!-- Paso 3: personas y responsable -->
+    @if (paso() === 3) {
+      <h2>{{ t('res.paso3') }}</h2>
+      <div class="campo">
+        <label for="r-personas">{{ t('res.personas') }}</label>
+        <input
+          id="r-personas"
+          name="personas"
+          type="number"
+          min="1"
+          [max]="capacidad() ?? 1000"
+          required
+          [(ngModel)]="personas"
+        />
+        @if (capacidad() !== null) {
+          <span [class.error-texto]="excede()" [class.suave]="!excede()">
+            {{ t('res.limite', { max: capacidad() ?? 0 }) }}
+          </span>
+        }
+      </div>
+      @if (uso !== 'invitado') {
+        <div class="campo">
+          <label for="r-resp">{{ t('res.responsable') }}</label>
+          <select id="r-resp" name="responsable" [(ngModel)]="responsable">
+            @for (m of miembros(); track m.id) {
+              <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+            }
+          </select>
+        </div>
+      } @else {
+        <div class="campo">
+          <label for="r-inv-nombre">{{ t('res.invitado_nombre') }}</label>
+          <input
+            id="r-inv-nombre"
+            name="invNombre"
+            type="text"
+            required
+            minlength="2"
+            [(ngModel)]="invitadoNombre"
+          />
+        </div>
+        <div class="campo">
+          <label for="r-inv-correo">{{ t('res.invitado_correo') }}</label>
+          <input
+            id="r-inv-correo"
+            name="invCorreo"
+            type="email"
+            required
+            [(ngModel)]="invitadoCorreo"
+          />
+        </div>
+        <div class="campo">
+          <label for="r-anfitrion">{{ t('res.anfitrion') }}</label>
+          <select id="r-anfitrion" name="anfitrion" [(ngModel)]="anfitrion">
+            @for (m of socios(); track m.id) {
+              <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+            }
+          </select>
+        </div>
+      }
+    }
+
+    <!-- Paso 4: resumen con fee y límite -->
+    @if (paso() === 4) {
+      <h2>{{ t('res.paso4') }}</h2>
+      <dl class="resumen">
+        <dt>{{ t('res.cuando') }}</dt>
+        <dd>{{ resumenInicio() }}</dd>
+        <dt>{{ t('res.uso') }}</dt>
+        <dd>{{ usoTexto(uso) }}</dd>
+        <dt>{{ t('res.personas') }}</dt>
+        <dd>
+          {{ personas }}
+          @if (capacidad() !== null) {
+            <span class="suave"> / {{ capacidad() }}</span>
+          }
+        </dd>
+        @if (fee(); as fe) {
+          <dt>{{ t('res.fee') }}</dt>
+          <dd>{{ fe.monto | number: '1.0-0' }} {{ fe.moneda }}</dd>
+        }
+      </dl>
+      <p class="suave">{{ t('res.aviso_confirmar') }}</p>
+    }
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+
+    <div class="acciones">
+      @if (paso() > 1) {
+        <button class="boton secundario" type="button" (click)="atras()">
+          {{ t('app.volver') }}
+        </button>
+      }
+      @if (paso() < 3) {
+        <button class="boton" type="submit" [disabled]="!pasoValido()">
+          {{ t('res.siguiente') }}
+        </button>
+      } @else if (paso() === 3) {
+        <button class="boton" type="submit" [disabled]="!pasoValido() || ocupado()">
+          {{ t('res.ver_resumen') }}
+        </button>
+      } @else {
+        <button class="boton" type="button" [disabled]="ocupado()" (click)="confirmar()">
+          {{ t('res.confirmar') }}
+        </button>
+      }
+    </div>
+  </form>
+  <a routerLink="/calendario">{{ t('res.cancelar') }}</a>
+</main>

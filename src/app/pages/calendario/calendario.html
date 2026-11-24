@@ -1,8 +1,242 @@
 <!-- Pantalla principal: calendario (SA15) -->
 <main class="calendario">
-  <h1>{{ t('inicio.titulo') }}</h1>
-  <p class="suave">{{ t('inicio.vacio') }}</p>
-  @if (!supabase.configurado) {
-    <p class="error-texto" role="alert">{{ t('app.sin_backend') }}</p>
+  <!-- Selector de activo (N activos) -->
+  @if (activos.activos().length > 1) {
+    <div class="campo">
+      <label for="cal-activo">{{ t('cal.activo') }}</label>
+      <select
+        id="cal-activo"
+        [ngModel]="activos.activo()?.id"
+        (ngModelChange)="elegirActivo($event)"
+        name="activo"
+      >
+        @for (a of activos.activos(); track a.id) {
+          <option [value]="a.id">{{ a.nombre }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  @if (!activos.cargado()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  } @else if (!activos.activo()) {
+    <p class="suave">{{ t('cal.sin_activos') }}</p>
+  } @else {
+    <!-- Barra de vista -->
+    <div class="barra">
+      <div class="nav">
+        <button
+          class="boton secundario"
+          type="button"
+          (click)="mover(-1)"
+          [attr.aria-label]="t('cal.anterior')"
+        >
+          ‹
+        </button>
+        <button class="boton secundario" type="button" (click)="hoy()">{{ t('cal.hoy') }}</button>
+        <button
+          class="boton secundario"
+          type="button"
+          (click)="mover(1)"
+          [attr.aria-label]="t('cal.siguiente')"
+        >
+          ›
+        </button>
+      </div>
+      <h1 class="titulo">{{ titulo() }}</h1>
+      <div class="vistas" role="tablist">
+        @for (v of ['mes', 'semana', 'dia']; track v) {
+          <button
+            type="button"
+            role="tab"
+            [class.activa]="vista() === v"
+            [attr.aria-selected]="vista() === v"
+            (click)="cambiarVista($any(v))"
+          >
+            {{ v === 'mes' ? t('cal.mes') : v === 'semana' ? t('cal.semana') : t('cal.dia') }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <ul class="leyenda" aria-label="{{ t('cal.leyenda') }}">
+      <li><span class="punto libre"></span>{{ t('cal.disponible') }}</li>
+      <li><span class="punto mia"></span>{{ t('cal.mia') }}</li>
+      <li><span class="punto otro"></span>{{ t('cal.otro') }}</li>
+      <li>
+        <span class="punto mantenimiento"></span>{{ t('cal.mantenimiento') }} /
+        {{ t('cal.preparacion') }}
+      </li>
+    </ul>
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+
+    <!-- Vista mes -->
+    @if (vista() === 'mes') {
+      <div class="mes" role="grid">
+        @for (c of cabecera; track c) {
+          <div class="encabezado-dia" role="columnheader">{{ t(c) }}</div>
+        }
+        @for (celda of celdas(); track celda.clave) {
+          <button
+            type="button"
+            class="celda"
+            role="gridcell"
+            [class.fuera]="!celda.delMes"
+            [class.hoy]="esHoy(celda.clave)"
+            [class.seleccionado]="diaSel() === celda.clave"
+            [attr.data-dia]="celda.clave"
+            (click)="elegirDia(celda.clave)"
+          >
+            <span class="num">{{ numero(celda.clave) }}</span>
+            <span class="puntos">
+              @for (cl of clasesDe(celda.clave); track cl) {
+                <span class="punto" [class]="cl"></span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Vista semana -->
+    @if (vista() === 'semana') {
+      <div class="semana">
+        @for (d of diasSemana(); track d) {
+          <button
+            type="button"
+            class="dia-fila"
+            [class.seleccionado]="diaSel() === d"
+            [class.hoy]="esHoy(d)"
+            (click)="elegirDia(d)"
+          >
+            <strong>{{ nombreDiaTxt(d) }}</strong>
+            <span class="puntos">
+              @for (cl of clasesDe(d); track cl) {
+                <span class="punto" [class]="cl"></span>
+              }
+              @if (!clasesDe(d).length) {
+                <span class="suave">{{ t('cal.disponible') }}</span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Panel del día seleccionado -->
+    <section class="tarjeta panel-dia" aria-live="polite">
+      <h2>{{ nombreDiaTxt(diaSel()) }}</h2>
+      @if (cargando()) {
+        <p class="suave">{{ t('app.cargando') }}</p>
+      }
+      @if (!itemsDe(diaSel()).length && !cargando()) {
+        <p class="suave">{{ t('cal.dia_libre') }}</p>
+      }
+      <ul class="lista-dia">
+        @for (it of itemsDe(diaSel()); track it.reserva.id) {
+          <li class="entrada" [class]="it.clase">
+            <span class="punto" [class]="it.clase"></span>
+            <div class="info">
+              <strong>{{ hora(it.inicio) }} – {{ hora(it.fin) }}</strong>
+              <span
+                >{{ it.etiqueta }}
+                @if (codigo(it.reserva)) {
+                  · {{ codigo(it.reserva) }}
+                }
+              </span>
+              @if (it.reserva.motivo_bloqueo) {
+                <span class="suave">{{ it.reserva.motivo_bloqueo }}</span>
+              }
+            </div>
+            @if (!it.reserva.tipo_bloqueo) {
+              <a class="boton secundario" [routerLink]="['/reserva', it.reserva.id]">{{
+                t('cal.detalle')
+              }}</a>
+              @if (it.clase === 'otro' && puedeReservar() && it.reserva.estado === 'confirmada') {
+                <a
+                  class="boton secundario"
+                  [routerLink]="['/mas/prioridad-911']"
+                  [queryParams]="{ reserva: it.reserva.id }"
+                  >{{ t('cal.pedir_911') }}</a
+                >
+              }
+            } @else if (puedeBloquear()) {
+              <button class="boton secundario" type="button" (click)="quitarBloqueo(it.reserva.id)">
+                {{ t('config.quitar') }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+      <div class="acciones">
+        @if (puedeReservar()) {
+          <button class="boton" type="button" (click)="reservarEn(diaSel())">
+            {{ t('cal.reservar') }}
+          </button>
+        }
+        @if (puedeBloquear()) {
+          <button
+            class="boton secundario"
+            type="button"
+            (click)="mostrarBloqueo.set(!mostrarBloqueo())"
+          >
+            {{ t('cal.bloquear') }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Bloqueo manual de mantenimiento / preparación -->
+    @if (mostrarBloqueo()) {
+      <form class="tarjeta" (ngSubmit)="bloquear()" #f="ngForm">
+        <h2>{{ t('cal.bloquear') }}</h2>
+        <div class="campo">
+          <label for="b-tipo">{{ t('cal.bloqueo_tipo') }}</label>
+          <select id="b-tipo" name="tipo" [(ngModel)]="bloqueoTipo">
+            <option value="mantenimiento">{{ t('cal.mantenimiento') }}</option>
+            <option value="preparacion">{{ t('cal.preparacion') }}</option>
+          </select>
+        </div>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="b-desde">{{ t('cal.desde') }}</label>
+            <input id="b-desde" name="desde" type="date" required [(ngModel)]="bloqueoDesde" />
+            <input
+              name="hdesde"
+              type="time"
+              required
+              [(ngModel)]="bloqueoHoraDesde"
+              [attr.aria-label]="t('cal.hora_desde')"
+            />
+          </div>
+          <div class="campo">
+            <label for="b-hasta">{{ t('cal.hasta') }}</label>
+            <input id="b-hasta" name="hasta" type="date" required [(ngModel)]="bloqueoHasta" />
+            <input
+              name="hhasta"
+              type="time"
+              required
+              [(ngModel)]="bloqueoHoraHasta"
+              [attr.aria-label]="t('cal.hora_hasta')"
+            />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="b-motivo">{{ t('cal.motivo') }}</label>
+          <input
+            id="b-motivo"
+            name="motivo"
+            type="text"
+            maxlength="300"
+            [(ngModel)]="bloqueoMotivo"
+          />
+        </div>
+        <button class="boton" type="submit" [disabled]="f.invalid">{{ t('cal.bloquear') }}</button>
+      </form>
+    }
   }
 </main>

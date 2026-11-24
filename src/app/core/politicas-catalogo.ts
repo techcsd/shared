@@ -423,5 +423,17 @@ export const POLITICAS_CATALOGO: PoliticaCatalogo[] = [
     "df": "DF-31",
     "etiqueta": "Vigencia del enlace de invitado (horas tras el regreso)",
     "descripcion": "Después de este plazo el enlace deja de funcionar."
+  },
+  {
+    "clave": "prioridad_911.expira_horas",
+    "categoria": "reservas",
+    "tipo": "entero",
+    "defecto": 72,
+    "nullable": false,
+    "minimo": 1,
+    "maximo": 720,
+    "df": "DF-42",
+    "etiqueta": "Vigencia de una solicitud 911 (horas)",
+    "descripcion": "Si el titular no responde en este plazo, la solicitud expira. La reserva del titular no cambia."
   }
 ];
