@@ -59,7 +59,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/notificaciones/notificaciones').then((m) => m.NotificacionesPage),
       },
-      pendiente('gastos', 'nav.gastos'),
+      {
+        path: 'gastos',
+        loadComponent: () => import('./pages/gastos/gastos').then((m) => m.GastosPage),
+      },
+      {
+        path: 'operacion/:id',
+        loadComponent: () => import('./pages/operacion/operacion').then((m) => m.OperacionPage),
+      },
       pendiente('mantenimiento', 'nav.mantenimiento'),
       { path: 'mas', loadComponent: () => import('./pages/mas/mas').then((m) => m.MasPage) },
       {
@@ -68,8 +75,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/prioridad-911/prioridad-911').then((m) => m.Prioridad911Page),
       },
-      pendiente('mas/operacion', 'mas.operacion'),
-      pendiente('mas/finanzas', 'mas.finanzas', true),
+      { path: 'mas/operacion', pathMatch: 'full', redirectTo: 'mis-salidas' },
+      {
+        path: 'mas/finanzas',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/finanzas/finanzas').then((m) => m.FinanzasPage),
+      },
       {
         path: 'mas/configuracion',
         canActivate: [rolGuard(['socio'])],

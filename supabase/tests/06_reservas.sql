@@ -121,18 +121,18 @@ begin
 
   -- ============ transiciones (SA7)
   r3 := reserva_crear_borrador(act, d0 + interval '6 days', d0 + interval '6 days 2 hours', 'personal', null, 4);
-  perform tests.falla(format($q$select reserva_iniciar(%L)$q$, r3), 'transicion_invalida');
-  perform tests.falla(format($q$select reserva_finalizar(%L)$q$, r3), 'transicion_invalida');
   perform reserva_confirmar(r3);
   perform tests.falla(format($q$select reserva_confirmar(%L)$q$, r3), 'transicion_invalida');
-  perform tests.falla(format($q$select reserva_finalizar(%L)$q$, r3), 'transicion_invalida');
-  perform reserva_iniciar(r3);
-  perform tests.falla(format($q$select reserva_cancelar(%L)$q$, r3), 'transicion_invalida');
-  perform tests.falla(format($q$select reserva_iniciar(%L)$q$, r3), 'transicion_invalida');
-  perform reserva_finalizar(r3);
+  -- P3: iniciar/finalizar a mano ya no existen; solo check-in / check-out con datos completos
+  perform tests.falla(format($q$select reserva_iniciar(%L)$q$, r3), 'usa_operacion');
+  perform tests.falla(format($q$select reserva_finalizar(%L)$q$, r3), 'usa_operacion');
   perform tests.admin();
-  perform tests.igual((select estado from reservas where id = r3), 'finalizada'::estado_reserva, 'finalizada');
-  perform tests.falla(format($q$update reservas set estado = 'confirmada' where id = %L$q$, r3));  -- ni siquiera el dueño: sin trigger de vuelta atrás
+  perform tests.falla(format($q$update reservas set estado = 'en_curso' where id = %L$q$, r3), 'requiere_checkin');
+  perform tests.falla(format($q$update reservas set estado = 'finalizada' where id = %L$q$, r3), 'requiere_checkout_completo');
+  perform tests.como(a);
+  perform reserva_cancelar(r3);
+  perform tests.admin();
+  perform tests.falla(format($q$update reservas set estado = 'confirmada' where id = %L$q$, r3));  -- sin vuelta atrás
   -- otro socio no maneja la reserva ajena
   perform tests.como(b);
   r4 := reserva_crear_borrador(act, d0 + interval '7 days', d0 + interval '7 days 2 hours', 'personal', null, 4);

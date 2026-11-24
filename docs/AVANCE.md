@@ -32,3 +32,18 @@ Ver `docs/HANDOFF.md`.
 | F8 cierre | ⏳ | falta aplicar a **shared-prod** y merge a `main` (pendiente de OK explícito) |
 
 Evidencia en vivo contra shared-dev: `E2E_VIVO=1 npx playwright test` → 11/11 (asistente en ~1 s automatizado, choque, acuse, 911 completo, carrera concurrente real: 1 gana y 1 falla, capacidad 16/9, invitado).
+
+## PROMPT-3 — Operación y finanzas
+| Fase | Estado | Evidencia |
+|---|---|---|
+| F0 sincronizar | ✅ | rama `feature/p3-operacion-finanzas` desde `dev` |
+| F1 check-in | ✅ | migración 18; pantalla `/operacion/:id`; lecturas por componente, continuidad, checklist obligatorio |
+| F2 check-out y cierre | ✅ | migración 20; lista de faltantes; correcciones con motivo; solo se cierra con datos completos |
+| F3 gastos | ✅ | pantalla Gastos (menú inferior); validación por otro socio; foto de factura; vencimientos |
+| F4 libro mayor y estado de cuenta | ✅ | migración 19; pantalla Finanzas (balances, estado de cuenta con comprobantes, pagos) |
+| F5 daños | ✅ | caso + hilo + propuesta + acuerdo unánime (DF-11) |
+| F6 fondo común | ✅ | saldo, movimientos, aporte mensual (0 = apagado) |
+| F7 modo registro y pruebas de dinero | ✅ | tests 09–12 (2 y 10 socios), e2e vivo del ciclo completo |
+| F8 cierre | ⏳ | PR a `dev`; aplicar P2 y P3 a shared-prod pendiente del OK de Xaviel |
+
+Verificación: `npm run test:db` → 12 archivos / 22 migraciones; unitarios 23; `verify:i18n` 579 claves; e2e vivo P3 4/4 contra shared-dev.

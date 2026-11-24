@@ -1,0 +1,330 @@
+<!-- Operación de una salida -->
+<main class="operacion">
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  } @else if (reserva(); as r) {
+    <h1>{{ r.orden?.codigo ?? t('op.titulo') }}</h1>
+    <p class="suave">{{ r.activo?.nombre }} · {{ rangoTexto() }}</p>
+    @if (aviso()) {
+      <p class="aviso" role="status">{{ aviso() }}</p>
+    }
+
+    @if (!puedeOperar()) {
+      <p class="suave">{{ t('op.sin_permiso') }}</p>
+    }
+
+    <!-- ===================== SALIDA (check-in) ===================== -->
+    @if (fase() === 'salida' && puedeOperar()) {
+      <form class="tarjeta" (ngSubmit)="salir()" #fs="ngForm">
+        <h2>{{ t('op.salida') }}</h2>
+
+        <div class="campo">
+          <label for="o-cap">{{ t('op.capitan') }}</label>
+          <select id="o-cap" name="capitanMiembro" [(ngModel)]="capitanMiembro">
+            <option value="">{{ t('op.capitan_externo') }}</option>
+            @for (m of personas(); track m.id) {
+              <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+            }
+          </select>
+        </div>
+        @if (!capitanMiembro) {
+          <div class="campo">
+            <label for="o-cap-n">{{ t('op.capitan_nombre') }}</label>
+            <input id="o-cap-n" name="capitanNombre" type="text" [(ngModel)]="capitanNombre" />
+          </div>
+        }
+
+        <div class="campo">
+          <label for="o-comb">{{ t('op.combustible_inicial') }} ({{ unidadCombustible() }})</label>
+          <input id="o-comb" name="combustible" type="number" inputmode="decimal" min="0" step="0.01" [(ngModel)]="combustible" />
+        </div>
+
+        <h3>{{ t('op.lecturas_iniciales') }}</h3>
+        @for (c of componentes(); track c.id) {
+          <div class="campo">
+            <label [for]="'o-li-' + c.id">{{ c.etiqueta }} ({{ c.unidad }})</label>
+            <input
+              [id]="'o-li-' + c.id"
+              [name]="'li-' + c.id"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.1"
+              [(ngModel)]="lect[c.id]"
+            />
+          </div>
+        }
+
+        <h3>{{ t('op.checklist_salida') }}</h3>
+        @for (i of itemsSalida(); track i.clave) {
+          <label class="chequeo">
+            <input type="checkbox" [name]="'ck-' + i.clave" [(ngModel)]="ck[i.clave]" />
+            <span>{{ i.texto }}@if (i.obligatorio !== false) { <em> *</em> }</span>
+          </label>
+        }
+
+        <div class="campo">
+          <label for="o-nota">{{ t('op.nota') }}</label>
+          <textarea id="o-nota" name="nota" rows="2" [(ngModel)]="nota"></textarea>
+        </div>
+
+        @if (faltan().length) {
+          <div class="faltan" role="alert">
+            <strong>{{ t('op.faltan') }}</strong>
+            <ul>
+              @for (f of faltan(); track $index) {
+                <li>{{ faltaTexto(f) }}</li>
+              }
+            </ul>
+          </div>
+        }
+        @if (error()) {
+          <p class="error-texto" role="alert">{{ error() }}</p>
+        }
+        <button class="boton grande" type="submit" [disabled]="enviando()">{{ t('op.salir') }}</button>
+      </form>
+    }
+
+    <!-- ===================== REGRESO (check-out) ===================== -->
+    @if (fase() === 'regreso' && puedeOperar()) {
+      @if (operacion(); as op) {
+        <section class="tarjeta">
+          <h2>{{ t('op.en_curso') }}</h2>
+          <dl class="datos">
+            <dt>{{ t('op.salida_real') }}</dt>
+            <dd>{{ fh(op.salida_real) }}</dd>
+            <dt>{{ t('op.capitan') }}</dt>
+            <dd>{{ op.capitan_miembro ? nombre(op.capitan_miembro) : op.capitan_nombre }}</dd>
+            <dt>{{ t('op.combustible_inicial') }}</dt>
+            <dd>{{ op.combustible_inicial | number: '1.0-2' }} {{ op.combustible_unidad }}</dd>
+          </dl>
+        </section>
+      }
+
+      <!-- Gastos del viaje (SA11): se cargan a quien reservó -->
+      @if (puedeGastos()) {
+        <section class="tarjeta">
+          <h2>{{ t('op.gastos_viaje') }}</h2>
+          @for (g of gastosViaje(); track g.id) {
+            <div class="fila-g">
+              <span>{{ g.categoria }}{{ g.proveedor ? ' · ' + g.proveedor : '' }}</span>
+              <strong>{{ g.monto | number: '1.0-2' }} {{ g.moneda }}</strong>
+            </div>
+          }
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="g-cat">{{ t('gas.categoria') }}</label>
+              <select id="g-cat" name="gCategoria" [(ngModel)]="gCategoria">
+                <option value="" disabled>—</option>
+                @for (c of categorias(); track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
+              </select>
+            </div>
+            <div class="campo">
+              <label for="g-monto">{{ t('gas.monto') }} ({{ gMoneda }})</label>
+              <input id="g-monto" name="gMonto" type="number" inputmode="decimal" min="0" step="0.01" [(ngModel)]="gMonto" />
+            </div>
+            <div class="campo">
+              <label for="g-pag">{{ t('gas.pagado_por') }}</label>
+              <select id="g-pag" name="gPagador" [(ngModel)]="gPagador">
+                <option value="">{{ t('gas.yo') }}</option>
+                @for (m of pagadores(); track m.id) {
+                  <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+                }
+              </select>
+            </div>
+            <div class="campo">
+              <label for="g-prov">{{ t('gas.proveedor') }}</label>
+              <input id="g-prov" name="gProveedor" type="text" [(ngModel)]="gProveedor" />
+            </div>
+          </div>
+          <div class="campo">
+            <label for="g-foto">{{ t('gas.factura') }}</label>
+            <input id="g-foto" type="file" accept="image/*,application/pdf" capture="environment" (change)="elegirFoto($event, 'gasto')" />
+          </div>
+          <button class="boton secundario" type="button" [disabled]="enviando()" (click)="agregarGasto()">
+            {{ t('gas.agregar') }}
+          </button>
+        </section>
+      }
+
+      <form class="tarjeta" (ngSubmit)="regresar()" #fr="ngForm">
+        <h2>{{ t('op.regreso') }}</h2>
+
+        <h3>{{ t('op.lecturas_finales') }}</h3>
+        @for (c of componentes(); track c.id) {
+          <div class="campo">
+            <label [for]="'o-lf-' + c.id">
+              {{ c.etiqueta }} ({{ c.unidad }}) · {{ t('op.inicio') }}: {{ lecturaDe(c.id, 'inicio') ?? '—' }}
+            </label>
+            <input
+              [id]="'o-lf-' + c.id"
+              [name]="'lf-' + c.id"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.1"
+              [(ngModel)]="lectFin[c.id]"
+            />
+            @if (lectFin[c.id] !== null && lectFin[c.id] !== undefined && lecturaDe(c.id, 'inicio') !== null) {
+              <span class="suave">{{ t('op.horas') }}: {{ (lectFin[c.id]! - lecturaDe(c.id, 'inicio')!) | number: '1.0-1' }}</span>
+            }
+          </div>
+        }
+
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="o-cf">{{ t('op.combustible_final') }} ({{ unidadCombustible() }})</label>
+            <input id="o-cf" name="combustibleFinal" type="number" inputmode="decimal" min="0" step="0.01" [(ngModel)]="combustibleFinal" />
+          </div>
+          <div class="campo">
+            <label for="o-ca">{{ t('op.combustible_agregado') }} ({{ unidadCombustible() }})</label>
+            <input id="o-ca" name="combustibleAgregado" type="number" inputmode="decimal" min="0" step="0.01" [(ngModel)]="combustibleAgregado" />
+          </div>
+        </div>
+        @if (consumo() !== null) {
+          <p [class.error-texto]="consumo()! < 0" class="suave">
+            {{ t('op.consumido') }}: {{ consumo() | number: '1.0-2' }} {{ unidadCombustible() }}
+          </p>
+        }
+
+        <h3>{{ t('op.checklist_regreso') }}</h3>
+        @for (i of itemsRegreso(); track i.clave) {
+          <label class="chequeo">
+            <input type="checkbox" [name]="'ckr-' + i.clave" [(ngModel)]="ckR[i.clave]" />
+            <span>{{ i.texto }}@if (i.obligatorio !== false) { <em> *</em> }</span>
+          </label>
+          @if (respuestaDe(i.clave) === undefined && !ckR[i.clave]) {
+            <div class="campo">
+              <label [for]="'ckn-' + i.clave">{{ t('op.por_que_no') }}</label>
+              <input [id]="'ckn-' + i.clave" [name]="'ckn-' + i.clave" type="text" [(ngModel)]="ckNotaR[i.clave]" />
+            </div>
+          }
+        }
+
+        <div class="campo">
+          <label for="o-inc">{{ t('op.incidencia') }}</label>
+          <textarea id="o-inc" name="incidenciaTexto" rows="2" [(ngModel)]="incidenciaTexto"></textarea>
+        </div>
+        <div class="campo">
+          <label for="o-obs">{{ t('op.observaciones') }}</label>
+          <textarea id="o-obs" name="observaciones" rows="2" [(ngModel)]="observaciones"></textarea>
+        </div>
+        <div class="campo">
+          <label for="o-fotos">{{ t('op.fotos') }}</label>
+          <input id="o-fotos" type="file" accept="image/*" capture="environment" (change)="elegirFoto($event, 'operacion')" />
+        </div>
+        <div class="campo">
+          <label for="o-motivo">{{ t('op.motivo_correccion') }}</label>
+          <input id="o-motivo" name="motivo" type="text" [(ngModel)]="motivo" />
+        </div>
+
+        @if (faltan().length) {
+          <div class="faltan" role="alert">
+            <strong>{{ t('op.faltan_cierre') }}</strong>
+            <ul>
+              @for (f of faltan(); track $index) {
+                <li>{{ faltaTexto(f) }}</li>
+              }
+            </ul>
+          </div>
+        }
+        @if (error()) {
+          <p class="error-texto" role="alert">{{ error() }}</p>
+        }
+        <button class="boton grande" type="submit" [disabled]="enviando()">{{ t('op.regresar') }}</button>
+      </form>
+    }
+
+    <!-- ===================== CERRADA: resumen ===================== -->
+    @if (fase() === 'cerrada' && operacion(); as op) {
+      <section class="tarjeta">
+        <h2>{{ t('op.resumen') }}</h2>
+        <dl class="datos">
+          <dt>{{ t('op.salida_real') }}</dt>
+          <dd>{{ fh(op.salida_real) }}</dd>
+          <dt>{{ t('op.regreso_real') }}</dt>
+          <dd>{{ op.regreso_real ? fh(op.regreso_real) : '—' }}</dd>
+          <dt>{{ t('op.capitan') }}</dt>
+          <dd>{{ op.capitan_miembro ? nombre(op.capitan_miembro) : op.capitan_nombre }}</dd>
+          <dt>{{ t('op.combustible_inicial') }}</dt>
+          <dd>{{ op.combustible_inicial | number: '1.0-2' }} {{ op.combustible_unidad }}</dd>
+          <dt>{{ t('op.combustible_final') }}</dt>
+          <dd>{{ op.combustible_final ?? '—' }} {{ op.combustible_unidad }}</dd>
+        </dl>
+        <h3>{{ t('op.horas_motor') }}</h3>
+        <ul class="lista">
+          @for (c of componentes(); track c.id) {
+            <li>
+              {{ c.etiqueta }}: {{ lecturaDe(c.id, 'inicio') }} → {{ lecturaDe(c.id, 'fin') }} {{ c.unidad }}
+              (<strong>{{ horas(c.id) }}</strong>)
+            </li>
+          }
+        </ul>
+        @if (incidencias().length) {
+          <h3>{{ t('op.incidencias') }}</h3>
+          <ul class="lista">
+            @for (i of incidencias(); track i.id) {
+              <li>{{ i.descripcion }}</li>
+            }
+          </ul>
+        }
+        @if (resumen(); as rs) {
+          <h3>{{ t('op.liquidacion') }}</h3>
+          <dl class="datos">
+            <dt>{{ t('op.fee') }}</dt>
+            <dd>{{ rs.fee | number: '1.0-2' }}</dd>
+            <dt>{{ t('op.gastos_individuales') }}</dt>
+            <dd>{{ rs.gastos_individuales | number: '1.0-2' }}</dd>
+          </dl>
+          <a class="boton secundario" routerLink="/mas/finanzas">{{ t('mas.finanzas') }}</a>
+        }
+      </section>
+
+      @if (puedeCorregir()) {
+        <form class="tarjeta" (ngSubmit)="corregir()">
+          <h2>{{ t('op.corregir') }}</h2>
+          <p class="suave">{{ t('op.corregir_ayuda') }}</p>
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="c-comp">{{ t('op.componente') }}</label>
+              <select id="c-comp" name="corrComp" [(ngModel)]="corrComp">
+                <option value="" disabled>—</option>
+                @for (c of componentes(); track c.id) {
+                  <option [value]="c.id">{{ c.etiqueta }}</option>
+                }
+              </select>
+            </div>
+            <div class="campo">
+              <label for="c-mom">{{ t('op.momento') }}</label>
+              <select id="c-mom" name="corrMomento" [(ngModel)]="corrMomento">
+                <option value="inicio">{{ t('op.inicio') }}</option>
+                <option value="fin">{{ t('op.fin') }}</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="c-val">{{ t('op.valor') }}</label>
+              <input id="c-val" name="corrValor" type="number" inputmode="decimal" min="0" step="0.1" [(ngModel)]="corrValor" />
+            </div>
+            <div class="campo">
+              <label for="c-mot">{{ t('op.motivo_correccion') }}</label>
+              <input id="c-mot" name="corrMotivo" type="text" required minlength="3" [(ngModel)]="corrMotivo" />
+            </div>
+          </div>
+          @if (error()) {
+            <p class="error-texto" role="alert">{{ error() }}</p>
+          }
+          <button class="boton secundario" type="submit">{{ t('op.corregir') }}</button>
+        </form>
+      }
+    }
+
+    @if (fase() === 'otra') {
+      <p class="suave">{{ t('op.no_disponible') }}</p>
+    }
+    <a [routerLink]="['/reserva', r.id]">{{ t('op.ver_orden') }}</a>
+  } @else {
+    <p class="error-texto">{{ t('app.vacio') }}</p>
+  }
+</main>

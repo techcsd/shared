@@ -89,15 +89,10 @@
 
     <!-- Acciones -->
     <div class="acciones">
-      @if (puedeOperar() && r.estado === 'confirmada') {
-        <button class="boton secundario" type="button" (click)="cambiar('iniciar')">
-          {{ t('det.iniciar') }}
-        </button>
-      }
-      @if (puedeOperar() && r.estado === 'en_curso') {
-        <button class="boton secundario" type="button" (click)="cambiar('finalizar')">
-          {{ t('det.finalizar') }}
-        </button>
+      @if (puedeOperar() && ['confirmada', 'en_curso', 'finalizada'].includes(r.estado)) {
+        <a class="boton secundario" [routerLink]="['/operacion', r.id]">
+          {{ r.estado === 'confirmada' ? t('det.salir') : r.estado === 'en_curso' ? t('det.regresar') : t('det.ver_operacion') }}
+        </a>
       }
       @if (esTitular() && (r.estado === 'confirmada' || r.estado === 'borrador')) {
         <button class="boton secundario" type="button" (click)="confirmandoCancelar.set(true)">

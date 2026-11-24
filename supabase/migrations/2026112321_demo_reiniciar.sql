@@ -1,0 +1,28 @@
+-- 2026-11-24 · 21 · Reinicio de los datos de operación y finanzas de un grupo en MODO DEMO (DF-40)
+-- Solo funciona si el grupo es de demostración; en un grupo real lanza error. Las reservas se conservan.
+
+create function demo_reiniciar_operacion(p_grupo uuid) returns void
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if not es_socio(p_grupo) then
+    raise exception 'solo_socios' using errcode = 'insufficient_privilege';
+  end if;
+  if not exists (select 1 from grupos where id = p_grupo and modo_demo) then
+    raise exception 'solo_demo: este grupo no es de demostración; nada se borra' using errcode = 'insufficient_privilege';
+  end if;
+  perform set_config('app.permitir_borrado', 'on', true);
+  perform set_config('app.motivo', 'reinicio de datos demo', true);
+  delete from libro_mayor where grupo_id = p_grupo;
+  delete from fondo_aportes where grupo_id = p_grupo;
+  delete from liquidaciones where grupo_id = p_grupo;
+  delete from pagos where grupo_id = p_grupo;
+  delete from danos_casos where grupo_id = p_grupo;
+  delete from gastos where grupo_id = p_grupo;
+  delete from evidencias where grupo_id = p_grupo;
+  delete from incidencias where grupo_id = p_grupo;
+  delete from operaciones where grupo_id = p_grupo;
+  -- una salida «en curso» sin operación quedaría atascada (no hay vuelta atrás de estado): se elimina
+  delete from reservas where grupo_id = p_grupo and estado = 'en_curso';
+end $$;
+revoke execute on function demo_reiniciar_operacion(uuid) from public, anon;
+grant execute on function demo_reiniciar_operacion(uuid) to authenticated;
