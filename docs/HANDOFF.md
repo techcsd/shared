@@ -54,3 +54,10 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Gancho para P4: `capitan_licencia_ok()` (hoy siempre verdadero) → reemplazar con el registro de capitanes; vínculo `danos_casos.siniestro_id` (sin FK) para el seguro.
 - Probar en dev: una salida completa con dos usuarios y comparar los balances con una cuenta a mano (ver informe del PROMPT-3). Botón «Reiniciar datos de prueba de finanzas» en Más → Finanzas (solo grupos demo).
 - Datos de prueba de dev: tras `demo_reiniciar_operacion` quedan limpias las tablas de operación/finanzas; las reservas se conservan.
+
+## PROMPT-4 (mantenimiento, seguro, capitanes, reportes y gobierno) — estado (2026-11-24)
+- **shared-dev**: migraciones 23–25 y edge `exportar-reporte` desplegadas; e2e vivo 4/4.
+- **shared-prod**: pendiente aplicar 23–25 y `exportar-reporte`.
+- **Cambia P3:** con la política `capitanes.licencia_vigente_requerida` (por defecto activa) el check-in exige un capitán registrado con licencia vigente. **En un grupo nuevo hay que registrar capitanes (Más → Capitanes) antes de la primera salida.** El seed demo ya los trae.
+- **Hueco conocido:** la venta a un tercero (no socio) no está soportada: la salida de socio traspasa a socios existentes; para un comprador externo el caso se cierra por cancelación y se usa el flujo de invitación cuando el estatuto lo permita (PROMPT-5 añade propuestas de compra).
+- Mediador: se invita por enlace `/mediar/<token>` (el mediador necesita cuenta con el correo invitado).

@@ -1,0 +1,75 @@
+<!-- Salida o venta de un socio -->
+<main class="pagina">
+  <h1>{{ t('mas.salida_socio') }}</h1>
+  <p class="suave">{{ t('sal_socio.ayuda') }}</p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  @for (c of casos(); track c.id) {
+    <article class="tarjeta">
+      <header class="cab">
+        <strong>{{ nombre(c.miembro_id) }} · {{ c.porcentaje | number: '1.0-2' }} %</strong>
+        <span class="chip">{{ tk('sal_socio.estado.' + c.estado) }}</span>
+      </header>
+      <p class="suave">{{ t('sal_socio.preferencia_hasta') }}: {{ c.preferencia_hasta.slice(0, 10) }}</p>
+      @if (c.nota) {
+        <p>{{ c.nota }}</p>
+      }
+      @if (c.valoracion_nota) {
+        <p><strong>{{ t('sal_socio.valoracion') }}:</strong> {{ c.valoracion_nota }}</p>
+      }
+      @for (o of ofertas()[c.id] ?? []; track o.id) {
+        <p>{{ nombre(o.miembro_id) }}: {{ o.porcentaje | number: '1.0-2' }} % · {{ o.valor | number: '1.2-2' }} {{ o.moneda }}</p>
+      }
+      <p class="suave">{{ t('sal_socio.ofertado') }}: {{ sumaOfertas(c) | number: '1.0-2' }} / {{ c.porcentaje | number: '1.0-2' }} %</p>
+
+      @if (['abierto', 'oferta'].includes(c.estado)) {
+        <div class="campo">
+          <label [for]="'v-' + c.id">{{ t('sal_socio.valoracion') }}</label>
+          <input [id]="'v-' + c.id" [name]="'v-' + c.id" type="text" [(ngModel)]="valoracion" />
+          <button class="boton secundario" type="button" (click)="valorar(c)">{{ t('app.guardar') }}</button>
+        </div>
+        @if (c.miembro_id !== yo()) {
+          <div class="fila-campos">
+            <div class="campo">
+              <label [for]="'op-' + c.id">{{ t('sal_socio.mi_porcentaje') }}</label>
+              <input [id]="'op-' + c.id" [name]="'op-' + c.id" type="number" min="0.01" step="0.01" [(ngModel)]="oPorcentaje" />
+            </div>
+            <div class="campo">
+              <label [for]="'ov-' + c.id">{{ t('sal_socio.mi_valor') }}</label>
+              <input [id]="'ov-' + c.id" [name]="'ov-' + c.id" type="number" min="0" step="0.01" [(ngModel)]="oValor" />
+            </div>
+          </div>
+          <button class="boton" type="button" (click)="ofertar(c)">{{ t('sal_socio.ofertar') }}</button>
+        }
+      }
+      @if (c.estado === 'oferta') {
+        <div class="acciones">
+          <button class="boton" type="button" (click)="responder(c, true)">{{ t('fin.aceptar') }}</button>
+          <button class="boton secundario" type="button" (click)="responder(c, false)">{{ t('fin.rechazar') }}</button>
+        </div>
+      }
+      @if (c.estado === 'aceptado') {
+        <button class="boton" type="button" (click)="cerrar(c)">{{ t('sal_socio.cerrar') }}</button>
+        <p class="suave">{{ t('sal_socio.saldo_ayuda') }}</p>
+      }
+      @if (c.miembro_id === yo() && !['cerrado', 'cancelado'].includes(c.estado)) {
+        <button class="boton secundario" type="button" (click)="cancelar(c)">{{ t('app.cancelar') }}</button>
+      }
+    </article>
+  } @empty {
+    <p class="suave">{{ t('app.vacio') }}</p>
+  }
+
+  @if (grupos.esSocio()) {
+    <section class="tarjeta">
+      <h2>{{ t('sal_socio.solicitar') }}</h2>
+      <div class="campo">
+        <label for="ss-nota">{{ t('fin.nota') }}</label>
+        <input id="ss-nota" name="nota" type="text" [(ngModel)]="nota" />
+      </div>
+      <button class="boton" type="button" (click)="solicitar()">{{ t('sal_socio.solicitar') }}</button>
+    </section>
+  }
+</main>

@@ -47,3 +47,17 @@ Evidencia en vivo contra shared-dev: `E2E_VIVO=1 npx playwright test` → 11/11 
 | F8 cierre | ⏳ | PR a `dev`; aplicar P2 y P3 a shared-prod pendiente del OK de Xaviel |
 
 Verificación: `npm run test:db` → 12 archivos / 22 migraciones; unitarios 23; `verify:i18n` 579 claves; e2e vivo P3 4/4 contra shared-dev.
+
+## PROMPT-4 — Mantenimiento, seguro, capitanes, reportes y gobierno
+| Fase | Estado | Evidencia |
+|---|---|---|
+| F1 mantenimiento | ✅ | migración 23; pantalla Mantenimiento (menú inferior); tests 13 (horas / fecha / primero) |
+| F2 seguro y siniestros | ✅ | pólizas, alertas 30/7, deducible → daños, aviso sin póliza |
+| F3 capitanes y licencias | ✅ | licencia vencida bloquea el check-in; e2e vivo |
+| F4 admin operativo | ✅ | pruebas de RLS (no cambia políticas, estatuto, daños, 911; no ve finanzas) |
+| F5 reportes y exportación | ✅ | dashboard, socio vs socio, estado de cuenta, PDF/Excel (edge); test: total = libro mayor |
+| F6 salida/venta de socio | ✅ | casos, ofertas, aceptación unánime, traspaso de %, saldo 0 |
+| F7 desacuerdos y mediador | ✅ | mediador a los 7 días, solo lectura del caso, expira al cerrar |
+| F8 cierre | ⏳ | PR a `dev`; producción pendiente de OK |
+
+Verificación: `npm run test:db` 14 archivos / 25 migraciones; e2e vivo P4 4/4 contra shared-dev (incluye export xlsx/pdf y 403 del admin operativo).

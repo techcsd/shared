@@ -72,6 +72,9 @@ test.beforeAll(async () => {
     if (correo === 'felipe.demo@shared.test') miembroFelipe = m.id;
     if (correo === 'xaviel.demo@shared.test') miembroXaviel = m.id;
   }
+  // capitán con licencia vigente (DF-20)
+  await a.from('capitanes').delete().eq('grupo_id', grupo).eq('miembro_id', miembroFelipe);
+  await a.from('capitanes').insert({ grupo_id: grupo, miembro_id: miembroFelipe, nombre: 'Felipe (demo)', licencia_vence: dia(365) });
   const felipe = await cliente('felipe.demo@shared.test');
   const r = await felipe.rpc('demo_reiniciar_operacion', { p_grupo: grupo });
   if (r.error) throw new Error(`reinicio demo falló: ${r.error.message}`);

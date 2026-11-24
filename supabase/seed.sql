@@ -87,6 +87,13 @@ insert into tarifas (id, grupo_id, destino_id, tipo, monto, moneda, vigente_desd
   ('40000000-0000-4000-8000-000000000004', '10000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000004', 'fee_destino', 3000, 'DOP', '2026-01-01')
 on conflict (id) do nothing;
 
+-- Capitanes con licencia vigente (DF-20: sin capitán con licencia vigente no hay check-in)
+insert into capitanes (grupo_id, miembro_id, nombre, licencia_numero, licencia_vence, experiencia_anios)
+select m.grupo_id, m.id, 'Capitán ' || p.nombre, 'LIC-DEMO-' || substr(m.id::text, 1, 4), current_date + 365, 5
+  from miembros m join perfiles p on p.id = m.usuario_id
+ where m.grupo_id = '10000000-0000-4000-8000-000000000001'
+   and not exists (select 1 from capitanes c where c.grupo_id = m.grupo_id and c.miembro_id = m.id);
+
 -- ---------------------------------------------------------------- Grupo 2: 10 socios con un carro (prueba de lo genérico)
 insert into grupos (id, nombre, moneda, zona_horaria, prefijo, estado, modo_demo, creado_por)
 values ('10000000-0000-4000-8000-000000000002', 'Carro Demo (10 socios)', 'DOP', 'America/Santo_Domingo', 'CAR',

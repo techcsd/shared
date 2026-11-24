@@ -29,6 +29,7 @@ export class MasPage {
     { ruta: '/mas/estatuto', etiqueta: 'mas.estatuto', soloSocio: true },
     { ruta: '/mas/reportes', etiqueta: 'mas.reportes', soloSocio: false },
     { ruta: '/mas/disputas', etiqueta: 'mas.disputas', soloSocio: true },
+    { ruta: '/mas/salida-socio', etiqueta: 'mas.salida_socio', soloSocio: true },
     { ruta: '/mas/seguro', etiqueta: 'mas.seguro', soloSocio: false },
     { ruta: '/mas/capitanes', etiqueta: 'mas.capitanes', soloSocio: false },
     { ruta: '/mas/propuestas', etiqueta: 'mas.propuestas', soloSocio: true },

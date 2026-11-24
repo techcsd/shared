@@ -1,0 +1,23 @@
+<!-- Mediación: solo el caso -->
+<main class="pagina">
+  <h1>{{ t('dis.mediacion') }}</h1>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (caso(); as c) {
+    <section class="tarjeta">
+      <h2>{{ c.titulo }}</h2>
+      <p class="suave">{{ t('dis.mediador_solo_lectura') }}</p>
+      @for (m of mensajes(); track m.id) {
+        <p class="msg" [class.sistema]="m.rol === 'sistema'">
+          <strong>{{ m.autor_nombre ?? t('det.sistema') }}</strong>: {{ m.texto }}
+        </p>
+      }
+      <div class="campo">
+        <label for="m-msg">{{ t('fin.mensaje') }}</label>
+        <input id="m-msg" name="mensaje" type="text" [(ngModel)]="mensaje" />
+        <button class="boton" type="button" (click)="enviar()">{{ t('fin.enviar') }}</button>
+      </div>
+    </section>
+  }
+</main>
