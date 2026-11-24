@@ -85,7 +85,7 @@ DF-07 (fee al fondo), DF-08/64 (combustible), DF-09 (cancelación tardía 0 % po
 Dominio verificado en Resend; datos reales del bote (SA19); abogado para estatuto y propuestas (SC9/SC10); reunión de cierre y firma (SA35); activar *Confirm email* y límites en Supabase Auth; convertir `techcsd` en organización de GitHub (decidido para después); correr `hawkscan` (no disponible en la sesión); Lighthouse en dispositivo real.
 
 ## 8. Huecos y riesgos
-- **Lighthouse (≥ 90 móvil): NO medido** (el Chromium headless de Playwright no lo soporta en esta máquina); medir en Chrome real o PageSpeed Insights.
+- **Lighthouse (móvil, producción, 2026-11-24, Edge headless):** rendimiento 98, accesibilidad 100, buenas prácticas 100, SEO 82; FCP/LCP 1,8 s, TBT 20 ms, CLS 0. Medido solo en la pantalla de acceso (sin sesión); las pantallas internas no se midieron.
 - **Venta a un tercero** (SA33): no soportada; el comprador externo requiere un flujo de invitación coordinado con el cierre.
 - **Estatuto:** al convertir una propuesta se crea la versión 1 en estado pendiente; rige cuando todos los socios la aceptan.
 - **Offline:** la cola solo cubre `gasto_registrar` y `lectura_corregir`; las lecturas del check-in/out se envían con el flujo normal (no hay cola para ellas).

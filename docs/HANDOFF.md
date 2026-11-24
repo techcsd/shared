@@ -68,3 +68,7 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Informe final de la ronda: `docs/INFORME-RONDA-1.md`.
 - Para ver «Salud del sistema» hay que registrarse como administrador de plataforma (`insert into plataforma_admins …`, ver `docs/OPERACION.md`).
 - Directorio: apagado (`update plataforma_config set valor = 'true' where clave = 'directorio_habilitado'` para encenderlo).
+
+## Produccion (2026-11-24)
+- P4 y P5 desplegados en shared-prod por OK de Xaviel: migraciones 23-27, funciones guest-view, exportar-reporte y enviar-notificaciones, merge dev->main (PR #19, deploy READY).
+- Repo vuelto a enlazar con shared-dev.
