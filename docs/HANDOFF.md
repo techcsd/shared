@@ -30,7 +30,7 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 
 ## Estado de despliegue (2026-11-23, actualización)
 - Supabase: `shared-dev` (`afjnmhofqsktprrptivl`, datos demo) y `shared-prod` (`mxqbyeohzlawcxfwfivd`, solo migraciones, sin seed). Ambos con las 10 migraciones y Resend como secret (remitente pendiente: sin dominio verificado).
-- Vercel `shared` (equipo CSD): producción → `shared-prod`; preview/development → `shared-dev`. URL pública: https://shared-activos.vercel.app (alias sin nombres; los alias automáticos de Vercel con el slug del equipo existen pero no se usan)
+- Vercel `shared` (equipo CSD): producción → `shared-prod`; preview/development → `shared-dev`. URL pública: https://shared-csd.vercel.app (alias sin nombres; los alias automáticos de Vercel con el slug del equipo existen pero no se usan)
 - Repo: https://github.com/techcsd/shared (cuenta techcsd; XavielT colaborador con push). Vercel conectado por git: push a `dev` = preview, push a `main` = producción.
 - Si algún deploy por git queda BLOCKED, el autor del commit no mapea a un miembro del equipo Vercel; alternativa: `git archive main` a un temporal, copiar `.vercel` y `vercel deploy --prod --scope xaviel-csd`.
 
