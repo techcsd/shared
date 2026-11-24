@@ -180,16 +180,6 @@ export class ReservaDetallePage implements OnInit {
     await this.cargar();
   }
 
-  async cambiar(accion: 'iniciar' | 'finalizar'): Promise<void> {
-    this.error.set(null);
-    const err =
-      accion === 'iniciar'
-        ? await this.reservas.iniciar(this.id)
-        : await this.reservas.finalizar(this.id);
-    if (err) this.error.set(t(claveError(err) as ClaveI18n));
-    await this.cargar();
-  }
-
   volver(): void {
     void this.router.navigateByUrl('/calendario');
   }

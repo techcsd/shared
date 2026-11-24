@@ -44,8 +44,32 @@ export function claveError(msg: string): string {
     'transicion_invalida',
     'solo_titular_decide',
     'solo_quien_reserva',
-    'solo_socios_reservan',
     'sin_permiso',
+    'valor_negativo',
+    'lectura_final_menor',
+    'lectura_inicial_mayor',
+    'lectura_menor_que_la_ultima',
+    'combustible_inconsistente',
+    'motivo_requerido',
+    'nota_requerida',
+    'usa_operacion',
+    'requiere_checkin',
+    'requiere_checkout_completo',
+    'capitan_invalido',
+    'otro_socio',
+    'solo_socios_reservan',
+    'solo_demo',
+    'solo_socios',
+    'categoria_invalida',
+    'monto_invalido',
+    'tasa_requerida',
+    'reserva_invalida',
+    'solo_el_receptor',
+    'propuesta_descuadrada',
+    'propuesta_invalida',
+    'estado_invalido',
+    'pagador_invalido',
+    'receptor_invalido',
     'activo_no_disponible',
   ].find((x) => msg.includes(x));
   return k ? `error.${k}` : 'app.error.generico';
@@ -87,6 +111,21 @@ export class ReservaService {
       .eq('reservado_por', miMiembro)
       .order('creado_en', { ascending: false })
       .limit(100);
+    return (data ?? []) as unknown as ReservaModel[];
+  }
+
+  /** Salidas vigentes o recientes del grupo (para asociar gastos individuales). */
+  async recientes(grupo: string): Promise<ReservaModel[]> {
+    const { data } = await this.db
+      .from('reservas')
+      .select(
+        'id, grupo_id, activo_id, rango, estado, tipo_bloqueo, motivo_bloqueo, uso, destino_id, personas, reservado_por, responsable_miembro, responsable_invitado, borrador_expira_en, cancelada_en, cancelacion_tardia, cargo_cancelacion, motivo_cancelacion, creado_en, orden:ordenes(codigo)',
+      )
+      .eq('grupo_id', grupo)
+      .in('estado', ['confirmada', 'en_curso', 'finalizada'])
+      .is('tipo_bloqueo', null)
+      .order('creado_en', { ascending: false })
+      .limit(60);
     return (data ?? []) as unknown as ReservaModel[];
   }
 
@@ -190,16 +229,6 @@ export class ReservaService {
       fila as { tardia: boolean; cargo: number } | null,
       error,
     );
-  }
-
-  async iniciar(reserva: string) {
-    const { error } = await this.db.rpc('reserva_iniciar', { p_reserva: reserva });
-    return error?.message ?? null;
-  }
-
-  async finalizar(reserva: string) {
-    const { error } = await this.db.rpc('reserva_finalizar', { p_reserva: reserva });
-    return error?.message ?? null;
   }
 
   async marcarEnterado(reserva: string) {
