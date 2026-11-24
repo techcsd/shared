@@ -10,6 +10,7 @@ import { FinanzasService } from '../../core/finanzas.service';
 import { GrupoService } from '../../core/grupo.service';
 import { ClaveI18n } from '../../core/i18n/es';
 import { t } from '../../core/i18n/i18n';
+import { OfflineService } from '../../core/offline.service';
 import { ReservaService, claveError } from '../../core/reserva.service';
 
 type Filtro = 'todos' | 'provisional' | 'validado' | 'vencen';
@@ -33,6 +34,7 @@ export class GastosPage implements OnInit {
   cargando = signal(true);
   guardando = signal(false);
   error = signal<string | null>(null);
+  aviso = signal<string | null>(null);
   abierto = signal(false);
   accion = signal<{ id: string; tipo: 'disputar' | 'anular' } | null>(null);
   motivo = '';
@@ -80,6 +82,7 @@ export class GastosPage implements OnInit {
     private reservas: ReservaService,
     private config: ConfiguracionService,
     private auth: AuthService,
+    public offline: OfflineService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -181,7 +184,8 @@ export class GastosPage implements OnInit {
       this.guardando.set(false);
       return this.mostrarError(res.error);
     }
-    if (this.foto && res.datos) {
+    if (res.datos === 'en-cola') this.aviso.set(t('off.en_cola'));
+    if (this.foto && res.datos && res.datos !== 'en-cola') {
       const sub = await this.finanzas.subirEvidencia(g, u, 'gasto', res.datos, this.foto, 'factura');
       if (sub.error) this.mostrarError(sub.error);
     }

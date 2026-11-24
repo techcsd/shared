@@ -2,6 +2,12 @@
 <main class="gastos">
   <h1>{{ t('nav.gastos') }}</h1>
 
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (offline.pendientes() > 0) {
+    <p class="aviso" role="status">{{ t('off.pendientes', { n: offline.pendientes() }) }}</p>
+  }
   @if (grupos.esSocio() && totalProvisional() > 0) {
     <p class="suave">
       {{ t('gas.provisional_total') }}: {{ totalProvisional() | number: '1.0-2' }} {{ monedaGrupo() }}

@@ -1,13 +1,5 @@
-import { Route, Routes } from '@angular/router';
-import { ClaveI18n } from './core/i18n/es';
+import { Routes } from '@angular/router';
 import { authGuard, grupoGuard, rolGuard } from './core/guards/guards';
-
-const pendiente = (path: string, titulo: ClaveI18n, soloSocio = false): Route => ({
-  path,
-  loadComponent: () => import('./pages/proximamente/proximamente').then((m) => m.ProximamentePage),
-  data: { titulo },
-  ...(soloSocio ? { canActivate: [rolGuard(['socio'])] } : {}),
-});
 
 // Rutas lazy. Finanzas y acuerdos: solo `socio` (SA16). El calendario es la pantalla principal (SA15).
 export const routes: Routes = [
@@ -20,6 +12,11 @@ export const routes: Routes = [
     path: 'unirse/:token',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/unirse/unirse').then((m) => m.UnirsePage),
+  },
+  {
+    path: 'propuesta/:token',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/propuesta-unirse/propuesta-unirse').then((m) => m.PropuestaUnirsePage),
   },
   {
     path: 'g/:token',
@@ -121,7 +118,19 @@ export const routes: Routes = [
         path: 'mas/capitanes',
         loadComponent: () => import('./pages/capitanes/capitanes').then((m) => m.CapitanesPage),
       },
-      pendiente('mas/propuestas', 'mas.propuestas', true),
+      {
+        path: 'mas/propuestas',
+        loadComponent: () => import('./pages/propuestas/propuestas').then((m) => m.PropuestasPage),
+      },
+      {
+        path: 'mas/lanzamiento',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/lanzamiento/lanzamiento').then((m) => m.LanzamientoPage),
+      },
+      {
+        path: 'mas/salud',
+        loadComponent: () => import('./pages/salud/salud').then((m) => m.SaludPage),
+      },
       {
         path: 'mas/grupo',
         loadComponent: () => import('./pages/miembros/miembros').then((m) => m.MiembrosPage),

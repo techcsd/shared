@@ -2,11 +2,21 @@
 // Sin sesión. Token aleatorio hasheado en la base, expira tras el regreso, límite de intentos por IP.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'content-type, authorization, apikey',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-};
+// CORS restringido al dominio de la app (APP_URL, separado por comas) más localhost de desarrollo.
+const PERMITIDOS = (Deno.env.get('APP_URL') ?? 'https://shared-csd.vercel.app')
+  .split(',')
+  .map((x) => x.trim())
+  .concat(['http://localhost:4200', 'http://localhost:4310']);
+let CORS: Record<string, string> = {};
+function fijarCors(req: Request) {
+  const origen = req.headers.get('Origin') ?? '';
+  CORS = {
+    'Access-Control-Allow-Origin': PERMITIDOS.includes(origen) ? origen : PERMITIDOS[0],
+    'Access-Control-Allow-Headers': 'content-type, authorization, apikey',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    Vary: 'Origin',
+  };
+}
 const json = (cuerpo: unknown, status = 200) =>
   new Response(JSON.stringify(cuerpo), { status, headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
@@ -16,6 +26,7 @@ async function sha256(s: string): Promise<string> {
 }
 
 Deno.serve(async (req) => {
+  fijarCors(req);
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
   let token = new URL(req.url).searchParams.get('token') ?? '';
   if (!token && req.method === 'POST') {

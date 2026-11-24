@@ -1,0 +1,38 @@
+<!-- Salud del sistema -->
+<main class="pagina">
+  <h1>{{ t('mas.salud') }}</h1>
+  @if (denegado()) {
+    <p class="error-texto" role="alert">{{ t('salud.denegado') }}</p>
+  }
+  @if (datos(); as s) {
+    <div class="kpis">
+      <div><span class="suave">{{ t('salud.errores_24h') }}</span><strong>{{ s.errores_24h }}</strong></div>
+      <div><span class="suave">{{ t('salud.grupos') }}</span><strong>{{ s.grupos }} ({{ s.grupos_demo }} demo)</strong></div>
+      <div><span class="suave">{{ t('salud.propuestas') }}</span><strong>{{ s.propuestas_abiertas }}</strong></div>
+      <div><span class="suave">{{ t('salud.asistente') }}</span><strong>{{ s.asistente_ms.mediana ?? '—' }} ms</strong></div>
+      <div><span class="suave">{{ t('salud.directorio') }}</span><strong>{{ s.directorio_habilitado ? 'ON' : 'OFF' }}</strong></div>
+    </div>
+
+    <h2>{{ t('salud.cola') }}</h2>
+    <p>
+      @for (e of estados(s); track e[0]) {
+        <span class="chip" [class.alerta]="e[0] === 'fallido'">{{ e[0] }}: {{ e[1] }}</span>
+      }
+    </p>
+    @for (f of s.fallos_correo; track f.momento) {
+      <p class="suave">{{ f.momento.slice(0, 16) }} · {{ f.tipo }} · {{ f.motivo }} ({{ f.reintentos }})</p>
+    }
+
+    <h2>{{ t('salud.errores') }}</h2>
+    @for (e of s.errores_recientes; track e.momento) {
+      <p class="suave">{{ e.momento.slice(0, 16) }} · {{ e.ruta }} · {{ e.mensaje }}</p>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+
+    <h2>{{ t('salud.reservas_dia') }}</h2>
+    @for (d of s.reservas_por_dia; track d.dia) {
+      <p>{{ d.dia }}: <strong>{{ d.n }}</strong></p>
+    }
+  }
+</main>

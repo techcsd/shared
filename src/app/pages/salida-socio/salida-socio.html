@@ -19,7 +19,7 @@
       @if (c.valoracion_nota) {
         <p><strong>{{ t('sal_socio.valoracion') }}:</strong> {{ c.valoracion_nota }}</p>
       }
-      @for (o of ofertas()[c.id] ?? []; track o.id) {
+      @for (o of ofertas()[c.id]; track o.id) {
         <p>{{ nombre(o.miembro_id) }}: {{ o.porcentaje | number: '1.0-2' }} % · {{ o.valor | number: '1.2-2' }} {{ o.moneda }}</p>
       }
       <p class="suave">{{ t('sal_socio.ofertado') }}: {{ sumaOfertas(c) | number: '1.0-2' }} / {{ c.porcentaje | number: '1.0-2' }} %</p>

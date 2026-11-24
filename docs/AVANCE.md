@@ -61,3 +61,20 @@ Verificación: `npm run test:db` → 12 archivos / 22 migraciones; unitarios 23;
 | F8 cierre | ⏳ | PR a `dev`; producción pendiente de OK |
 
 Verificación: `npm run test:db` 14 archivos / 25 migraciones; e2e vivo P4 4/4 contra shared-dev (incluye export xlsx/pdf y 403 del admin operativo).
+
+## PROMPT-5 — Formación de grupos, directorio, demo/real, endurecimiento y lanzamiento
+| Fase | Estado | Evidencia |
+|---|---|---|
+| F1 propuestas de compra | ✅ | migración 26; pantalla Más → Propuestas de compra; test 15 (10 aportes desiguales = 100 %) |
+| F2 directorio opcional | ✅ | apagado por defecto; test 15 |
+| F3 modo demo y datos reales | ✅ | Más → Lanzamiento; **SA1 medido**: 5 reservas en móvil emulado, promedio 727 ms (automatizado) |
+| F4 PWA y rendimiento | ⚠️ parcial | lectura offline + cola (tests unitarios); Lighthouse: ver nota abajo |
+| F5 seguridad | ✅ | test 16, CSP verificada, `docs/SEGURIDAD.md`; `hawkscan` no disponible |
+| F6 observabilidad | ✅ | Más → Salud del sistema (admin de plataforma), `docs/OPERACION.md` |
+| F7 marca y accesibilidad | ✅ | marca solo en `brand.ts` (vigilado por `release-check`); sin rediseño |
+| F8 lanzamiento controlado | ✅ | `docs/DESPLIEGUE.md`, `scripts/release-check.mjs`, `docs/PRUEBA-CON-FELIPE.md`, versión 1.0.0-rc.1; **sin desplegar a producción** |
+| F9 cierre de la ronda | ✅ | `docs/INFORME-RONDA-1.md` |
+
+Verificación: `npm run test:db` 16 archivos / 27 migraciones; unitarios 28; e2e vivo (smoke, P2–P5) 22/22 contra shared-dev.
+
+**Nota Lighthouse (F4):** NO se pudo medir. Lighthouse 12 contra el Chromium headless de Playwright en Windows devolvió error de protocolo (`Target closed`) y, tras ajustar flags, puntajes 0 que son de la corrida fallida, no del sitio. Queda **pendiente medir en un navegador Chrome real o desde PageSpeed Insights** con la URL de preview. Lo que sí se verificó: PWA instalable (manifest standalone, es), CSP sin violaciones, controles táctiles ≥ 44 px (`min-height: 2.75rem`), etiquetas en todos los campos, foco visible por defecto del navegador.
