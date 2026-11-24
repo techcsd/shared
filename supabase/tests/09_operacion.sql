@@ -30,6 +30,9 @@ begin
   select id into mb from miembros where grupo_id = g and usuario_id = b;
 
   perform tests.igual((select count(*)::int from activo_componentes where activo_id = act), 2, 'el bote tiene 2 motores');
+  -- DF-20: sin capitán con licencia vigente no hay check-in (se registran los de esta prueba)
+  perform capitan_guardar(g, null, 'Capitán Juan', null, 'LIC-1', current_date + 200, 5, null);
+  perform capitan_guardar(g, null, 'Ana', ma, 'LIC-2', current_date + 200, 3, null);
   select jsonb_agg(jsonb_build_object('componente_id', id, 'valor', 100 + indice * 10) order by indice) into lect
     from activo_componentes where activo_id = act;
   select jsonb_agg(jsonb_build_object('componente_id', id, 'valor', 105 + indice * 10) order by indice) into lect_fin

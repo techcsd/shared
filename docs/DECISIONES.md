@@ -90,3 +90,17 @@ Fecha de todas: **2026-11-23**. Estado: «aplicado por defecto» = nadie lo ha r
 | DF-72 | El registro de capitanes llega en el PROMPT-4: `capitan_licencia_ok()` es un gancho que hoy devuelve verdadero (tolerancia pedida); P4 lo reemplaza | DF-20 | aplicado por defecto |
 | DF-73 | `finanzas.modo`: hoy solo `registro` tiene comportamiento (nada bloquea); `estricto` queda como valor reservado con el helper `finanzas_modo()` | DF-27 | aplicado por defecto |
 | DF-74 | `demo_reiniciar_operacion(grupo)`: borra gastos, libro, pagos, daños y operaciones solo si el grupo es de demostración (el libro mayor tiene el borrado prohibido salvo dentro de esta función) | DF-40; permite repetir pruebas en dev | aplicado por defecto |
+
+## Decisiones técnicas del PROMPT-4 (Regla A; 2026-11-24)
+| ID | Decisión | Por qué | Estado |
+|---|---|---|---|
+| DF-75 | Plan de mantenimiento con criterio `fecha`, `horas` o `primero` (si es nulo manda `mantenimiento.criterio` del grupo); las horas salen de `lecturas` reales (`lectura_actual`); «primero» vence por horas aunque la fecha no llegue y viceversa | DF-13 | aplicado por defecto |
+| DF-76 | Las alertas (planes, seguro 30/7 días, licencias, facturas por vencer) las emite `mantenimiento_evaluar()` dentro de `cron_mantenimiento`, **una sola vez por umbral** (`alertas_emitidas`); un plan vencido crea su tarea | DF-21 | aplicado por defecto |
+| DF-77 | `tarea_programar` crea el bloqueo con `bloqueo_crear`; si choca con reservas confirmadas **no cancela nada**: devuelve los conflictos y la siguiente fecha libre | SA5 | aplicado por defecto |
+| DF-78 | Un servicio con costo crea un gasto `comun` (lo valida otro socio, DF-12) y reinicia el plan desde su lectura | SA10 | aplicado por defecto |
+| DF-79 | `capitan_licencia_ok` ya es real: hay un capitán activo, con licencia vigente a la fecha, que es el miembro o el nombre indicado. Con `capitanes.licencia_vigente_requerida` (por defecto sí) el check-in no avanza; **por eso el seed demo registra capitanes** | DF-20 | aplicado por defecto (**cambia P3**) |
+| DF-80 | El deducible de un siniestro abre un caso de daño con el deducible como referencia (acuerdo entre socios, sin cargos automáticos); un activo sin póliza vigente muestra aviso permanente y no bloquea | DF-21 | aplicado por defecto |
+| DF-81 | Reportes: `reporte_dashboard` y `reporte_salidas` leen el libro mayor y la operación (sin cálculo en el cliente), solo `socio`; costo neto = débitos que no son pagos − reversas de gastos anulados | SA18 | aplicado por defecto |
+| DF-82 | Exportación PDF/Excel en la edge `exportar-reporte` con el JWT del usuario (los permisos son los de la base), tope 5.000 filas, cabecera `X-Filas` | DF-33 | aplicado por defecto |
+| DF-83 | Salida de socio: ofertas de los demás socios hasta cubrir el %; toda oferta nueva reinicia las aceptaciones; cierra solo si **todos** aceptaron y el saliente tiene saldo 0; traspasa porcentajes (suma 100, auditado) y deja al saliente `salido` con 0 % | DF-25 | aplicado por defecto |
+| DF-84 | Mediador sin cuenta en el grupo: se invita por correo/enlace (token hasheado) pasados `desacuerdos.dias_mediador` días; ve solo la disputa y su hilo (RLS por `disputa_mediadores`), escribe mensajes y expira al cerrarse | DF-26 | aplicado por defecto |

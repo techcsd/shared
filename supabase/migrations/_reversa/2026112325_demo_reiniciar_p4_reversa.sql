@@ -1,0 +1,1 @@
+-- Reversa de 25: vuelve a la función de 22.

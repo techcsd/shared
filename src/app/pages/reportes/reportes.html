@@ -1,0 +1,172 @@
+<!-- Reportes -->
+<main class="pagina">
+  <h1>{{ t('mas.reportes') }}</h1>
+  <p class="suave">{{ t('rep.ayuda') }}</p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (!grupos.esSocio()) {
+    <p class="aviso-permanente">{{ t('rep.solo_socios') }}</p>
+  }
+
+  @if (grupos.esSocio()) {
+    <div class="fila-campos">
+      <div class="campo">
+        <label for="r-anio">{{ t('rep.anio') }}</label>
+        <input id="r-anio" name="anio" type="number" min="2020" max="2100" [(ngModel)]="anio" (ngModelChange)="cargar()" />
+      </div>
+      <div class="campo">
+        <label for="r-mes">{{ t('rep.mes') }}</label>
+        <select id="r-mes" name="mes" [(ngModel)]="mes" (ngModelChange)="cargar()">
+          <option value="">{{ t('rep.todo_el_anio') }}</option>
+          @for (m of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track m) {
+            <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (dash(); as d) {
+      <div class="kpis" data-testid="kpis">
+        <div><span class="suave">{{ t('rep.salidas') }}</span><strong>{{ d.salidas }}</strong></div>
+        <div><span class="suave">{{ t('rep.dias') }}</span><strong>{{ d.dias_usados }}</strong></div>
+        <div><span class="suave">{{ t('rep.duracion') }}</span><strong>{{ d.horas_duracion | number: '1.0-1' }} h</strong></div>
+        <div><span class="suave">{{ t('rep.combustible') }}</span><strong>{{ d.combustible_consumido | number: '1.0-1' }}</strong></div>
+        <div><span class="suave">{{ t('rep.fees') }}</span><strong data-testid="kpi-fees">{{ d.fees | number: '1.2-2' }}</strong></div>
+        <div><span class="suave">{{ t('rep.danos') }}</span><strong>{{ d.danos | number: '1.2-2' }}</strong></div>
+        <div><span class="suave">{{ t('rep.costo_total') }}</span><strong data-testid="kpi-costo">{{ d.costo_total | number: '1.2-2' }}</strong></div>
+      </div>
+
+      <h2>{{ t('rep.horas_motor') }}</h2>
+      <ul>
+        @for (h of d.horas_por_componente; track h.etiqueta) {
+          <li>{{ h.etiqueta }}: <strong>{{ h.horas | number: '1.0-1' }}</strong> {{ h.unidad }}</li>
+        } @empty {
+          <li class="suave">{{ t('app.vacio') }}</li>
+        }
+      </ul>
+
+      <h2>{{ t('rep.comparativo') }}</h2>
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>{{ t('fin.de_quien') }}</th>
+            <th class="num">%</th>
+            <th class="num">{{ t('rep.salidas') }}</th>
+            <th class="num">{{ t('rep.duracion') }}</th>
+            <th class="num">{{ t('rep.costo') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of d.por_miembro; track m.miembro_id) {
+            <tr>
+              <td>{{ m.nombre }}</td>
+              <td class="num">{{ m.porcentaje | number: '1.0-2' }}</td>
+              <td class="num">{{ m.salidas }}</td>
+              <td class="num">{{ m.horas | number: '1.0-1' }}</td>
+              <td class="num">
+                {{ m.costo | number: '1.2-2' }}
+                <div class="barra" [style.width]="ancho(m.costo, maxSocio())"></div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <h2>{{ t('rep.tendencia') }}</h2>
+      @for (m of d.por_mes; track m.mes) {
+        <div>
+          <span>{{ m.mes }} · {{ m.salidas }} {{ t('rep.salidas') }} · {{ m.costo | number: '1.2-2' }}</span>
+          <div class="barra" [style.width]="ancho(m.costo, maxMes())"></div>
+        </div>
+      } @empty {
+        <p class="suave">{{ t('app.vacio') }}</p>
+      }
+    }
+
+    <h2>{{ t('rep.salidas_detalle') }}</h2>
+    <div class="fila-campos">
+      <div class="campo">
+        <label for="f-desde">{{ t('man.desde') }}</label>
+        <input id="f-desde" name="desde" type="date" [(ngModel)]="f.desde" />
+      </div>
+      <div class="campo">
+        <label for="f-hasta">{{ t('man.hasta') }}</label>
+        <input id="f-hasta" name="hasta" type="date" [(ngModel)]="f.hasta" />
+      </div>
+      <div class="campo">
+        <label for="f-miembro">{{ t('fin.de_quien') }}</label>
+        <select id="f-miembro" name="miembro" [(ngModel)]="f.miembro">
+          <option [ngValue]="undefined">—</option>
+          @for (m of miembros(); track m.id) {
+            <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <label for="f-destino">{{ t('res.destino') }}</label>
+        <select id="f-destino" name="destino" [(ngModel)]="f.destino">
+          <option [ngValue]="undefined">—</option>
+          @for (d of destinos(); track d.id) {
+            <option [value]="d.id">{{ d.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <label for="f-uso">{{ t('res.uso') }}</label>
+        <select id="f-uso" name="uso" [(ngModel)]="f.uso">
+          <option [ngValue]="undefined">—</option>
+          <option value="personal">{{ t('uso.personal') }}</option>
+          <option value="familiar">{{ t('uso.familiar') }}</option>
+          <option value="negocios">{{ t('uso.negocios') }}</option>
+          <option value="invitado">{{ t('uso.invitado') }}</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="f-estado">{{ t('rep.estado') }}</label>
+        <select id="f-estado" name="estado" [(ngModel)]="f.estado">
+          <option [ngValue]="undefined">—</option>
+          <option value="confirmada">{{ t('estado.confirmada') }}</option>
+          <option value="en_curso">{{ t('estado.en_curso') }}</option>
+          <option value="finalizada">{{ t('estado.finalizada') }}</option>
+          <option value="cancelada">{{ t('estado.cancelada') }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="acciones">
+      <button class="boton" type="button" (click)="cargar()">{{ t('rep.aplicar') }}</button>
+      <button class="boton secundario" type="button" (click)="exportar('xlsx')">{{ t('rep.excel') }}</button>
+      <button class="boton secundario" type="button" (click)="exportar('pdf')">{{ t('rep.pdf') }}</button>
+    </div>
+    <p class="suave">{{ t('rep.tope') }}</p>
+
+    <table class="tabla" data-testid="tabla-salidas">
+      <thead>
+        <tr>
+          <th>{{ t('rep.orden') }}</th>
+          <th>{{ t('rep.fecha') }}</th>
+          <th>{{ t('fin.de_quien') }}</th>
+          <th class="num">{{ t('op.horas') }}</th>
+          <th class="num">{{ t('rep.fees') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (x of filas(); track x.reserva_id) {
+          <tr>
+            <td>{{ x.orden }}</td>
+            <td>{{ x.fecha }}</td>
+            <td>{{ x.miembro }}</td>
+            <td class="num">{{ x.horas_motor | number: '1.0-1' }}</td>
+            <td class="num">{{ x.fee | number: '1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">{{ filas().length }} {{ t('rep.filas') }}</td>
+          <td class="num">{{ totalFee() | number: '1.2-2' }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  }
+</main>

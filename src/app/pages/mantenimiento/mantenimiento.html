@@ -1,0 +1,223 @@
+<!-- Mantenimiento -->
+<main class="pagina">
+  <h1>{{ t('nav.mantenimiento') }}</h1>
+
+  @for (p of alertas(); track p.id) {
+    <p class="aviso-permanente" role="alert">
+      <strong>{{ estados()[p.id]?.vencido ? t('man.vencido') : t('man.por_vencer') }}:</strong>
+      {{ p.nombre }} — {{ textoEstado(p) }}
+    </p>
+  }
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  <div class="pestanas" role="tablist">
+    @for (x of ['tareas', 'planes', 'servicios']; track x) {
+      <button type="button" role="tab" class="chip" [class.activo]="pestana() === x" [attr.aria-selected]="pestana() === x" (click)="pestana.set($any(x))">
+        {{ tk('man.tab.' + x) }}
+      </button>
+    }
+  </div>
+
+  @if (puedeRegistrar() && activos().length) {
+    <div class="campo">
+      <label for="m-activo">{{ t('man.activo') }}</label>
+      <select id="m-activo" name="pActivo" [(ngModel)]="pActivo" (ngModelChange)="cambiarActivo()">
+        @for (a of activos(); track a.id) {
+          <option [value]="a.id">{{ a.nombre }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <!-- ===== Tareas ===== -->
+  @if (pestana() === 'tareas') {
+    @for (x of abiertas(); track x.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ x.titulo }}</strong>
+          <span class="chip" [class.alerta]="!!x.vence_fecha && x.vence_fecha <= hoy && x.estado === 'pendiente'">{{ tk('man.estado.' + x.estado) }}</span>
+        </header>
+        <p class="suave">
+          @if (x.vence_fecha) { {{ t('man.fecha') }}: {{ x.vence_fecha }} }
+          @if (x.vence_horas !== null) { · {{ t('man.horas') }}: {{ x.vence_horas }} }
+          @if (x.proveedor) { · {{ x.proveedor }} }
+        </p>
+        @if (puedeRegistrar()) {
+          <button class="boton secundario" type="button" (click)="programando.set(programando() === x.id ? null : x.id); conflicto.set(null)">
+            {{ t('man.programar') }}
+          </button>
+        }
+        @if (programando() === x.id) {
+          <div class="fila-campos">
+            <div class="campo">
+              <label [for]="'i-' + x.id">{{ t('man.desde') }}</label>
+              <input [id]="'i-' + x.id" [name]="'i-' + x.id" type="datetime-local" [(ngModel)]="inicio" />
+            </div>
+            <div class="campo">
+              <label [for]="'f-' + x.id">{{ t('man.hasta') }}</label>
+              <input [id]="'f-' + x.id" [name]="'f-' + x.id" type="datetime-local" [(ngModel)]="fin" />
+            </div>
+          </div>
+          @if (conflicto(); as c) {
+            <div class="aviso-permanente" role="alert">
+              <strong>{{ t('man.conflicto') }}</strong>
+              <ul>
+                @for (k of c.conflictos ?? []; track k.reserva_id) {
+                  <li>{{ k.orden }} · {{ k.inicio }} → {{ k.fin }}</li>
+                }
+              </ul>
+              <p class="suave">{{ t('man.no_cancela') }}</p>
+              @if (c.sugerida) {
+                <button class="boton secundario" type="button" (click)="usarSugerida()">{{ t('man.usar_sugerida') }}: {{ c.sugerida.inicio }}</button>
+              }
+            </div>
+          }
+          <button class="boton" type="button" (click)="programar(x)">{{ t('man.bloquear') }}</button>
+        }
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+
+    @if (puedeRegistrar()) {
+      <section class="tarjeta">
+        <h2>{{ t('man.nueva_tarea') }}</h2>
+        <div class="campo">
+          <label for="t-titulo">{{ t('man.titulo') }}</label>
+          <input id="t-titulo" name="tTitulo" type="text" [(ngModel)]="tTitulo" />
+        </div>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="t-vence">{{ t('man.fecha') }}</label>
+            <input id="t-vence" name="tVence" type="date" [(ngModel)]="tVence" />
+          </div>
+          <div class="campo">
+            <label for="t-prov">{{ t('gas.proveedor') }}</label>
+            <input id="t-prov" name="tProveedor" type="text" [(ngModel)]="tProveedor" />
+          </div>
+        </div>
+        <button class="boton" type="button" (click)="crearTarea()">{{ t('man.nueva_tarea') }}</button>
+      </section>
+    }
+  }
+
+  <!-- ===== Planes ===== -->
+  @if (pestana() === 'planes') {
+    @for (p of planes(); track p.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ p.nombre }}</strong>
+          <span class="chip" [class.alerta]="estados()[p.id]?.vencido">
+            {{ estados()[p.id]?.vencido ? t('man.vencido') : estados()[p.id]?.por_vencer ? t('man.por_vencer') : t('man.al_dia') }}
+          </span>
+        </header>
+        <p class="suave">{{ t('man.criterio') }}: {{ tk('man.criterio.' + (estados()[p.id]?.criterio ?? 'primero')) }} · {{ textoEstado(p) }}</p>
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+    @if (esSocio()) {
+      <section class="tarjeta">
+        <h2>{{ t('man.nuevo_plan') }}</h2>
+        <div class="campo">
+          <label for="p-nombre">{{ t('man.titulo') }}</label>
+          <input id="p-nombre" name="pNombre" type="text" [(ngModel)]="pNombre" />
+        </div>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="p-comp">{{ t('op.componente') }}</label>
+            <select id="p-comp" name="pComponente" [(ngModel)]="pComponente">
+              <option value="">—</option>
+              @for (c of componentes(); track c.id) {
+                <option [value]="c.id">{{ c.etiqueta }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label for="p-crit">{{ t('man.criterio') }}</label>
+            <select id="p-crit" name="pCriterio" [(ngModel)]="pCriterio">
+              <option value="">{{ t('man.criterio_grupo') }}</option>
+              <option value="fecha">{{ t('man.criterio.fecha') }}</option>
+              <option value="horas">{{ t('man.criterio.horas') }}</option>
+              <option value="primero">{{ t('man.criterio.primero') }}</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="p-dias">{{ t('man.cada_dias') }}</label>
+            <input id="p-dias" name="pDias" type="number" min="1" [(ngModel)]="pDias" />
+          </div>
+          <div class="campo">
+            <label for="p-horas">{{ t('man.cada_horas') }}</label>
+            <input id="p-horas" name="pHoras" type="number" min="1" step="0.1" [(ngModel)]="pHoras" />
+          </div>
+        </div>
+        <button class="boton" type="button" (click)="crearPlan()">{{ t('man.nuevo_plan') }}</button>
+      </section>
+    }
+  }
+
+  <!-- ===== Servicios y facturas ===== -->
+  @if (pestana() === 'servicios') {
+    @for (s of servicios(); track s.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ s.descripcion || t('man.servicio') }}</strong>
+          @if (s.costo !== null && esSocio()) {
+            <span>{{ s.costo | number: '1.2-2' }} {{ s.moneda }}</span>
+          }
+        </header>
+        <p class="suave">{{ s.fecha }}{{ s.proveedor ? ' · ' + s.proveedor : '' }}{{ s.lectura !== null ? ' · ' + s.lectura + ' h' : '' }}</p>
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+    @if (puedeRegistrar()) {
+      <section class="tarjeta">
+        <h2>{{ t('man.registrar_servicio') }}</h2>
+        <p class="suave">{{ t('man.servicio_ayuda') }}</p>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="s-tarea">{{ t('man.tarea') }}</label>
+            <select id="s-tarea" name="sTarea" [(ngModel)]="sTarea">
+              <option value="">—</option>
+              @for (x of abiertas(); track x.id) {
+                <option [value]="x.id">{{ x.titulo }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label for="s-comp">{{ t('op.componente') }}</label>
+            <select id="s-comp" name="sComponente" [(ngModel)]="sComponente">
+              <option value="">—</option>
+              @for (c of componentes(); track c.id) {
+                <option [value]="c.id">{{ c.etiqueta }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label for="s-prov">{{ t('gas.proveedor') }}</label>
+            <input id="s-prov" name="sProveedor" type="text" [(ngModel)]="sProveedor" />
+          </div>
+          <div class="campo">
+            <label for="s-costo">{{ t('man.costo') }}</label>
+            <input id="s-costo" name="sCosto" type="number" min="0" step="0.01" [(ngModel)]="sCosto" />
+          </div>
+          <div class="campo">
+            <label for="s-venc">{{ t('gas.vencimiento') }}</label>
+            <input id="s-venc" name="sVence" type="date" [(ngModel)]="sVence" />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="s-desc">{{ t('gas.descripcion') }}</label>
+          <input id="s-desc" name="sDescripcion" type="text" [(ngModel)]="sDescripcion" />
+        </div>
+        <button class="boton" type="button" (click)="registrarServicio()">{{ t('man.registrar_servicio') }}</button>
+      </section>
+    }
+  }
+</main>

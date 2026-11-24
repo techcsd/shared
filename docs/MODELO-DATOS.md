@@ -115,3 +115,13 @@ erDiagram
 - **Reglas de asiento:** común → crédito a quien pagó, débito por `porcentaje`; individual → débito a quien reservó; daño → solo tras acuerdo; fee → débito a quien reservó, crédito según `tarifa.destino_fee_a`; pago confirmado → crédito al que paga, débito al receptor. Balance = haber − debe; positivo = le deben.
 - **RLS:** finanzas solo `socio`; el admin operativo ve únicamente los gastos y casos que cargó (sin balances ni libro); operación visible a todo miembro; escrituras solo por RPC.
 - **Hallazgos de las pruebas:** el permiso de borrado del reinicio demo es local a la transacción (los tests lo resetean); un gasto de daño referencia su caso, así que el orden de borrado importa (migración 22).
+
+## 12. Mantenimiento, seguro, capitanes, reportes y gobierno — implementado en P4 (migraciones 23–25)
+- **Mantenimiento (23):** `mantenimiento_planes` (criterio, intervalos, última fecha/lectura), `mantenimiento_tareas`, `servicios` (+ gasto común), `alertas_emitidas`. RPC `plan_guardar`, `plan_estado`, `tarea_crear`, `tarea_programar`, `servicio_registrar`, `lectura_actual`; interna `mantenimiento_evaluar`.
+- **Seguro (23):** `polizas_seguro`, `siniestros` (+ caso de daño por el deducible). RPC `poliza_guardar`, `siniestro_abrir`, `siniestro_estado`, `activo_poliza_vigente`.
+- **Capitanes (23):** `capitanes` (licencia, vencimiento, experiencia); `capitan_licencia_ok` reemplaza el gancho de P3; RPC `capitan_guardar`.
+- **Reportes (24):** `reporte_dashboard(grupo, año, mes)` (jsonb) y `reporte_salidas(grupo, filtros…)`; edge `exportar-reporte`.
+- **Salida de socio (24):** `salida_socio_casos` + `salida_socio_ofertas` + `salida_socio_acuses`; RPC `solicitar/valorar/ofertar/responder/cerrar/cancelar`.
+- **Desacuerdos (24):** `disputas`, `disputa_mensajes` (con `autor_nombre` para que el mediador no necesite ver a los socios), `disputa_mediadores`; RPC `disputa_abrir/mensaje/invitar_mediador/aceptar_mediacion/cerrar`; helper RLS `es_mediador_de`.
+- **Evidencias:** nuevos tipos `poliza`, `siniestro`, `servicio`, `licencia`, `salida_socio`, `disputa`.
+- **Hallazgos de las pruebas:** la alerta de seguro debe emitir solo el umbral más cercano (30 → 7); una columna de salida llamada `moneda` choca con subconsultas sin calificar en `RETURNS TABLE`; el reinicio demo debe borrar `servicios` y `siniestros` antes que gastos y casos de daño (migración 25).

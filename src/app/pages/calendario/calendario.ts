@@ -18,6 +18,7 @@ import {
 } from '../../core/fechas';
 import { GrupoService } from '../../core/grupo.service';
 import { idioma, t } from '../../core/i18n/i18n';
+import { GobiernoService } from '../../core/gobierno.service';
 import { ReservaService, claveError } from '../../core/reserva.service';
 import { MiembroModel } from '../../../shared/models/grupo.model';
 import { ReservaModel, codigoOrden, parseRango } from '../../../shared/models/reserva.model';
@@ -106,7 +107,10 @@ export class CalendarioPage implements OnInit, OnDestroy {
     public activos: ActivoSeleccionService,
     private reservas: ReservaService,
     private router: Router,
+    private gob: GobiernoService,
   ) {}
+
+  tareasVencidas = signal<string[]>([]);
 
   async ngOnInit(): Promise<void> {
     this.diaSel.set(claveDia(new Date(), this.tz()));
@@ -114,6 +118,10 @@ export class CalendarioPage implements OnInit, OnDestroy {
     const g = this.grupos.grupo()?.id;
     if (g) {
       this.miembros.set(await this.grupos.miembros(g));
+      const hoy = new Date().toISOString().slice(0, 10);
+      this.tareasVencidas.set(
+        (await this.gob.tareas(g)).filter((x) => x.estado === 'pendiente' && !!x.vence_fecha && x.vence_fecha <= hoy).map((x) => x.titulo),
+      );
       this.canal = this.reservas.suscribir(g, () => void this.recargar());
     }
     await this.recargar();

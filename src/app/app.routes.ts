@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/invitado/invitado').then((m) => m.InvitadoPage),
   },
   {
+    path: 'mediar/:token',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/mediar/mediar').then((m) => m.MediarPage),
+  },
+  {
     path: 'grupos',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/grupos/grupos').then((m) => m.GruposPage),
@@ -67,7 +72,10 @@ export const routes: Routes = [
         path: 'operacion/:id',
         loadComponent: () => import('./pages/operacion/operacion').then((m) => m.OperacionPage),
       },
-      pendiente('mantenimiento', 'nav.mantenimiento'),
+      {
+        path: 'mantenimiento',
+        loadComponent: () => import('./pages/mantenimiento/mantenimiento').then((m) => m.MantenimientoPage),
+      },
       { path: 'mas', loadComponent: () => import('./pages/mas/mas').then((m) => m.MasPage) },
       {
         path: 'mas/prioridad-911',
@@ -91,10 +99,28 @@ export const routes: Routes = [
         path: 'mas/estatuto',
         loadComponent: () => import('./pages/estatuto/estatuto').then((m) => m.EstatutoPage),
       },
-      pendiente('mas/reportes', 'mas.reportes'),
-      pendiente('mas/disputas', 'mas.disputas', true),
-      pendiente('mas/seguro', 'mas.seguro'),
-      pendiente('mas/capitanes', 'mas.capitanes'),
+      {
+        path: 'mas/reportes',
+        loadComponent: () => import('./pages/reportes/reportes').then((m) => m.ReportesPage),
+      },
+      {
+        path: 'mas/disputas',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/disputas/disputas').then((m) => m.DisputasPage),
+      },
+      {
+        path: 'mas/salida-socio',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/salida-socio/salida-socio').then((m) => m.SalidaSocioPage),
+      },
+      {
+        path: 'mas/seguro',
+        loadComponent: () => import('./pages/seguro/seguro').then((m) => m.SeguroPage),
+      },
+      {
+        path: 'mas/capitanes',
+        loadComponent: () => import('./pages/capitanes/capitanes').then((m) => m.CapitanesPage),
+      },
       pendiente('mas/propuestas', 'mas.propuestas', true),
       {
         path: 'mas/grupo',
