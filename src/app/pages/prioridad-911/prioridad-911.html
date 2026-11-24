@@ -1,0 +1,173 @@
+<!-- Prioridad 911 -->
+<main class="p911">
+  <h1>{{ t('mas.prioridad_911') }}</h1>
+  <p class="suave">{{ t('p911.ayuda') }}</p>
+
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (mensaje()) {
+    <p role="status">{{ mensaje() }}</p>
+  }
+
+  <!-- Nueva solicitud sobre una reserva (llega desde el calendario o el detalle) -->
+  @if (objetivo(); as o) {
+    <form class="tarjeta" (ngSubmit)="solicitar()" #f="ngForm">
+      <h2>{{ t('p911.solicitar') }}</h2>
+      <p>{{ o.orden?.codigo }} · {{ rangoTxt(o.rango) }}</p>
+      <p class="suave">{{ t('p911.no_quita') }}</p>
+      <div class="campo">
+        <label for="p-motivo">{{ t('p911.motivo') }}</label>
+        <select id="p-motivo" name="motivo" [(ngModel)]="motivo">
+          @for (m of motivos; track m) {
+            <option [value]="m">{{ motivoTexto(m) }}</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <label for="p-urg">{{ t('p911.urgencia') }}</label>
+        <select id="p-urg" name="urgencia" [(ngModel)]="urgencia">
+          @for (u of urgencias; track u) {
+            <option [value]="u">{{ urgenciaTexto(u) }}</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <label for="p-personas">{{ t('res.personas') }}</label>
+        <input
+          id="p-personas"
+          name="personas"
+          type="number"
+          min="1"
+          required
+          [(ngModel)]="personas"
+        />
+      </div>
+      <div class="campo">
+        <label for="p-alt">{{ t('p911.alternativa') }}</label>
+        <input
+          id="p-alt"
+          name="alternativa"
+          type="text"
+          maxlength="500"
+          [(ngModel)]="alternativa"
+        />
+      </div>
+      <div class="campo">
+        <label for="p-texto">{{ t('p911.mensaje') }}</label>
+        <input id="p-texto" name="texto" type="text" maxlength="1000" [(ngModel)]="texto" />
+      </div>
+      <button class="boton" type="submit" [disabled]="f.invalid">{{ t('p911.enviar') }}</button>
+    </form>
+  }
+
+  <!-- Solicitudes -->
+  @for (s of solicitudes(); track s.id) {
+    <article class="tarjeta">
+      <header>
+        <strong>{{ estadoTexto(s.estado) }}</strong>
+        <span class="suave">{{ nombre(s.solicitante_id) }} → {{ nombre(s.titular_id) }}</span>
+      </header>
+      <p>{{ motivoTexto(s.motivo) }} · {{ urgenciaTexto(s.urgencia) }} · {{ rangoTxt(s.rango) }}</p>
+      @if (s.alternativa) {
+        <p class="suave">{{ t('p911.alternativa') }}: {{ s.alternativa }}</p>
+      }
+      @if (s.contra_rango && s.estado === 'contrapropuesta') {
+        <p>
+          <strong>{{ t('p911.contra_ofrece') }}:</strong> {{ rangoTxt(s.contra_rango) }}
+        </p>
+      }
+
+      <!-- El TITULAR decide -->
+      @if (s.estado === 'pendiente' && esTitular(s)) {
+        <div class="campo">
+          <label [for]="'r-' + s.id">{{ t('p911.respuesta') }}</label>
+          <input
+            [id]="'r-' + s.id"
+            type="text"
+            maxlength="1000"
+            [(ngModel)]="respuestaTexto[s.id]"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </div>
+        <div class="acciones">
+          <button class="boton" type="button" (click)="responder(s, 'acepta')">
+            {{ t('p911.aceptar') }}
+          </button>
+          <button class="boton secundario" type="button" (click)="responder(s, 'rechaza')">
+            {{ t('p911.rechazar') }}
+          </button>
+        </div>
+        <details>
+          <summary>{{ t('p911.contraproponer') }}</summary>
+          <div class="fila-campos">
+            <input
+              type="date"
+              [min]="hoy()"
+              [(ngModel)]="contraDia[s.id]"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.aria-label]="t('res.dia_salida')"
+            />
+            <input
+              type="time"
+              [(ngModel)]="contraDesde[s.id]"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.aria-label]="t('res.hora_salida')"
+            />
+            <input
+              type="time"
+              [(ngModel)]="contraHasta[s.id]"
+              [ngModelOptions]="{ standalone: true }"
+              [attr.aria-label]="t('res.hora_regreso')"
+            />
+          </div>
+          <button
+            class="boton secundario"
+            type="button"
+            [disabled]="!contraDia[s.id]"
+            (click)="contraproponer(s)"
+          >
+            {{ t('p911.enviar_contra') }}
+          </button>
+        </details>
+      }
+      @if (s.estado === 'pendiente' && !esTitular(s)) {
+        <p class="suave">{{ t('p911.espera_titular') }}</p>
+      }
+
+      <!-- El SOLICITANTE responde a la contrapropuesta -->
+      @if (s.estado === 'contrapropuesta' && esSolicitante(s)) {
+        <div class="acciones">
+          <button class="boton" type="button" (click)="responderContra(s, true)">
+            {{ t('p911.aceptar_contra') }}
+          </button>
+          <button class="boton secundario" type="button" (click)="responderContra(s, false)">
+            {{ t('p911.rechazar_contra') }}
+          </button>
+        </div>
+      }
+      <p class="suave">{{ t('p911.vence') }} {{ fh(s.expira_en) }}</p>
+
+      <!-- Historial (mensajes, decisiones y horas) -->
+      <details>
+        <summary>{{ t('p911.historial') }}</summary>
+        <ol class="historial">
+          @for (m of mensajesDe(s.id); track m.id) {
+            <li>
+              <span class="suave">{{ fh(m.creado_en) }}</span>
+              <strong>{{ nombre(m.autor_id) }}</strong> {{ tipoMensajeTexto(m.tipo) }}
+              @if (m.texto) {
+                : {{ m.texto }}
+              }
+            </li>
+          }
+        </ol>
+      </details>
+      <a [routerLink]="['/reserva', s.reserva_id]">{{ t('cal.detalle') }}</a>
+    </article>
+  } @empty {
+    @if (!objetivo()) {
+      <p class="suave">{{ t('p911.vacio') }}</p>
+    }
+  }
+</main>

@@ -1,0 +1,24 @@
+<!-- Notificaciones -->
+<main class="notificaciones">
+  <h1>{{ t('mas.notificaciones') }}</h1>
+  @if (notif.sinLeer() > 0) {
+    <button class="boton secundario" type="button" (click)="notif.marcarTodas()">
+      {{ t('notif.marcar_todas') }}
+    </button>
+  }
+  <ul class="lista">
+    @for (n of notif.lista(); track n.id) {
+      <li>
+        <button type="button" class="item" [class.sin-leer]="!n.leida_en" (click)="abrir(n)">
+          <strong>{{ n.titulo }}</strong>
+          @if (n.cuerpo) {
+            <span>{{ n.cuerpo }}</span>
+          }
+          <span class="suave">{{ fecha(n.creado_en) }}</span>
+        </button>
+      </li>
+    } @empty {
+      <li class="suave">{{ t('notif.vacio') }}</li>
+    }
+  </ul>
+</main>

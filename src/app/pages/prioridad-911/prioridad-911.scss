@@ -1,0 +1,43 @@
+.p911 {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--espacio-4);
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--espacio-2);
+    flex-wrap: wrap;
+  }
+}
+
+.acciones {
+  display: flex;
+  gap: var(--espacio-2);
+  flex-wrap: wrap;
+  margin: var(--espacio-2) 0;
+}
+
+.fila-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--espacio-2);
+  margin: var(--espacio-2) 0;
+
+  input {
+    min-height: 2.5rem;
+    padding: var(--espacio-2);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-1);
+  }
+}
+
+.historial {
+  margin: var(--espacio-2) 0;
+  padding-left: var(--espacio-4);
+
+  li {
+    padding: var(--espacio-1) 0;
+  }
+}

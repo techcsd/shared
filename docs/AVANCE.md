@@ -1,6 +1,6 @@
 # AVANCE — Shared
 
-Última actualización: 2026-11-23 · Rama local `feature/f1-scaffold` (**sin commits**: esperan OK de Xaviel).
+Última actualización: 2026-11-23 (PROMPT-2) · Rama local `feature/f1-scaffold` (**sin commits**: esperan OK de Xaviel).
 
 | Fase | Estado | Evidencia |
 |---|---|---|
@@ -17,3 +17,18 @@ Node 22.23 · Angular 21.2 · Supabase CLI por `npx` (3.3.0) · **sin Docker**: 
 
 ## Pendiente
 Ver `docs/HANDOFF.md`.
+
+## PROMPT-2 — Reservas
+| Fase | Estado | Evidencia |
+|---|---|---|
+| F0 sincronizar | ✅ | rama `feature/p2-reservas` desde `dev` |
+| F1 modelo y reglas en la base | ✅ | migraciones 11–17; `test:db`: 8 archivos (06 reservas, 07 911) |
+| F2 calendario | ✅ | mes/semana/día, leyenda, selector de activo, Realtime, bloqueos |
+| F3 reservar | ✅ | asistente de 4 pasos; borrador 24 h; fee y límite antes de confirmar |
+| F4 notificaciones y acuse | ✅ | outbox + edge `enviar-notificaciones` + pg_cron; acuse y recordatorios 24 h/2 h |
+| F5 Prioridad 911 | ✅ | solicitar/aceptar/rechazar/contraproponer/expirar |
+| F6 detalle de orden e invitados | ✅ | cronología, enlace `/g/:token` + edge `guest-view` |
+| F7 cancelaciones, bloqueos, temporada | ✅ | cargo visible antes de cancelar; pestaña Temporada |
+| F8 cierre | ⏳ | falta aplicar a **shared-prod** y merge a `main` (pendiente de OK explícito) |
+
+Evidencia en vivo contra shared-dev: `E2E_VIVO=1 npx playwright test` → 11/11 (asistente en ~1 s automatizado, choque, acuse, 911 completo, carrera concurrente real: 1 gana y 1 falla, capacidad 16/9, invitado).

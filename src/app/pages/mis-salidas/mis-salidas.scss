@@ -1,0 +1,24 @@
+.salidas {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--espacio-4);
+}
+
+.fila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  text-decoration: none;
+  color: var(--color-texto);
+  transition: var(--transicion);
+
+  &:hover {
+    border-color: var(--color-primario);
+  }
+}
+
+a.boton {
+  display: inline-flex;
+  text-decoration: none;
+  margin-bottom: var(--espacio-3);
+}

@@ -54,3 +54,22 @@
     }
   }
 }
+
+.campana {
+  position: relative;
+  text-decoration: none;
+  padding: var(--espacio-1) var(--espacio-2);
+
+  .contador {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+    min-width: 1.1rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: var(--color-error);
+    color: #fff;
+    font-size: 0.7rem;
+    text-align: center;
+  }
+}

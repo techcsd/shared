@@ -56,3 +56,17 @@ Fecha de todas: **2026-11-23**. Estado: «aplicado por defecto» = nadie lo ha r
 | DF-46 | `porcentaje` visible a todo miembro; finanzas (libro mayor) solo `socio` | Es dato de gobierno, no contabilidad | aplicado por defecto |
 | DF-47 | Edición de `porcentaje` tras activar: bloqueada hasta PROMPT-4 (RPC con propuesta y acuses) | Cambiar propiedad es cambiar el estatuto | aplicado por defecto |
 | DF-48 | Invitación por enlace copiable en UI; envío por correo vía edge function + Resend queda listo pero **requiere** `RESEND_API_KEY` de Xaviel | Pendiente físico | aplicado por defecto |
+
+## Decisiones técnicas del PROMPT-2 (Regla A; 2026-11-23)
+| ID | Decisión | Por qué | Estado |
+|---|---|---|---|
+| DF-49 | Los bloqueos de mantenimiento/preparación son filas de `reservas` (`estado = bloqueada_mantenimiento`, `tipo_bloqueo`) | Una exclusión GiST no puede cruzar dos tablas; así «nunca dos cosas se solapan» es una sola regla | aplicado por defecto |
+| DF-50 | `rango_bloqueo` = rango + `buffer_horas/2` por cada lado; la exclusión usa ese rango | Con buffer B queda un hueco mínimo de B horas entre salidas (DF-18) | aplicado por defecto |
+| DF-51 | `proporcional` = tope de horas del mes = % del socio × horas del mes; `cuota` = `derechos_uso.cuota_horas_mes` | El PPT no define «proporcional»; esta es la lectura más simple y es política | aplicado por defecto |
+| DF-52 | Temporada alta: el socio con prioridad (rota por año y periodo) reserva solo hasta 14 días antes de que empiece; después queda libre | «Los demás pueden reservar en su turno» es ambiguo; apagada por defecto | aplicado por defecto |
+| DF-53 | Solicitud 911: el aviso va a todos los socios; solo el titular decide; vigencia `prioridad_911.expira_horas` (72 h) y expirar nunca toca la reserva | SA8 | aplicado por defecto |
+| DF-54 | Aceptar una 911 cancela la reserva del titular y crea la del solicitante en la misma transacción (sin cargo de cancelación tardía) | «Cede la reserva» | aplicado por defecto |
+| DF-55 | Orden `{PREFIJO}-{AAAA}-{NNNN}`: el año es el de la confirmación en la zona del grupo; contador atómico por grupo y año | DF-32 | aplicado por defecto |
+| DF-56 | Costos de una reserva (`reserva_costos`) solo visibles a socios; el invitado y el admin operativo no ven tarifas | SA16 | aplicado por defecto |
+| DF-57 | Correos de invitado: el token en claro vive solo en la cola de salida hasta enviarse y se borra al enviar; la cola de invitados no es legible por ningún cliente | SC8 | aplicado por defecto |
+| DF-58 | Las políticas nuevas de cada fase van en su propia migración (upsert) generada desde el mismo JSON (`fase`); nunca se edita una migración ya aplicada | Migraciones aditivas | aplicado por defecto |

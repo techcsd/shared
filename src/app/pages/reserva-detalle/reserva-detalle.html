@@ -1,0 +1,181 @@
+<!-- Detalle de orden -->
+<main class="detalle">
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  } @else if (!reserva()) {
+    <p class="error-texto">{{ t('det.no_existe') }}</p>
+  } @else {
+    @let r = reserva()!;
+    @let rg = rango()!;
+    <h1>{{ r.orden?.codigo ?? t('det.sin_orden') }}</h1>
+    <p>
+      <span class="estado" [class]="r.estado">{{ estadoTexto(r.estado) }}</span> ·
+      {{ r.activo?.nombre }}
+    </p>
+
+    <section class="tarjeta">
+      <dl class="datos">
+        <dt>{{ t('res.cuando') }}</dt>
+        <dd>{{ fh(rg.inicio) }} → {{ fh(rg.fin) }}</dd>
+        <dt>{{ t('res.uso') }}</dt>
+        <dd>{{ r.uso }}</dd>
+        @if (r.destino) {
+          <dt>{{ t('res.destino') }}</dt>
+          <dd>{{ r.destino.nombre }}</dd>
+        }
+        <dt>{{ t('res.personas') }}</dt>
+        <dd>{{ r.personas }}</dd>
+        <dt>{{ t('det.reservado_por') }}</dt>
+        <dd>{{ nombre(r.reservado_por) }}</dd>
+        <dt>{{ t('res.responsable') }}</dt>
+        <dd>
+          {{
+            r.invitado
+              ? r.invitado.nombre + ' (' + t('uso.invitado') + ')'
+              : nombre(r.responsable_miembro)
+          }}
+        </dd>
+        @if (costo(); as c) {
+          <dt>{{ t('res.fee') }}</dt>
+          <dd>{{ c.fee | number: '1.0-0' }} {{ c.moneda }}</dd>
+        }
+        @if (r.estado === 'cancelada') {
+          <dt>{{ t('det.cancelada') }}</dt>
+          <dd>
+            {{ r.cancelacion_tardia ? t('det.tardia') : t('det.sin_cargo') }}
+            @if (r.cargo_cancelacion) {
+              · {{ r.cargo_cancelacion | number: '1.0-0' }}
+            }
+          </dd>
+        }
+      </dl>
+    </section>
+
+    <!-- Avisos: «Leído y enterado» (no es una aprobación) -->
+    @if (r.estado !== 'borrador' && r.estado !== 'cancelada' && !r.tipo_bloqueo) {
+      <section class="tarjeta">
+        <h2>{{ t('det.enterado') }}</h2>
+        <p class="suave">{{ t('det.enterado_ayuda') }}</p>
+        <ul class="lista">
+          @for (m of socios(); track m.id) {
+            @if (m.id !== r.reservado_por) {
+              <li>
+                {{ m.perfil?.nombre }}:
+                @for (a of acuses(); track a.miembro_id) {
+                  @if (a.miembro_id === m.id) {
+                    <span class="ok"
+                      >{{ t('det.enterado_el') }} {{ fh(parseFecha(a.momento)) }}</span
+                    >
+                  }
+                }
+                @if (!acuses().some((x) => x.miembro_id === m.id)) {
+                  <span class="suave">{{ t('det.pendiente') }}</span>
+                }
+              </li>
+            }
+          }
+        </ul>
+        @if (puedeEnterado()) {
+          <button class="boton" type="button" (click)="enterado()">
+            {{ t('det.marcar_enterado') }}
+          </button>
+        }
+      </section>
+    }
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+
+    <!-- Acciones -->
+    <div class="acciones">
+      @if (puedeOperar() && r.estado === 'confirmada') {
+        <button class="boton secundario" type="button" (click)="cambiar('iniciar')">
+          {{ t('det.iniciar') }}
+        </button>
+      }
+      @if (puedeOperar() && r.estado === 'en_curso') {
+        <button class="boton secundario" type="button" (click)="cambiar('finalizar')">
+          {{ t('det.finalizar') }}
+        </button>
+      }
+      @if (esTitular() && (r.estado === 'confirmada' || r.estado === 'borrador')) {
+        <button class="boton secundario" type="button" (click)="confirmandoCancelar.set(true)">
+          {{ t('det.cancelar') }}
+        </button>
+      }
+      @if (puede911()) {
+        <a
+          class="boton secundario"
+          [routerLink]="['/mas/prioridad-911']"
+          [queryParams]="{ reserva: r.id }"
+          >{{ t('cal.pedir_911') }}</a
+        >
+      }
+    </div>
+
+    <!-- Cancelación: el cargo (si aplica) se ve ANTES de confirmar (SA22) -->
+    @if (confirmandoCancelar()) {
+      <section class="tarjeta" role="alertdialog" aria-label="{{ t('det.cancelar') }}">
+        <h2>{{ t('det.cancelar') }}</h2>
+        @if (previsualizacion().tardia) {
+          <p class="error-texto">
+            {{ t('det.cancel_tardia', { horas: horasSinCargo() }) }}
+            @if (previsualizacion().cargo > 0) {
+              {{
+                t('det.cancel_cargo', {
+                  cargo: (previsualizacion().cargo | number: '1.0-0') ?? '',
+                  moneda: costo()?.moneda ?? '',
+                })
+              }}
+            } @else {
+              {{ t('det.cancel_sin_cargo_tardio') }}
+            }
+          </p>
+        } @else {
+          <p class="suave">{{ t('det.cancel_gratis', { horas: horasSinCargo() }) }}</p>
+        }
+        <div class="campo">
+          <label for="d-motivo">{{ t('det.motivo') }}</label>
+          <input
+            id="d-motivo"
+            type="text"
+            maxlength="300"
+            [(ngModel)]="motivoCancelacion"
+            name="motivo"
+          />
+        </div>
+        <div class="acciones">
+          <button class="boton" type="button" (click)="cancelar()">
+            {{ t('det.confirmar_cancelar') }}
+          </button>
+          <button class="boton secundario" type="button" (click)="confirmandoCancelar.set(false)">
+            {{ t('app.cerrar') }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- Cronología (auditoría: quién y cuándo) -->
+    @if (linea().length) {
+      <section class="tarjeta">
+        <h2>{{ t('det.cronologia') }}</h2>
+        <ol class="cronologia">
+          @for (l of linea(); track $index) {
+            <li>
+              <span class="suave">{{ l.momento }}</span> {{ l.texto }}
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    <section class="tarjeta">
+      <h2>{{ t('det.archivos') }}</h2>
+      <p class="suave">{{ t('det.archivos_ayuda') }}</p>
+    </section>
+    <button class="boton secundario" type="button" (click)="volver()">
+      {{ t('det.volver_calendario') }}
+    </button>
+  }
+</main>
