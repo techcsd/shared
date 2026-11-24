@@ -18,15 +18,19 @@ const sql = (s) => `'${String(s).replaceAll("'", "''")}'`;
 const num = (n) => (n === undefined || n === null ? 'null' : String(n));
 const json = (v) => `${sql(JSON.stringify(v))}::jsonb`;
 
-const filasSql = catalogo
-  .map(
-    (p, i) =>
-      `  (${sql(p.clave)}, ${sql(p.categoria)}, ${sql(p.tipo)}, ${json(p.defecto)}, ${num(p.minimo)}, ${num(p.maximo)}, ${
-        p.opciones ? json(p.opciones) : 'null'
-      }, ${p.nullable ? 'true' : 'false'}, ${sql(p.df ?? '')}, ${sql(p.descripcion ?? '')}, ${i + 1})`,
-  )
-  .join(',\n');
-const bloqueSql = `insert into politicas_catalogo (clave, categoria, tipo, valor_defecto, minimo, maximo, opciones, nullable, df, descripcion, orden) values\n${filasSql};`;
+const filaSql = (p, orden) =>
+  `  (${sql(p.clave)}, ${sql(p.categoria)}, ${sql(p.tipo)}, ${json(p.defecto)}, ${num(p.minimo)}, ${num(p.maximo)}, ${
+    p.opciones ? json(p.opciones) : 'null'
+  }, ${p.nullable ? 'true' : 'false'}, ${sql(p.df ?? '')}, ${sql(p.descripcion ?? '')}, ${orden})`;
+const cabecera =
+  'insert into politicas_catalogo (clave, categoria, tipo, valor_defecto, minimo, maximo, opciones, nullable, df, descripcion, orden) values\n';
+const filasDe = (lista) => lista.map((p) => filaSql(p, catalogo.indexOf(p) + 1)).join(',\n');
+// Las migraciones ya aplicadas no se tocan: lo nuevo de cada fase va en su propia migración (upsert).
+const bloqueSql = cabecera + filasDe(catalogo.filter((p) => !p.fase)) + ';';
+const bloqueP2 =
+  cabecera +
+  filasDe(catalogo.filter((p) => p.fase === 'p2')) +
+  '\non conflict (clave) do update set valor_defecto = excluded.valor_defecto, minimo = excluded.minimo, maximo = excluded.maximo, opciones = excluded.opciones, descripcion = excluded.descripcion;';
 
 const ts = `// GENERADO por scripts/gen-politicas.mjs desde supabase/catalogo/politicas.json — no editar a mano.
 export type TipoPolitica = 'booleano' | 'entero' | 'numero' | 'enum' | 'lista';
@@ -86,6 +90,10 @@ const salidas = [
   {
     ruta: 'supabase/migrations/2026112309_politicas.sql',
     nuevo: () => reemplazarBloque('supabase/migrations/2026112309_politicas.sql', '-- BEGIN:CATALOGO', '-- END:CATALOGO', bloqueSql),
+  },
+  {
+    ruta: 'supabase/migrations/2026112316_politicas_p2.sql',
+    nuevo: () => reemplazarBloque('supabase/migrations/2026112316_politicas_p2.sql', '-- BEGIN:CATALOGO', '-- END:CATALOGO', bloqueP2),
   },
   { ruta: 'src/app/core/politicas-catalogo.ts', nuevo: () => ts },
   {

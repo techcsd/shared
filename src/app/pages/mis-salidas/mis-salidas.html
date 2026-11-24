@@ -1,0 +1,43 @@
+<!-- Mis salidas -->
+<main class="salidas">
+  <h1>{{ t('nav.mis_salidas') }}</h1>
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+  @if (grupos.esSocio()) {
+    <a class="boton" routerLink="/reservar">{{ t('cal.reservar') }}</a>
+  }
+
+  <h2>{{ t('sal.proximas') }}</h2>
+  @for (r of proximas(); track r.id) {
+    <a class="tarjeta fila" [routerLink]="['/reserva', r.id]">
+      <strong>{{ codigo(r) }}</strong>
+      <span>{{ cuando(r) }}</span>
+    </a>
+  } @empty {
+    <p class="suave">{{ t('sal.sin_proximas') }}</p>
+  }
+
+  @if (borradores().length) {
+    <h2>{{ t('res.borradores') }}</h2>
+    @for (r of borradores(); track r.id) {
+      <a class="tarjeta fila" routerLink="/reservar">
+        <strong>{{ t('estado.borrador') }}</strong>
+        <span>{{ cuando(r) }}</span>
+      </a>
+    }
+  }
+
+  <h2>{{ t('sal.historial') }}</h2>
+  @for (r of historial(); track r.id) {
+    <a class="tarjeta fila" [routerLink]="['/reserva', r.id]">
+      <strong>{{ codigo(r) }}</strong>
+      <span
+        >{{ cuando(r) }} ·
+        {{ r.estado === 'cancelada' ? t('estado.cancelada') : t('estado.finalizada') }}</span
+      >
+    </a>
+  } @empty {
+    <p class="suave">{{ t('app.vacio') }}</p>
+  }
+</main>

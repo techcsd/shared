@@ -38,3 +38,19 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Convertir la cuenta `techcsd` (hoy usuario) en **organización** de GitHub, dejando a `XavielT` como owner antes. Ventajas: varios owners y equipos, secrets de Actions a nivel de org, apps instaladas una vez, auditoría. Es de una sola vía y la cuenta deja de poder iniciar sesión. Se hace desde `techcsd`: Settings → Account → Turn into an organization.
 - Dominio verificado de Resend (hoy no hay); edge function de invitaciones por correo.
 - Edición de textos: etiquetas del catálogo de políticas solo en español.
+
+## PROMPT-2 (reservas) — estado
+- **shared-dev**: migraciones 11–17, edge functions y cron aplicados y probados en vivo.
+- **shared-prod**: **pendiente** aplicar migraciones 11–17, desplegar las 2 edge functions y correr `node scripts/configurar-cron.mjs prod`; luego merge `dev` → `main`. No hacerlo al revés (el código nuevo consulta tablas que prod aún no tiene).
+- Correo: el pipeline funciona; sin dominio verificado Resend solo entrega al correo propietario de la cuenta (el resto queda `fallido` con su motivo y 1 reintento). Cuando haya dominio: verificar en Resend y poner `RESEND_REMITENTE`.
+- `APP_URL` es un secret de edge (por defecto https://shared-csd.vercel.app).
+- Probar en dev: reservar con dos usuarios, choque, 911 completo, enlace de invitado (ver informe del PROMPT-2).
+
+## PROMPT-3 (operación y finanzas) — estado (2026-11-24)
+- **shared-dev**: migraciones 18–22 aplicadas y probadas en vivo (`E2E_VIVO=1 npx playwright test e2e/p3-vivo.spec.ts`, 4/4; reinicia los datos demo de operación/finanzas al empezar y al terminar).
+- **shared-prod**: **pendiente** aplicar migraciones 11–22 (P2 + P3) + edge functions + cron; luego merge `dev` → `main`. Orden: base primero, código después.
+- Cambia P2: `reserva_iniciar/finalizar` ya no sirven; la salida se inicia/cierra desde `/operacion/:id` (check-in/check-out con datos completos).
+- Storage: el bucket privado `evidencias` lo crea la migración 18 (solo si existe el esquema `storage`); fotos de factura/foto de operación se suben desde la app.
+- Gancho para P4: `capitan_licencia_ok()` (hoy siempre verdadero) → reemplazar con el registro de capitanes; vínculo `danos_casos.siniestro_id` (sin FK) para el seguro.
+- Probar en dev: una salida completa con dos usuarios y comparar los balances con una cuenta a mano (ver informe del PROMPT-3). Botón «Reiniciar datos de prueba de finanzas» en Más → Finanzas (solo grupos demo).
+- Datos de prueba de dev: tras `demo_reiniciar_operacion` quedan limpias las tablas de operación/finanzas; las reservas se conservan.

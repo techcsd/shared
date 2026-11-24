@@ -1,0 +1,172 @@
+<!-- Gastos -->
+<main class="gastos">
+  <h1>{{ t('nav.gastos') }}</h1>
+
+  @if (grupos.esSocio() && totalProvisional() > 0) {
+    <p class="suave">
+      {{ t('gas.provisional_total') }}: {{ totalProvisional() | number: '1.0-2' }} {{ monedaGrupo() }}
+    </p>
+  }
+
+  @if (puedeCargar()) {
+    <button class="boton" type="button" (click)="abierto.set(!abierto())">{{ t('gas.nuevo') }}</button>
+  }
+
+  <!-- Alta rápida -->
+  @if (abierto()) {
+    <form class="tarjeta" (ngSubmit)="guardar()" #f="ngForm">
+      <h2>{{ t('gas.nuevo') }}</h2>
+      <div class="opciones" role="radiogroup" aria-label="{{ t('gas.alcance') }}">
+        <button type="button" role="radio" class="opcion" [class.elegida]="alcance === 'comun'" [attr.aria-checked]="alcance === 'comun'" (click)="alcance = 'comun'">
+          {{ t('gas.comun') }}
+        </button>
+        <button type="button" role="radio" class="opcion" [class.elegida]="alcance === 'individual'" [attr.aria-checked]="alcance === 'individual'" (click)="alcance = 'individual'">
+          {{ t('gas.individual') }}
+        </button>
+      </div>
+      <p class="suave">{{ alcance === 'comun' ? t('gas.comun_ayuda') : t('gas.individual_ayuda') }}</p>
+
+      @if (alcance === 'individual') {
+        <div class="campo">
+          <label for="g-res">{{ t('gas.salida') }}</label>
+          <select id="g-res" name="reserva" [(ngModel)]="reserva">
+            <option value="" disabled>—</option>
+            @for (r of salidas(); track r.id) {
+              <option [value]="r.id">{{ codigo(r) }} · {{ nombre(r.reservado_por) }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="g-cat">{{ t('gas.categoria') }}</label>
+          <select id="g-cat" name="categoria" [(ngModel)]="categoria" required>
+            <option value="" disabled>—</option>
+            @for (c of categorias(); track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="g-monto">{{ t('gas.monto') }}</label>
+          <input id="g-monto" name="monto" type="number" inputmode="decimal" min="0.01" step="0.01" required [(ngModel)]="monto" />
+        </div>
+        <div class="campo">
+          <label for="g-mon">{{ t('gas.moneda') }}</label>
+          <input id="g-mon" name="moneda" type="text" maxlength="3" [(ngModel)]="moneda" />
+        </div>
+        @if (otraMoneda()) {
+          <div class="campo">
+            <label for="g-tasa">{{ t('gas.tasa') }} ({{ moneda }} → {{ monedaGrupo() }})</label>
+            <input id="g-tasa" name="tasa" type="number" inputmode="decimal" min="0" step="0.0001" [(ngModel)]="tasa" />
+          </div>
+        }
+        <div class="campo">
+          <label for="g-pt">{{ t('gas.pagado_por') }}</label>
+          <select id="g-pt" name="pagadoTipo" [(ngModel)]="pagadoTipo">
+            <option value="miembro">{{ t('gas.pagador.miembro') }}</option>
+            <option value="fondo">{{ t('gas.pagador.fondo') }}</option>
+            <option value="externo">{{ t('gas.pagador.externo') }}</option>
+          </select>
+        </div>
+        @if (pagadoTipo === 'miembro') {
+          <div class="campo">
+            <label for="g-pm">{{ t('gas.quien') }}</label>
+            <select id="g-pm" name="pagador" [(ngModel)]="pagador">
+              <option value="">{{ t('gas.yo') }}</option>
+              @for (m of pagadores(); track m.id) {
+                <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="campo">
+          <label for="g-prov">{{ t('gas.proveedor') }}</label>
+          <input id="g-prov" name="proveedor" type="text" [(ngModel)]="proveedor" />
+        </div>
+        <div class="campo">
+          <label for="g-venc">{{ t('gas.vencimiento') }}</label>
+          <input id="g-venc" name="vencimiento" type="date" [(ngModel)]="vencimiento" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="g-desc">{{ t('gas.descripcion') }}</label>
+        <input id="g-desc" name="descripcion" type="text" [(ngModel)]="descripcion" />
+      </div>
+      <div class="campo">
+        <label for="g-foto">{{ t('gas.factura') }}</label>
+        <input id="g-foto" type="file" accept="image/*,application/pdf" capture="environment" (change)="elegirFoto($event)" />
+      </div>
+      @if (error()) {
+        <p class="error-texto" role="alert">{{ error() }}</p>
+      }
+      <button class="boton" type="submit" [disabled]="guardando()">{{ t('app.guardar') }}</button>
+    </form>
+  }
+
+  <!-- Filtros -->
+  <div class="filtros" role="tablist" aria-label="{{ t('gas.filtros') }}">
+    @for (f of ['todos', 'provisional', 'validado', 'vencen']; track f) {
+      <button type="button" role="tab" class="chip" [class.activo]="filtro() === f" [attr.aria-selected]="filtro() === f" (click)="filtro.set($any(f))">
+        {{ tk('gas.filtro.' + f) }}
+      </button>
+    }
+  </div>
+
+  @if (error() && !abierto()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  <!-- Lista -->
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+  @for (g of filtrados(); track g.id) {
+    <article class="tarjeta gasto" [class.anulado]="g.estado === 'anulado'">
+      <header>
+        <strong>{{ g.categoria }}{{ g.proveedor ? ' · ' + g.proveedor : '' }}</strong>
+        <span class="monto">{{ g.monto | number: '1.0-2' }} {{ g.moneda }}</span>
+      </header>
+      <p class="suave">
+        {{ g.fecha }} · {{ tk('gas.' + g.alcance) }} · {{ t('gas.pagado_por') }}: {{ pagadoPor(g) }}
+        @if (g.moneda !== g.moneda_grupo) {
+          · ≈ {{ g.monto_grupo | number: '1.0-2' }} {{ g.moneda_grupo }} (×{{ g.tasa }})
+        }
+      </p>
+      <p>
+        <span class="chip estado" [class.prov]="g.estado === 'registrado' || g.estado === 'disputado'">
+          {{ g.estado === 'registrado' ? t('gas.provisional') : tk('gas.estado.' + g.estado) }}
+        </span>
+        @if (vence(g); as v) {
+          <span class="chip" [class.venc]="v === 'vencido'">{{ t('gas.vence') }} {{ g.vencimiento }}</span>
+        }
+        @if (g.motivo_estado) {
+          <span class="suave">{{ g.motivo_estado }}</span>
+        }
+      </p>
+      <div class="acciones">
+        @if (puedeValidar(g)) {
+          <button class="boton secundario" type="button" (click)="validar(g)">{{ t('gas.validar') }}</button>
+        }
+        @if (puedeDisputar(g)) {
+          <button class="boton secundario" type="button" (click)="accion.set({ id: g.id, tipo: 'disputar' })">{{ t('gas.disputar') }}</button>
+        }
+        @if (puedeAnular(g)) {
+          <button class="boton secundario" type="button" (click)="accion.set({ id: g.id, tipo: 'anular' })">{{ t('gas.anular') }}</button>
+        }
+      </div>
+      @if (accion()?.id === g.id) {
+        <div class="campo">
+          <label [for]="'m-' + g.id">{{ t('gas.motivo') }}</label>
+          <input [id]="'m-' + g.id" [name]="'m-' + g.id" type="text" [(ngModel)]="motivo" />
+          <button class="boton" type="button" (click)="confirmarAccion()">{{ t('gas.confirmar') }}</button>
+        </div>
+      }
+    </article>
+  } @empty {
+    @if (!cargando()) {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+  }
+</main>

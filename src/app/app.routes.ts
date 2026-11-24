@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/unirse/unirse').then((m) => m.UnirsePage),
   },
   {
+    path: 'g/:token',
+    loadComponent: () => import('./pages/invitado/invitado').then((m) => m.InvitadoPage),
+  },
+  {
     path: 'grupos',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/grupos/grupos').then((m) => m.GruposPage),
@@ -36,13 +40,47 @@ export const routes: Routes = [
         path: 'calendario',
         loadComponent: () => import('./pages/calendario/calendario').then((m) => m.CalendarioPage),
       },
-      pendiente('mis-salidas', 'nav.mis_salidas'),
-      pendiente('gastos', 'nav.gastos'),
+      {
+        path: 'mis-salidas',
+        loadComponent: () =>
+          import('./pages/mis-salidas/mis-salidas').then((m) => m.MisSalidasPage),
+      },
+      {
+        path: 'reservar',
+        loadComponent: () => import('./pages/reservar/reservar').then((m) => m.ReservarPage),
+      },
+      {
+        path: 'reserva/:id',
+        loadComponent: () =>
+          import('./pages/reserva-detalle/reserva-detalle').then((m) => m.ReservaDetallePage),
+      },
+      {
+        path: 'mas/notificaciones',
+        loadComponent: () =>
+          import('./pages/notificaciones/notificaciones').then((m) => m.NotificacionesPage),
+      },
+      {
+        path: 'gastos',
+        loadComponent: () => import('./pages/gastos/gastos').then((m) => m.GastosPage),
+      },
+      {
+        path: 'operacion/:id',
+        loadComponent: () => import('./pages/operacion/operacion').then((m) => m.OperacionPage),
+      },
       pendiente('mantenimiento', 'nav.mantenimiento'),
       { path: 'mas', loadComponent: () => import('./pages/mas/mas').then((m) => m.MasPage) },
-      pendiente('mas/prioridad-911', 'mas.prioridad_911'),
-      pendiente('mas/operacion', 'mas.operacion'),
-      pendiente('mas/finanzas', 'mas.finanzas', true),
+      {
+        path: 'mas/prioridad-911',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () =>
+          import('./pages/prioridad-911/prioridad-911').then((m) => m.Prioridad911Page),
+      },
+      { path: 'mas/operacion', pathMatch: 'full', redirectTo: 'mis-salidas' },
+      {
+        path: 'mas/finanzas',
+        canActivate: [rolGuard(['socio'])],
+        loadComponent: () => import('./pages/finanzas/finanzas').then((m) => m.FinanzasPage),
+      },
       {
         path: 'mas/configuracion',
         canActivate: [rolGuard(['socio'])],

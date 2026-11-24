@@ -1,0 +1,18 @@
+drop function if exists limpiar_borradores();
+drop function if exists recordatorios_acuse();
+drop function if exists invitado_ver(text, text);
+drop function if exists temporada_quitar(uuid);
+drop function if exists temporada_generar(uuid, text, int, date, date);
+drop function if exists reserva_marcar_enterado(uuid);
+drop function if exists bloqueo_quitar(uuid);
+drop function if exists bloqueo_crear(uuid, timestamptz, timestamptz, text, text);
+drop function if exists reserva_finalizar(uuid);
+drop function if exists reserva_iniciar(uuid);
+drop function if exists reserva_cambiar_estado_operativo(uuid, estado_reserva, estado_reserva);
+drop function if exists reserva_cancelar(uuid, text);
+drop function if exists reserva_confirmar(uuid);
+drop function if exists reserva_confirmar_interna(uuid);
+drop function if exists reserva_crear_borrador(uuid, timestamptz, timestamptz, uso_reserva, uuid, int, uuid, text, text, uuid, text);
+drop trigger if exists reservas_transicion on reservas;
+drop function if exists reservas_validar_transicion();
+drop function if exists reserva_validar(uuid, uuid, uuid, timestamptz, timestamptz, uso_reserva, int, uuid);

@@ -98,7 +98,7 @@ begin
   perform tests.igual((select count(*)::int from grupo_politicas where grupo_id = g), 0, 'extraño no ve políticas');
   perform tests.igual((select count(*)::int from politicas_del_grupo(g)), 0, 'extraño no ve la lista');
   perform tests.como(a);
-  perform tests.igual((select count(*)::int from politicas_del_grupo(g)), 32, 'socio ve las 32 políticas');
+  perform tests.igual((select count(*)::int from politicas_del_grupo(g)), 33, 'socio ve las 33 políticas');
 
   -- DF-45: grupo de un solo socio aplica al instante
   perform tests.como(solo);

@@ -13,7 +13,7 @@ async function entrar(page: import('@playwright/test').Page, correo: string) {
 test('socio demo: calendario, grupo, banner demo y menú inferior', async ({ page }) => {
   await entrar(page, 'felipe.demo@shared.test');
   await expect(page).toHaveURL(/\/calendario/);
-  await expect(page.locator('h1')).toContainText('Calendario');
+  await expect(page.getByRole('list', { name: 'Leyenda del calendario' })).toBeVisible();
   await expect(page.getByText('Bote Demo (Felipe y Xaviel)')).toBeVisible();
   await expect(page.getByText('MODO DEMO')).toBeVisible();
   const menu = page.getByRole('navigation', { name: 'Navegación principal' });

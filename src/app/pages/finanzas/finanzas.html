@@ -1,0 +1,350 @@
+<!-- Finanzas (solo socios) -->
+<main class="finanzas">
+  <h1>{{ t('mas.finanzas') }}</h1>
+  <p class="suave">{{ modo() === 'estricto' ? t('fin.modo_estricto') : t('fin.modo_registro') }}</p>
+
+  @if (grupos.modoDemo()) {
+    <button class="boton secundario" type="button" (click)="reiniciarDemo()">{{ t('fin.reiniciar_demo') }}</button>
+  }
+
+  <div class="pestanas" role="tablist" aria-label="{{ t('mas.finanzas') }}">
+    @for (p of pestanas; track p) {
+      <button type="button" role="tab" class="chip" [class.activo]="pestana() === p" [attr.aria-selected]="pestana() === p" (click)="pestana.set(p)">
+        {{ tk('fin.tab.' + p) }}
+      </button>
+    }
+  </div>
+
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  @if (cargando()) {
+    <p class="suave">{{ t('app.cargando') }}</p>
+  }
+
+  <!-- ============ Balances ============ -->
+  @if (pestana() === 'balances') {
+    <section class="tarjeta">
+      <h2>{{ t('fin.balances') }}</h2>
+      <p class="suave">{{ t('fin.balances_ayuda') }}</p>
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>{{ t('fin.cuenta') }}</th>
+            <th class="num">{{ t('fin.confirmado') }}</th>
+            <th class="num">{{ t('fin.provisional') }}</th>
+            <th class="num">{{ t('fin.balance') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of filasMiembros(); track b.miembro_id + b.moneda) {
+            <tr>
+              <td>{{ b.nombre }}</td>
+              <td class="num">{{ b.confirmado | number: '1.2-2' }}</td>
+              <td class="num suave">{{ b.provisional | number: '1.2-2' }}</td>
+              <td class="num" [class.positivo]="b.balance > 0" [class.negativo]="b.balance < 0">
+                <strong>{{ b.balance | number: '1.2-2' }}</strong> {{ b.moneda }}
+              </td>
+            </tr>
+          }
+          @for (b of filaFondo(); track b.moneda) {
+            <tr class="fondo">
+              <td>{{ t('fin.fondo') }}</td>
+              <td class="num">{{ b.confirmado | number: '1.2-2' }}</td>
+              <td class="num suave">{{ b.provisional | number: '1.2-2' }}</td>
+              <td class="num">
+                <strong>{{ b.balance | number: '1.2-2' }}</strong> {{ b.moneda }}
+              </td>
+            </tr>
+          }
+          @for (b of filaExterno(); track b.moneda) {
+            <tr>
+              <td>{{ t('fin.externo') }}</td>
+              <td class="num">{{ b.confirmado | number: '1.2-2' }}</td>
+              <td class="num suave">{{ b.provisional | number: '1.2-2' }}</td>
+              <td class="num">
+                <strong>{{ b.balance | number: '1.2-2' }}</strong> {{ b.moneda }}
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">{{ t('fin.suma') }}</td>
+            <td class="num" data-testid="suma-total">{{ sumaTotal() | number: '1.2-2' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  }
+
+  <!-- ============ Estado de cuenta ============ -->
+  @if (pestana() === 'cuenta') {
+    <section class="tarjeta">
+      <h2>{{ t('fin.estado_cuenta') }}</h2>
+      <div class="campo">
+        <label for="f-cta">{{ t('fin.de_quien') }}</label>
+        <select id="f-cta" name="cuentaDe" [(ngModel)]="cuentaDe" (ngModelChange)="cargarCuenta()">
+          @for (m of socios(); track m.id) {
+            <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+          }
+        </select>
+      </div>
+      @for (m of movimientos(); track m.id) {
+        <div class="mov">
+          <div>
+            <strong>{{ tk('fin.origen.' + m.origen_tipo) }}</strong>
+            @if (m.provisional) {
+              <span class="chip prov">{{ t('gas.provisional') }}</span>
+            }
+            <div class="suave">{{ m.nota }}</div>
+            @if (m.moneda_original && m.moneda_original !== m.moneda) {
+              <div class="suave">{{ m.monto_original | number: '1.2-2' }} {{ m.moneda_original }} (×{{ m.tasa }})</div>
+            }
+            @if (m.comprobantes > 0) {
+              <div class="suave">{{ t('fin.comprobantes', { n: m.comprobantes }) }}</div>
+            }
+          </div>
+          <div class="num">
+            <span [class.negativo]="m.debe > 0" [class.positivo]="m.haber > 0">
+              {{ m.haber > 0 ? '+' : '−' }}{{ (m.haber > 0 ? m.haber : m.debe) | number: '1.2-2' }}
+            </span>
+            <div class="suave">{{ t('fin.saldo') }}: {{ m.saldo | number: '1.2-2' }}</div>
+          </div>
+        </div>
+      } @empty {
+        <p class="suave">{{ t('app.vacio') }}</p>
+      }
+    </section>
+  }
+
+  <!-- ============ Pagos ============ -->
+  @if (pestana() === 'pagos') {
+    <form class="tarjeta" (ngSubmit)="pagar()" #fp="ngForm">
+      <h2>{{ t('fin.registrar_pago') }}</h2>
+      <p class="suave">{{ t('fin.pago_ayuda') }}</p>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="p-a">{{ t('fin.a_quien') }}</label>
+          <select id="p-a" name="pAMiembro" [(ngModel)]="pAMiembro">
+            <option value="">{{ t('fin.fondo') }}</option>
+            @for (m of socios(); track m.id) {
+              @if (m.id !== yo()) {
+                <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+              }
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="p-m">{{ t('gas.monto') }}</label>
+          <input id="p-m" name="pMonto" type="number" inputmode="decimal" min="0.01" step="0.01" required [(ngModel)]="pMonto" />
+        </div>
+        <div class="campo">
+          <label for="p-mon">{{ t('gas.moneda') }}</label>
+          <input id="p-mon" name="pMoneda" type="text" maxlength="3" [(ngModel)]="pMoneda" />
+        </div>
+        @if (pMoneda !== monedaGrupo()) {
+          <div class="campo">
+            <label for="p-t">{{ t('gas.tasa') }}</label>
+            <input id="p-t" name="pTasa" type="number" inputmode="decimal" step="0.0001" [(ngModel)]="pTasa" />
+          </div>
+        }
+      </div>
+      <div class="campo">
+        <label for="p-n">{{ t('fin.nota') }}</label>
+        <input id="p-n" name="pNota" type="text" [(ngModel)]="pNota" />
+      </div>
+      <button class="boton" type="submit">{{ t('fin.registrar_pago') }}</button>
+    </form>
+
+    @for (p of pagos(); track p.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ nombre(p.de_miembro) }} → {{ destinoPago(p) }}</strong>
+          <span>{{ p.monto | number: '1.2-2' }} {{ p.moneda }}</span>
+        </header>
+        <p class="suave">{{ p.nota }}</p>
+        <p>
+          <span class="chip" [class.prov]="p.estado === 'pendiente'">{{ tk('fin.pago.' + p.estado) }}</span>
+          @if (p.motivo_rechazo) {
+            <span class="suave">{{ p.motivo_rechazo }}</span>
+          }
+        </p>
+        @if (puedeConfirmar(p)) {
+          <div class="acciones">
+            <button class="boton" type="button" (click)="confirmarPago(p)">{{ t('fin.confirmar_pago') }}</button>
+            <button class="boton secundario" type="button" (click)="rechazando.set(p.id)">{{ t('fin.rechazar') }}</button>
+          </div>
+        }
+        @if (p.de_miembro === yo()) {
+          <div class="campo">
+            <label [for]="'cmp-' + p.id">{{ t('fin.comprobante') }}</label>
+            <input [id]="'cmp-' + p.id" type="file" accept="image/*,application/pdf" (change)="subirComprobante($event, p)" />
+          </div>
+        }
+        @if (rechazando() === p.id) {
+          <div class="campo">
+            <label [for]="'rz-' + p.id">{{ t('gas.motivo') }}</label>
+            <input [id]="'rz-' + p.id" [name]="'rz-' + p.id" type="text" [(ngModel)]="rechazoMotivo" />
+            <button class="boton" type="button" (click)="rechazarPago()">{{ t('gas.confirmar') }}</button>
+          </div>
+        }
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+  }
+
+  <!-- ============ Fondo común ============ -->
+  @if (pestana() === 'fondo') {
+    <section class="tarjeta">
+      <h2>{{ t('fin.fondo') }}</h2>
+      <p>
+        {{ t('fin.saldo_fondo') }}: <strong>{{ saldoFondo() | number: '1.2-2' }} {{ monedaGrupo() }}</strong>
+      </p>
+      <p class="suave">{{ t('fin.fondo_ayuda') }}</p>
+      <p class="suave">
+        {{ aporteMensual() > 0 ? t('fin.aporte_mensual', { monto: aporteMensual() }) : t('fin.aporte_apagado') }}
+      </p>
+      @if (aporteMensual() > 0) {
+        <button class="boton secundario" type="button" (click)="generarAportes()">{{ t('fin.generar_aportes') }}</button>
+      }
+      @for (m of fondo(); track m.id) {
+        <div class="mov">
+          <div>
+            <strong>{{ tk('fin.origen.' + m.origen_tipo) }}</strong>
+            <div class="suave">{{ m.nota }}</div>
+          </div>
+          <div class="num" [class.positivo]="m.haber > 0" [class.negativo]="m.debe > 0">
+            {{ m.haber > 0 ? '+' : '−' }}{{ (m.haber > 0 ? m.haber : m.debe) | number: '1.2-2' }}
+          </div>
+        </div>
+      } @empty {
+        <p class="suave">{{ t('app.vacio') }}</p>
+      }
+    </section>
+  }
+
+  <!-- ============ Daños ============ -->
+  @if (pestana() === 'danos') {
+    <section class="tarjeta">
+      <h2>{{ t('fin.danos') }}</h2>
+      <p class="suave">{{ t('fin.danos_ayuda') }}</p>
+      <div class="campo">
+        <label for="d-t">{{ t('fin.dano_titulo') }}</label>
+        <input id="d-t" name="dTitulo" type="text" [(ngModel)]="dTitulo" />
+      </div>
+      <div class="campo">
+        <label for="d-d">{{ t('gas.descripcion') }}</label>
+        <input id="d-d" name="dDescripcion" type="text" [(ngModel)]="dDescripcion" />
+      </div>
+      <button class="boton" type="button" (click)="abrirCaso()">{{ t('fin.abrir_caso') }}</button>
+    </section>
+
+    @for (d of danos(); track d.id) {
+      <article class="tarjeta">
+        <header class="cab">
+          <strong>{{ d.titulo }}</strong>
+          <span class="chip" [class.prov]="d.estado === 'en_revision'">{{ tk('fin.dano.' + d.estado) }}</span>
+        </header>
+        @if (d.presupuesto) {
+          <p class="suave">{{ t('fin.presupuesto') }}: {{ d.presupuesto | number: '1.2-2' }} {{ d.moneda }}</p>
+        }
+        <button class="boton secundario" type="button" (click)="verCaso(d.id)">{{ t('fin.abrir') }}</button>
+
+        @if (casoAbierto() === d.id) {
+          <div class="caso">
+            <h3>{{ t('fin.hilo') }}</h3>
+            @for (m of mensajes(); track m.id) {
+              <p class="msg" [class.sistema]="m.tipo === 'sistema'">
+                <strong>{{ m.autor_id ? nombre(m.autor_id) : t('det.sistema') }}</strong>: {{ m.texto }}
+              </p>
+            }
+            <div class="campo">
+              <label for="d-m">{{ t('fin.mensaje') }}</label>
+              <input id="d-m" name="dMensaje" type="text" [(ngModel)]="dMensaje" />
+              <button class="boton secundario" type="button" (click)="enviarMensaje()">{{ t('fin.enviar') }}</button>
+            </div>
+            <div class="campo">
+              <label for="d-f">{{ t('fin.evidencia') }}</label>
+              <input id="d-f" type="file" accept="image/*" capture="environment" (change)="subirFoto($event)" />
+            </div>
+
+            @if (d.estado !== 'acordado') {
+              <h3>{{ t('fin.propuesta') }}</h3>
+              @if (d.presupuesto && d.propuesta.length) {
+                <ul>
+                  @for (x of d.propuesta; track x.miembro_id) {
+                    <li>{{ nombre(x.miembro_id) }}: {{ x.monto | number: '1.2-2' }} {{ d.moneda }}</li>
+                  }
+                </ul>
+                <p class="suave">
+                  {{ t('fin.acuerdos') }}:
+                  @for (m of socios(); track m.id) {
+                    <span class="chip">{{ m.perfil?.nombre }}: {{ acepto(m.id, d.version) ? '✓' : '…' }}</span>
+                  }
+                </p>
+                @if (d.estado === 'en_revision' && !yaRespondi()) {
+                  <div class="campo">
+                    <label for="d-n">{{ t('fin.nota') }}</label>
+                    <input id="d-n" name="dNota" type="text" [(ngModel)]="dNota" />
+                  </div>
+                  <div class="acciones">
+                    <button class="boton" type="button" (click)="responder(true)">{{ t('fin.aceptar') }}</button>
+                    <button class="boton secundario" type="button" (click)="responder(false)">{{ t('fin.rechazar') }}</button>
+                  </div>
+                }
+              }
+              <h4>{{ t('fin.nueva_propuesta') }}</h4>
+              <div class="fila-campos">
+                <div class="campo">
+                  <label for="d-p">{{ t('fin.presupuesto') }}</label>
+                  <input id="d-p" name="dPresupuesto" type="number" inputmode="decimal" min="0.01" step="0.01" [(ngModel)]="dPresupuesto" />
+                </div>
+                <div class="campo">
+                  <label for="d-mo">{{ t('gas.moneda') }}</label>
+                  <input id="d-mo" name="dMoneda" type="text" maxlength="3" [(ngModel)]="dMoneda" />
+                </div>
+                <div class="campo">
+                  <label for="d-pt">{{ t('gas.pagado_por') }}</label>
+                  <select id="d-pt" name="dPagadoTipo" [(ngModel)]="dPagadoTipo">
+                    <option value="miembro">{{ t('gas.pagador.miembro') }}</option>
+                    <option value="fondo">{{ t('gas.pagador.fondo') }}</option>
+                    <option value="externo">{{ t('gas.pagador.externo') }}</option>
+                  </select>
+                </div>
+                @if (dPagadoTipo === 'miembro') {
+                  <div class="campo">
+                    <label for="d-pm">{{ t('gas.quien') }}</label>
+                    <select id="d-pm" name="dPagador" [(ngModel)]="dPagador">
+                      <option value="">{{ t('gas.yo') }}</option>
+                      @for (m of socios(); track m.id) {
+                        <option [value]="m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+              <p class="suave">{{ t('fin.reparto') }} ({{ t('fin.suma_reparto') }}: {{ repartoSuma() | number: '1.2-2' }})</p>
+              @for (m of socios(); track m.id) {
+                <div class="campo">
+                  <label [for]="'dr-' + m.id">{{ m.perfil?.nombre || m.perfil?.correo }}</label>
+                  <input [id]="'dr-' + m.id" [name]="'dr-' + m.id" type="number" inputmode="decimal" min="0" step="0.01" [(ngModel)]="dReparto[m.id]" />
+                </div>
+              }
+              <div class="acciones">
+                <button class="boton secundario" type="button" (click)="repartirIgual()">{{ t('fin.repartir_igual') }}</button>
+                <button class="boton" type="button" (click)="proponer()">{{ t('fin.proponer') }}</button>
+              </div>
+            }
+          </div>
+        }
+      </article>
+    } @empty {
+      <p class="suave">{{ t('app.vacio') }}</p>
+    }
+  }
+</main>

@@ -1,0 +1,60 @@
+<!-- Temporada alta -->
+<section class="tarjeta">
+  <h2>{{ t('temp.titulo') }}</h2>
+  <p class="suave">{{ t('temp.ayuda') }}</p>
+  <p>
+    {{ t('temp.estado') }}: <strong>{{ activa() ? t('estatuto.si') : t('estatuto.no') }}</strong>
+    @if (!activa()) {
+      · <a routerLink="/mas/estatuto">{{ t('temp.activar_en_estatuto') }}</a>
+    }
+  </p>
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+  <ul class="filas">
+    @for (x of lista(); track x.id) {
+      <li>
+        <span>
+          <strong>{{ periodoTexto(x.periodo) }} {{ x.anio }}</strong> · {{ x.desde }} →
+          {{ x.hasta }} · {{ t('temp.le_toca') }}: {{ quien(x.miembro_prioridad) }}
+        </span>
+        <button class="boton secundario" type="button" (click)="quitar(x.id)">
+          {{ t('config.quitar') }}
+        </button>
+      </li>
+    } @empty {
+      <li class="suave">{{ t('app.vacio') }}</li>
+    }
+  </ul>
+  <form (ngSubmit)="generar()" #f="ngForm">
+    <div class="campo">
+      <label for="t-periodo">{{ t('temp.periodo') }}</label>
+      <select id="t-periodo" name="periodo" [(ngModel)]="periodo">
+        @for (p of periodos; track p) {
+          <option [value]="p">{{ periodoTexto(p) }}</option>
+        }
+      </select>
+    </div>
+    <div class="campo">
+      <label for="t-anio">{{ t('temp.anio') }}</label>
+      <input
+        id="t-anio"
+        name="anio"
+        type="number"
+        min="2000"
+        max="2200"
+        required
+        [(ngModel)]="anio"
+      />
+    </div>
+    <div class="campo">
+      <label for="t-desde">{{ t('cal.desde') }}</label>
+      <input id="t-desde" name="desde" type="date" required [(ngModel)]="desde" />
+    </div>
+    <div class="campo">
+      <label for="t-hasta">{{ t('cal.hasta') }}</label>
+      <input id="t-hasta" name="hasta" type="date" required [(ngModel)]="hasta" />
+    </div>
+    <button class="boton" type="submit" [disabled]="f.invalid">{{ t('temp.generar') }}</button>
+  </form>
+</section>
