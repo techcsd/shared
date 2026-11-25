@@ -2,7 +2,7 @@ import { Directive, EventEmitter, Input, Output, signal } from '@angular/core';
 import { DetalleActivo } from '../../../shared/models/activo-entidad.model';
 import { ActivoService, errorActivo } from '../../core/activo.service';
 import { ClaveI18n } from '../../core/i18n/es';
-import { t } from '../../core/i18n/i18n';
+import { idioma, t } from '../../core/i18n/i18n';
 import { Resultado } from '../../core/reserva.service';
 import { ToastService } from '../../core/toast.service';
 
@@ -48,7 +48,7 @@ export abstract class ActivoSeccion {
   fecha(iso: string | null | undefined): string {
     if (!iso) return '—';
     const d = new Date(iso.length === 10 ? `${iso}T12:00:00` : iso);
-    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(idioma() === 'en' ? 'en-US' : 'es-DO', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   dinero(monto: number | null | undefined, moneda: string | null | undefined): string {
