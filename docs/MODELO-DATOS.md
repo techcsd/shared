@@ -133,3 +133,10 @@ erDiagram
 - **Lanzamiento (26):** `grupo_checklist_lanzamiento`, `grupo_pasar_a_real`.
 - **Endurecimiento (27):** ninguna función de negocio ejecutable por `anon`.
 - **Hallazgos de las pruebas:** una variable `record` llamada igual que un alias de tabla rompe la consulta (`record "a" is not assigned yet`); una variable llamada `tipo` choca con la columna `tipo` en un `INSERT`; la suma de grupos visibles depende del rol (contar como admin en los tests).
+
+## 14. Administración de plataforma — implementado (migraciones 29–30)
+- **Tabla:** `admin_acciones` (bitácora solo adición; RLS activa; sin acceso `anon`/`authenticated`).
+- **RPC (todas exigen `es_admin_plataforma()`, `security definer`, `search_path` fijo):** `admin_usuarios_listar`, `admin_usuario_borrable`, `admin_plataforma_asignar`, `admin_directorio_set`, `admin_bitacora_listar`, `admin_accion_registrar`, `admin_grupos_listar`, `admin_grupo_miembros`, `admin_miembro_guardar`, `admin_porcentajes_fijar`, `admin_miembro_quitar`; internas: `admin_exigir`, `admin_bitacora`, `admin_activar_si_completo`.
+- **Edge function `admin-usuarios`:** `crear`, `clave`, `bloquear`, `borrar` (API de administración de Auth).
+- **Migración 30:** `validar_porcentajes()` `security definer` (borrado de usuarios con membresía).
+- **Hallazgos:** `text[] || 'literal'` intenta leer el literal como arreglo (`malformed array literal`): usar `array_append(v, 'x'::text)`; el trigger diferido corre con el rol de la sesión (no con el dueño) salvo que la función sea `security definer`.

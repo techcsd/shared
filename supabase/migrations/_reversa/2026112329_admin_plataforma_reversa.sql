@@ -1,0 +1,17 @@
+drop function if exists admin_miembro_quitar(uuid, uuid);
+drop function if exists admin_porcentajes_fijar(uuid, jsonb);
+drop function if exists admin_miembro_guardar(uuid, uuid, rol_miembro, numeric);
+drop function if exists admin_grupo_miembros(uuid);
+drop function if exists admin_grupos_listar();
+drop function if exists admin_bitacora_listar(int);
+drop function if exists admin_directorio_set(boolean);
+drop function if exists admin_plataforma_asignar(uuid, boolean);
+drop function if exists admin_usuario_borrable(uuid);
+drop function if exists admin_usuarios_listar();
+drop function if exists admin_activar_si_completo(uuid);
+drop function if exists admin_accion_registrar(text, text, jsonb);
+drop function if exists admin_bitacora(text, text, jsonb);
+drop function if exists admin_exigir();
+drop trigger if exists admin_acciones_sin_delete on admin_acciones;
+drop trigger if exists admin_acciones_sin_update on admin_acciones;
+drop table if exists admin_acciones;

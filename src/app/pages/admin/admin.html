@@ -1,0 +1,235 @@
+<!-- Administración de la plataforma -->
+<main class="pagina">
+  <div class="cab">
+    <h1>{{ t('admin.titulo') }}</h1>
+    <a class="boton secundario" routerLink="/">{{ t('app.volver') }}</a>
+  </div>
+  <p class="suave">{{ t('admin.ayuda') }}</p>
+
+  @if (denegado()) {
+    <p class="error-texto" role="alert">{{ t('admin.err.denegado') }}</p>
+  } @else {
+    <nav class="pestanas" aria-label="admin">
+      <button class="chip" type="button" [class.activo]="pestana() === 'usuarios'" (click)="pestana.set('usuarios')">{{ t('admin.tab.usuarios') }} ({{ usuarios().length }})</button>
+      <button class="chip" type="button" [class.activo]="pestana() === 'grupos'" (click)="pestana.set('grupos')">{{ t('admin.tab.grupos') }} ({{ grupos().length }})</button>
+      <button class="chip" type="button" [class.activo]="pestana() === 'plataforma'" (click)="pestana.set('plataforma')">{{ t('admin.tab.plataforma') }}</button>
+    </nav>
+
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    @if (aviso()) {
+      <p class="aviso" role="status">{{ aviso() }}</p>
+    }
+
+    <!-- Usuarios -->
+    @if (pestana() === 'usuarios') {
+      <form class="tarjeta" (ngSubmit)="crear()" #f="ngForm">
+        <h2>{{ t('admin.u.nuevo') }}</h2>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="a-correo">{{ t('admin.u.correo') }}</label>
+            <input id="a-correo" name="correo" type="email" autocomplete="off" required [(ngModel)]="nCorreo" />
+          </div>
+          <div class="campo">
+            <label for="a-nombre">{{ t('admin.u.nombre') }}</label>
+            <input id="a-nombre" name="nombre" type="text" maxlength="120" required [(ngModel)]="nNombre" />
+          </div>
+          <div class="campo">
+            <label for="a-clave">{{ t('admin.u.clave') }}</label>
+            <input id="a-clave" name="clave" type="text" autocomplete="off" minlength="8" maxlength="72" required [(ngModel)]="nClave" />
+          </div>
+        </div>
+        <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">{{ t('admin.u.crear') }}</button>
+      </form>
+
+      <h2>{{ t('admin.u.lista') }}</h2>
+      @for (u of usuarios(); track u.id) {
+        <article class="tarjeta">
+          <header class="cab">
+            <div>
+              <strong>{{ u.nombre || u.correo }}</strong>
+              <p class="suave">{{ u.correo }}</p>
+            </div>
+            <div>
+              @if (u.es_admin) {
+                <span class="chip activo">{{ t('admin.u.admin') }}</span>
+              }
+              @if (u.bloqueado) {
+                <span class="chip alerta">{{ t('admin.u.bloqueado') }}</span>
+              }
+            </div>
+          </header>
+          <p class="suave">
+            {{ t('admin.u.ultimo') }}: {{ u.ultimo_acceso ? u.ultimo_acceso.slice(0, 16).replace('T', ' ') : t('admin.u.nunca') }}
+          </p>
+          <p>
+            @for (g of u.grupos; track g.grupo_id) {
+              <span class="chip">{{ g.nombre }} · {{ rolTexto(g.rol) }}@if (g.rol === 'socio') { · {{ g.porcentaje }} % }</span>
+            } @empty {
+              <span class="suave">{{ t('admin.u.sin_grupos') }}</span>
+            }
+          </p>
+
+          @if (claveDe() === u.id) {
+            <form class="fila-campos" (ngSubmit)="guardarClave(u)" #fc="ngForm">
+              <div class="campo">
+                <label [for]="'cl-' + u.id">{{ t('admin.u.nueva_clave') }}</label>
+                <input [id]="'cl-' + u.id" name="claveNueva" type="text" autocomplete="off" minlength="8" maxlength="72" required [(ngModel)]="claveNueva" />
+              </div>
+              <div class="acciones">
+                <button class="boton" type="submit" [disabled]="ocupado() || fc.invalid">{{ t('app.guardar') }}</button>
+                <button class="boton secundario" type="button" (click)="claveDe.set(null)">{{ t('app.cancelar') }}</button>
+              </div>
+            </form>
+          }
+
+          @if (borrarDe() === u.id) {
+            <div class="aviso-permanente" role="alertdialog">
+              <p>{{ t('admin.u.confirmar_borrar') }}</p>
+              <div class="acciones">
+                <button class="boton" type="button" [disabled]="ocupado()" (click)="borrar(u)">{{ t('admin.u.borrar') }}</button>
+                <button class="boton secundario" type="button" (click)="borrarDe.set(null)">{{ t('app.cancelar') }}</button>
+              </div>
+            </div>
+          }
+
+          <div class="acciones">
+            <button class="boton secundario" type="button" (click)="claveDe.set(u.id); claveNueva = ''">{{ t('admin.u.cambiar_clave') }}</button>
+            <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="bloquear(u)">{{ u.bloqueado ? t('admin.u.desbloquear') : t('admin.u.bloquear') }}</button>
+            <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="alternarAdmin(u)">{{ u.es_admin ? t('admin.u.quitar_admin') : t('admin.u.hacer_admin') }}</button>
+            <button class="boton secundario" type="button" (click)="borrarDe.set(u.id)">{{ t('admin.u.borrar') }}</button>
+          </div>
+        </article>
+      } @empty {
+        <p class="suave">{{ t('app.vacio') }}</p>
+      }
+    }
+
+    <!-- Grupos -->
+    @if (pestana() === 'grupos') {
+      <h2>{{ t('admin.g.lista') }}</h2>
+      @for (g of grupos(); track g.id) {
+        <article class="tarjeta">
+          <header class="cab">
+            <div>
+              <strong>{{ g.nombre }}</strong>
+              <p class="suave">{{ g.activo ?? '—' }} · {{ g.moneda }} · {{ g.miembros }} {{ t('admin.g.miembros') }} · {{ g.movimientos }} {{ t('admin.g.movimientos') }}</p>
+            </div>
+            <div>
+              <span class="chip" [class.activo]="g.estado === 'activo'">{{ estadoGrupo(g.estado) }}</span>
+              @if (g.modo_demo) {
+                <span class="chip">{{ t('admin.g.demo') }}</span>
+              }
+            </div>
+          </header>
+          <p class="suave">{{ t('admin.g.suma') }}: {{ g.suma_porcentajes }} %</p>
+          <div class="acciones">
+            <button class="boton secundario" type="button" (click)="gestionar(g)">{{ t('admin.g.ver') }}</button>
+          </div>
+
+          @if (grupoSel()?.id === g.id) {
+            <section class="tarjeta">
+              <header class="cab">
+                <h2>{{ g.nombre }}</h2>
+                <button class="boton secundario" type="button" (click)="grupoSel.set(null)">{{ t('admin.g.cerrar') }}</button>
+              </header>
+
+              @if (miembros().length === 0) {
+                <p class="suave">{{ t('admin.g.sin_miembros') }}</p>
+              }
+              <form (ngSubmit)="guardarReparto()" #fr="ngForm">
+                @for (m of miembros(); track m.miembro_id) {
+                  <div class="cab">
+                    <div>
+                      <strong>{{ m.nombre || m.correo }}</strong>
+                      <p class="suave">{{ m.correo }} · {{ rolTexto(m.rol) }}@if (m.estado !== 'activo') { · {{ t('admin.g.salido') }} }</p>
+                    </div>
+                    <div class="acciones">
+                      @if (m.estado === 'activo' && m.rol === 'socio') {
+                        <input
+                          class="num"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          [name]="'p-' + m.usuario_id"
+                          [attr.aria-label]="t('admin.g.porcentaje')"
+                          [(ngModel)]="edicion[m.usuario_id]"
+                        />
+                        <span>%</span>
+                      }
+                      @if (m.estado === 'activo') {
+                        <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="quitar(m)">{{ t('admin.g.quitar') }}</button>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (sociosActivos().length > 0) {
+                  <p class="suave">{{ t('admin.g.repartir_ayuda') }} <strong>{{ sumaEdicion() }} %</strong></p>
+                  <button class="boton" type="submit" [disabled]="ocupado() || fr.invalid">{{ t('admin.g.guardar_reparto') }}</button>
+                }
+              </form>
+
+              <form class="fila-campos" (ngSubmit)="agregar()" #fa="ngForm">
+                <h3>{{ t('admin.g.agregar') }}</h3>
+                <p class="suave">{{ t('admin.g.agregar_ayuda') }}</p>
+                <div class="campo">
+                  <label for="ag-usuario">{{ t('admin.g.usuario') }}</label>
+                  <select id="ag-usuario" name="agUsuario" required [(ngModel)]="agUsuario">
+                    <option value="">—</option>
+                    @for (u of disponibles(); track u.id) {
+                      <option [value]="u.id">{{ u.nombre || u.correo }} ({{ u.correo }})</option>
+                    }
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="ag-rol">{{ t('admin.g.rol') }}</label>
+                  <select id="ag-rol" name="agRol" [(ngModel)]="agRol">
+                    @for (r of roles; track r) {
+                      <option [value]="r">{{ rolTexto(r) }}</option>
+                    }
+                  </select>
+                </div>
+                @if (agRol === 'socio') {
+                  <div class="campo">
+                    <label for="ag-pct">{{ t('admin.g.porcentaje') }}</label>
+                    <input id="ag-pct" name="agPct" type="number" min="0" max="100" step="0.01" [(ngModel)]="agPct" />
+                  </div>
+                }
+                <button class="boton" type="submit" [disabled]="ocupado() || fa.invalid || !agUsuario">{{ t('admin.g.agregar_btn') }}</button>
+              </form>
+            </section>
+          }
+        </article>
+      } @empty {
+        <p class="suave">{{ t('app.vacio') }}</p>
+      }
+    }
+
+    <!-- Plataforma -->
+    @if (pestana() === 'plataforma') {
+      <section class="tarjeta">
+        <h2>{{ t('admin.p.directorio') }}</h2>
+        <p class="suave">{{ t('admin.p.directorio_ayuda') }}</p>
+        <p>
+          <span class="chip" [class.activo]="directorio()">{{ directorio() ? t('admin.p.on') : t('admin.p.off') }}</span>
+          <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="alternarDirectorio()">
+            {{ directorio() ? t('admin.p.apagar') : t('admin.p.encender') }}
+          </button>
+        </p>
+      </section>
+      <section class="tarjeta">
+        <a class="boton secundario" routerLink="/admin/salud">{{ t('admin.p.salud') }}</a>
+      </section>
+      <section class="tarjeta">
+        <h2>{{ t('admin.p.bitacora') }}</h2>
+        @for (b of bitacora(); track b.momento + b.accion + (b.objetivo ?? '')) {
+          <p class="suave">{{ b.momento.slice(0, 16).replace('T', ' ') }} · {{ b.accion }} · {{ b.objetivo }}</p>
+        } @empty {
+          <p class="suave">{{ t('app.vacio') }}</p>
+        }
+      </section>
+    }
+  }
+</main>
