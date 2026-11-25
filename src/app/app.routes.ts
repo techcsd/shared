@@ -95,6 +95,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/mantenimiento/mantenimiento').then((m) => m.MantenimientoPage),
       },
       { path: 'mas', loadComponent: () => import('./pages/mas/mas').then((m) => m.MasPage) },
+      { path: 'activo', loadComponent: () => import('./pages/activo/activo').then((m) => m.ActivoPage) },
       {
         path: 'mas/prioridad-911',
         canActivate: [rolGuard(['socio'])],

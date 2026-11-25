@@ -1,6 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ActivoTarjeta } from '../../../../shared/components/activo-tarjeta/activo-tarjeta';
+import { VistaActivoPublica } from '../../../../shared/models/activo.model';
+import { ActivoService } from '../../../core/activo.service';
 import { interpretarEnlace } from '../../../core/enlaces';
 import { FormacionService } from '../../../core/formacion.service';
 import { GrupoService, InvitacionPendiente } from '../../../core/grupo.service';
@@ -11,7 +14,7 @@ import { rolTexto } from '../../../core/i18n/textos';
 @Component({
   selector: 'app-acceso-invitacion',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ActivoTarjeta],
   templateUrl: './acceso-invitacion.html',
   styleUrl: './acceso-invitacion.scss',
 })
@@ -20,6 +23,7 @@ export class AccesoInvitacion implements OnInit {
   rolTexto = rolTexto;
   texto = '';
   pendientes = signal<InvitacionPendiente[]>([]);
+  vistas = signal<Record<string, VistaActivoPublica | null>>({});
   ocupado = signal(false);
   error = signal<string | null>(null);
 
@@ -27,11 +31,16 @@ export class AccesoInvitacion implements OnInit {
     private grupos: GrupoService,
     private formacion: FormacionService,
     private router: Router,
+    private activos: ActivoService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     try {
-      this.pendientes.set(await this.grupos.invitacionesPendientes());
+      const lista = await this.grupos.invitacionesPendientes();
+      this.pendientes.set(lista);
+      const vistas: Record<string, VistaActivoPublica | null> = {};
+      await Promise.all(lista.map(async (i) => (vistas[i.invitacion_id] = await this.activos.vistaPorInvitacion(i.invitacion_id))));
+      this.vistas.set(vistas);
     } catch {
       this.pendientes.set([]);
     }

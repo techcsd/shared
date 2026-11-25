@@ -1,5 +1,8 @@
 import { Component, OnInit, signal, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { ActivoTarjeta } from '../../../shared/components/activo-tarjeta/activo-tarjeta';
+import { VistaActivoPublica } from '../../../shared/models/activo.model';
+import { ActivoService } from '../../core/activo.service';
 import { GrupoService } from '../../core/grupo.service';
 import { t } from '../../core/i18n/i18n';
 import { rolTexto } from '../../core/i18n/textos';
@@ -9,6 +12,7 @@ import { VistaPreviaInvitacion } from '../../../shared/models/grupo.model';
 @Component({
   selector: 'app-unirse',
   standalone: true,
+  imports: [ActivoTarjeta],
   templateUrl: './unirse.html',
   styleUrl: './unirse.scss',
 })
@@ -19,11 +23,13 @@ export class UnirsePage implements OnInit {
   cargando = signal(true);
   vista = signal<VistaPreviaInvitacion | null>(null);
   error = signal<string | null>(null);
+  activo = signal<VistaActivoPublica | null>(null);
   ocupado = signal(false);
 
   constructor(
     private grupos: GrupoService,
     private router: Router,
+    private activos: ActivoService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -32,7 +38,10 @@ export class UnirsePage implements OnInit {
     if (!vista) this.error.set(t('unirse.invalida'));
     else if (vista.estado === 'expirada') this.error.set(t('unirse.expirada'));
     else if (vista.estado !== 'pendiente') this.error.set(t('unirse.usada'));
-    else this.vista.set(vista);
+    else {
+      this.vista.set(vista);
+      this.activo.set(await this.activos.vistaPorToken(this.token));
+    }
   }
 
   async aceptar(): Promise<void> {

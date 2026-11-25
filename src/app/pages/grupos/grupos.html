@@ -16,8 +16,21 @@
 
   @for (m of grupos.membresias(); track m.grupo.id) {
     <article class="tarjeta grupo">
-      <div>
+      <div class="miniatura">
+        @if (activos()[m.grupo.id]; as a) {
+          <app-activo-tarjeta variante="mini" [nombre]="a.nombre" [tipoClave]="a.tipo_clave" [tipoNombre]="a.tipo_nombre" [imagenPath]="a.imagen_path" />
+        } @else {
+          <app-activo-tarjeta variante="mini" [nombre]="m.grupo.nombre" tipoClave="otro" />
+        }
+      </div>
+      <div class="datos-grupo">
         <h2>{{ m.grupo.nombre }}</h2>
+        @if (activos()[m.grupo.id]; as a) {
+          <p class="activo-nombre">{{ a.nombre }}@if (a.tipo_nombre) { <span class="suave"> · {{ a.tipo_nombre }}</span> }</p>
+          @if (a.descripcion) {
+            <p class="suave desc-corta">{{ a.descripcion }}</p>
+          }
+        }
         <p class="suave">
           @if (m.vistaAdmin) {
             {{ t('admin.vista.etiqueta') }}
