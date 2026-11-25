@@ -1,0 +1,30 @@
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 6.5rem;
+  z-index: 80;
+  display: grid;
+  gap: var(--espacio-2);
+  width: min(26rem, calc(100% - 2rem));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  padding: var(--espacio-3) var(--espacio-4);
+  border-radius: var(--radio-1);
+  background: var(--color-texto);
+  color: var(--color-superficie);
+  font-weight: 600;
+  box-shadow: var(--sombra-3);
+  animation: entrar var(--dur-2, 0.25s) var(--ease, ease) both;
+
+  &.error {
+    background: var(--color-error);
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

@@ -1,0 +1,169 @@
+<!-- Ficha técnica -->
+<div class="ae-pila">
+  <!-- Campos del tipo de activo -->
+  @if (camposTipo().length) {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="lista" /> {{ t('activo.ficha_tipo', { tipo: d.activo.tipo.nombre }) }}</h2>
+      @if (!editando) {
+        <dl class="ae-dl">
+          @for (c of camposTipo(); track c.clave) {
+            <div>
+              <dt>{{ c.etiqueta }}</dt>
+              <dd>{{ textoTipo(c) }}</dd>
+            </div>
+          }
+        </dl>
+      } @else {
+        <form (ngSubmit)="guardarTipo()">
+          @for (c of camposTipo(); track c.clave) {
+            <div class="campo">
+              <label [for]="'ft-' + c.clave">{{ c.etiqueta }}{{ c.unidad ? ' (' + c.unidad + ')' : '' }}</label>
+              @switch (c.tipo) {
+                @case ('booleano') {
+                  <select [id]="'ft-' + c.clave" [name]="c.clave" [(ngModel)]="valoresTipo[c.clave]">
+                    <option [ngValue]="null">—</option>
+                    <option [ngValue]="true">{{ t('activo.si') }}</option>
+                    <option [ngValue]="false">{{ t('activo.no') }}</option>
+                  </select>
+                }
+                @case ('opcion') {
+                  <select [id]="'ft-' + c.clave" [name]="c.clave" [(ngModel)]="valoresTipo[c.clave]">
+                    <option [ngValue]="null">—</option>
+                    @for (o of c.opciones ?? []; track o) {
+                      <option [ngValue]="o">{{ o }}</option>
+                    }
+                  </select>
+                }
+                @case ('numero') {
+                  <input [id]="'ft-' + c.clave" [name]="c.clave" type="number" step="any" [(ngModel)]="valoresTipo[c.clave]" />
+                }
+                @case ('fecha') {
+                  <input [id]="'ft-' + c.clave" [name]="c.clave" type="date" [(ngModel)]="valoresTipo[c.clave]" />
+                }
+                @default {
+                  <input [id]="'ft-' + c.clave" [name]="c.clave" maxlength="200" [(ngModel)]="valoresTipo[c.clave]" />
+                }
+              }
+            </div>
+          }
+          <button class="boton" type="submit" [disabled]="ocupado()">{{ t('app.guardar') }}</button>
+        </form>
+      }
+    </section>
+  }
+
+  <!-- Campos propios del grupo -->
+  <section class="tarjeta ae-bloque">
+    <h2><app-icono nombre="etiqueta" /> {{ t('activo.campos_propios') }}</h2>
+    @if (!editando) {
+      @if (d.campos.length) {
+        <dl class="ae-dl">
+          @for (c of d.campos; track c.id) {
+            <div>
+              <dt>{{ c.etiqueta }}</dt>
+              <dd>{{ textoPropio(c) }}</dd>
+            </div>
+          }
+        </dl>
+      } @else if (!camposTipo().length) {
+        <p class="ae-vacio"><app-icono nombre="lista" /> {{ t('activo.ficha_vacia') }}</p>
+      } @else {
+        <p class="suave">{{ t('activo.campos_ninguno') }}</p>
+      }
+    } @else {
+      <p class="suave">{{ t('activo.campos_ayuda') }}</p>
+      @for (f of filas; track f.id; let i = $index) {
+        <div class="ae-fila-edit">
+          <div class="campo">
+            <label [for]="'cp-e-' + i">{{ t('activo.campo_etiqueta') }}</label>
+            <input [id]="'cp-e-' + i" [name]="'cp-e-' + i" maxlength="60" [(ngModel)]="f.etiqueta" />
+          </div>
+          <div class="campo">
+            <label [for]="'cp-t-' + i">{{ t('activo.campo_tipo') }}</label>
+            <select [id]="'cp-t-' + i" [name]="'cp-t-' + i" [(ngModel)]="f.tipo" (ngModelChange)="alCambiarTipo(f)">
+              @for (tp of tipos; track tp) {
+                <option [value]="tp">{{ tx('activo.tipo_campo.' + tp) }}</option>
+              }
+            </select>
+          </div>
+          @if (f.tipo === 'seleccion') {
+            <div class="campo">
+              <label [for]="'cp-o-' + i">{{ t('activo.campo_opciones') }}</label>
+              <input [id]="'cp-o-' + i" [name]="'cp-o-' + i" [(ngModel)]="f.opciones" placeholder="A, B, C" />
+            </div>
+          }
+          @if (f.tipo === 'numero') {
+            <div class="campo">
+              <label [for]="'cp-u-' + i">{{ t('activo.campo_unidad') }}</label>
+              <input [id]="'cp-u-' + i" [name]="'cp-u-' + i" maxlength="12" [(ngModel)]="f.unidad" />
+            </div>
+          }
+          <div class="campo">
+            <label [for]="'cp-v-' + i">{{ t('activo.campo_valor') }}</label>
+            @switch (f.tipo) {
+              @case ('si_no') {
+                <select [id]="'cp-v-' + i" [name]="'cp-v-' + i" [(ngModel)]="f.valor">
+                  <option [ngValue]="null">—</option>
+                  <option [ngValue]="true">{{ t('activo.si') }}</option>
+                  <option [ngValue]="false">{{ t('activo.no') }}</option>
+                </select>
+              }
+              @case ('numero') {
+                <input [id]="'cp-v-' + i" [name]="'cp-v-' + i" type="number" step="any" [(ngModel)]="f.valor" />
+              }
+              @case ('fecha') {
+                <input [id]="'cp-v-' + i" [name]="'cp-v-' + i" type="date" [(ngModel)]="f.valor" />
+              }
+              @case ('seleccion') {
+                <select [id]="'cp-v-' + i" [name]="'cp-v-' + i" [(ngModel)]="f.valor">
+                  <option [ngValue]="null">—</option>
+                  @for (o of f.opciones.split(','); track o) {
+                    @if (o.trim()) {
+                      <option [ngValue]="o.trim()">{{ o.trim() }}</option>
+                    }
+                  }
+                </select>
+              }
+              @default {
+                <input [id]="'cp-v-' + i" [name]="'cp-v-' + i" maxlength="300" [(ngModel)]="f.valor" />
+              }
+            }
+          </div>
+          <div class="ae-mini-acciones">
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.subir_orden')" [disabled]="i === 0 || ocupado()" (click)="mover(i, -1)"><app-icono nombre="arriba" /></button>
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.bajar_orden')" [disabled]="i === filas.length - 1 || ocupado()" (click)="mover(i, 1)"><app-icono nombre="abajo" /></button>
+            <button type="button" class="boton secundario" [disabled]="!sucia(f) || ocupado()" (click)="guardarFila(f)">{{ t('app.guardar') }}</button>
+            <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(f)"><app-icono nombre="papelera" /></button>
+          </div>
+        </div>
+      }
+
+      <!-- Agregar -->
+      <div class="ae-fila-edit ae-nueva">
+        <div class="campo">
+          <label for="cp-n-e">{{ t('activo.campo_nuevo') }}</label>
+          <input id="cp-n-e" name="cp-n-e" maxlength="60" [placeholder]="t('activo.campo_ejemplo')" [(ngModel)]="nueva.etiqueta" />
+        </div>
+        <div class="campo">
+          <label for="cp-n-t">{{ t('activo.campo_tipo') }}</label>
+          <select id="cp-n-t" name="cp-n-t" [(ngModel)]="nueva.tipo" (ngModelChange)="alCambiarTipo(nueva)">
+            @for (tp of tipos; track tp) {
+              <option [value]="tp">{{ tx('activo.tipo_campo.' + tp) }}</option>
+            }
+          </select>
+        </div>
+        @if (nueva.tipo === 'seleccion') {
+          <div class="campo">
+            <label for="cp-n-o">{{ t('activo.campo_opciones') }}</label>
+            <input id="cp-n-o" name="cp-n-o" [(ngModel)]="nueva.opciones" placeholder="A, B, C" />
+          </div>
+        }
+        <div class="ae-mini-acciones">
+          <button type="button" class="boton" [disabled]="!nueva.etiqueta.trim() || ocupado()" (click)="guardarFila(nueva)">
+            <app-icono nombre="mas" /> {{ t('activo.agregar_campo') }}
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

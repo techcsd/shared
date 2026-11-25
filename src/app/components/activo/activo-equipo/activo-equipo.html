@@ -1,0 +1,92 @@
+<!-- Equipamiento y accesorios -->
+<div class="ae-pila">
+  @if (!editando) {
+    @if (d.equipo.length === 0) {
+      <p class="ae-vacio tarjeta">
+        <app-icono nombre="lista" />
+        <span>{{ t('activo.eq.vacio') }}</span>
+        <span class="suave">{{ t('activo.eq.vacio_ver') }}</span>
+      </p>
+    } @else {
+      <section class="tarjeta ae-bloque">
+        <h2>
+          <app-icono nombre="lista" /> {{ t('activo.eq.titulo') }}
+          @if (atencion() > 0) {
+            <span class="chip cond-atencion">{{ t('activo.eq.atencion', { n: atencion() }) }}</span>
+          }
+        </h2>
+        <ul class="ae-lista">
+          @for (e of d.equipo; track e.id) {
+            <li>
+              <span>
+                <strong>{{ e.nombre }}</strong> <span class="suave">×{{ e.cantidad }}</span>
+                @if (e.notas) {
+                  <span class="suave ae-bloque-nota">{{ e.notas }}</span>
+                }
+              </span>
+              <span class="chip eq-{{ e.condicion }}">{{ tx('activo.eq.cond.' + e.condicion) }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  } @else {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="lista" /> {{ t('activo.eq.titulo') }}</h2>
+      <p class="suave">{{ t('activo.eq.ayuda') }}</p>
+      @for (f of filas; track f.id; let i = $index) {
+        <div class="ae-fila-edit">
+          <div class="campo">
+            <label [for]="'eq-n-' + i">{{ t('activo.eq.nombre') }}</label>
+            <input [id]="'eq-n-' + i" [name]="'eq-n-' + i" maxlength="80" [(ngModel)]="f.nombre" />
+          </div>
+          <div class="campo ae-corto">
+            <label [for]="'eq-c-' + i">{{ t('activo.eq.cantidad') }}</label>
+            <input [id]="'eq-c-' + i" [name]="'eq-c-' + i" type="number" min="0" max="9999" [(ngModel)]="f.cantidad" />
+          </div>
+          <div class="campo">
+            <label [for]="'eq-s-' + i">{{ t('activo.eq.condicion') }}</label>
+            <select [id]="'eq-s-' + i" [name]="'eq-s-' + i" [(ngModel)]="f.condicion">
+              @for (c of condiciones; track c) {
+                <option [value]="c">{{ tx('activo.eq.cond.' + c) }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label [for]="'eq-o-' + i">{{ t('activo.eq.notas') }}</label>
+            <input [id]="'eq-o-' + i" [name]="'eq-o-' + i" maxlength="300" [(ngModel)]="f.notas" />
+          </div>
+          <div class="ae-mini-acciones">
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.subir_orden')" [disabled]="i === 0 || ocupado()" (click)="mover(i, -1)"><app-icono nombre="arriba" /></button>
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.bajar_orden')" [disabled]="i === filas.length - 1 || ocupado()" (click)="mover(i, 1)"><app-icono nombre="abajo" /></button>
+            <button type="button" class="boton secundario" [disabled]="!sucia(f) || ocupado()" (click)="guardar(f)">{{ t('app.guardar') }}</button>
+            <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(f)"><app-icono nombre="papelera" /></button>
+          </div>
+        </div>
+      }
+      <div class="ae-fila-edit ae-nueva">
+        <div class="campo">
+          <label for="eq-n-nuevo">{{ t('activo.eq.nuevo') }}</label>
+          <input id="eq-n-nuevo" name="eq-n-nuevo" maxlength="80" [placeholder]="t('activo.eq.ejemplo')" [(ngModel)]="nueva.nombre" />
+        </div>
+        <div class="campo ae-corto">
+          <label for="eq-c-nuevo">{{ t('activo.eq.cantidad') }}</label>
+          <input id="eq-c-nuevo" name="eq-c-nuevo" type="number" min="0" max="9999" [(ngModel)]="nueva.cantidad" />
+        </div>
+        <div class="campo">
+          <label for="eq-s-nuevo">{{ t('activo.eq.condicion') }}</label>
+          <select id="eq-s-nuevo" name="eq-s-nuevo" [(ngModel)]="nueva.condicion">
+            @for (c of condiciones; track c) {
+              <option [value]="c">{{ tx('activo.eq.cond.' + c) }}</option>
+            }
+          </select>
+        </div>
+        <div class="ae-mini-acciones">
+          <button type="button" class="boton" [disabled]="!nueva.nombre.trim() || ocupado()" (click)="guardar(nueva)">
+            <app-icono nombre="mas" /> {{ t('activo.eq.agregar') }}
+          </button>
+        </div>
+      </div>
+    </section>
+  }
+</div>

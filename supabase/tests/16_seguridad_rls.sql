@@ -17,7 +17,7 @@ begin
   if v_lista is not null then raise exception 'SEGURIDAD: anon tiene acceso a: %', v_lista; end if;
 
   -- 3) authenticated solo escribe (INSERT) donde está previsto; nunca UPDATE ni DELETE directo; el resto va por RPC
-  v_permitidas := array['activo_componentes', 'activos', 'destinos', 'grupo_correos', 'tarifas', 'tasas_cambio', 'tipos_activo'];   -- configuración: solo socio por RLS
+  v_permitidas := array['activo_campos', 'activo_componentes', 'activo_contactos', 'activo_documentos', 'activo_equipo', 'activo_ficha', 'activo_fotos', 'activo_mejoras', 'activo_valor', 'activos', 'destinos', 'grupo_correos', 'tarifas', 'tasas_cambio', 'tipos_activo'];   -- configuración: solo socio por RLS
   select string_agg(distinct table_name || ':' || privilege_type, ', ') into v_lista
     from information_schema.role_table_grants
    where table_schema = 'public' and grantee = 'authenticated'
@@ -26,11 +26,12 @@ begin
      and not (table_name in ('eventos_cliente', 'errores_cliente') and privilege_type = 'INSERT')
      and table_name not in (select viewname from pg_views where schemaname = 'public');
   if v_lista is not null then raise exception 'SEGURIDAD: authenticated escribe directo en: %', v_lista; end if;
-  -- y en esas tablas de configuración TODA política de escritura exige ser socio del grupo
+  -- y en esas tablas de configuración TODA política de escritura exige ser socio del grupo (o, en el activo, tener permiso de edición)
   select string_agg(tablename || '.' || policyname, ', ') into v_lista
     from pg_policies
    where schemaname = 'public' and tablename = any (v_permitidas) and cmd in ('INSERT', 'UPDATE', 'DELETE', 'ALL')
-     and coalesce(qual, '') || coalesce(with_check, '') not like '%es_socio%';
+     and coalesce(qual, '') || coalesce(with_check, '') not like '%es_socio%'
+     and coalesce(qual, '') || coalesce(with_check, '') not like '%puede_editar_activo%';   -- el activo: admin del grupo o socio con permiso (mig. 34)
   if v_lista is not null then raise exception 'SEGURIDAD: políticas de escritura sin es_socio: %', v_lista; end if;
 
   -- 4) toda función security definer tiene search_path fijo
