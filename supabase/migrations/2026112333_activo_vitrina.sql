@@ -1,4 +1,4 @@
--- 2026-11-25 · 33 · Vitrina del activo: descripción, foto y resúmenes seguros (DF-104..DF-107)
+-- 2026-11-25 · 33 · Vitrina del activo: descripción, foto y resúmenes seguros (DF-105..DF-108)
 -- Un usuario debe ver QUÉ activo comparte el grupo (foto o ícono, descripción y datos clave), también antes de entrar.
 
 alter table activos
