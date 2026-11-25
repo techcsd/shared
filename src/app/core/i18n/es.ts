@@ -1259,6 +1259,7 @@ export const ES = {
   'activo.e.dato_invalido': 'Revisa los datos: alguno no es válido.',
   'activos.ficha_completa': 'Las fotos, la descripción, los documentos, el equipamiento y más se editan en la ficha completa del activo.',
   'activos.abrir_ficha': 'Abrir la ficha completa',
+  'activo.actualizado_el': 'Actualizado el {cuando}',
 } as const;
 
 export type ClaveI18n = keyof typeof ES;

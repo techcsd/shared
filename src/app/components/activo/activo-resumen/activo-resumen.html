@@ -23,7 +23,11 @@
         <span class="chip cond-{{ c }}">{{ tx('activo.cond.' + c) }}</span>
         @if (d.ficha?.condicion_actualizada_en) {
           <span class="suave">
-            {{ t('activo.actualizado_por', { quien: d.condicion_por ?? '—', cuando: fecha(d.ficha?.condicion_actualizada_en) }) }}
+            @if (d.condicion_por) {
+              {{ t('activo.actualizado_por', { quien: d.condicion_por, cuando: fecha(d.ficha?.condicion_actualizada_en) }) }}
+            } @else {
+              {{ t('activo.actualizado_el', { cuando: fecha(d.ficha?.condicion_actualizada_en) }) }}
+            }
           </span>
         }
       </p>

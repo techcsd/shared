@@ -1257,4 +1257,5 @@ export const EN: Record<ClaveI18n, string> = {
   'activo.e.dato_invalido': 'Check the data: something is not valid.',
   'activos.ficha_completa': 'Photos, description, documents, equipment and more are edited on the asset\'s full sheet.',
   'activos.abrir_ficha': 'Open the full sheet',
+  'activo.actualizado_el': 'Updated on {cuando}',
 };
