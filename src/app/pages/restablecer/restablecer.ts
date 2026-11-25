@@ -15,6 +15,7 @@ import { t } from '../../core/i18n/i18n';
 export class RestablecerPage {
   t = t;
   clave = '';
+  verClave = signal(false);
   ocupado = signal(false);
   error = signal<string | null>(null);
 

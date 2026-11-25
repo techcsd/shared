@@ -54,15 +54,26 @@
     @if (modo() === 'entrar' || modo() === 'registro') {
       <div class="campo">
         <label for="clave">{{ t('auth.clave') }}</label>
-        <input
-          id="clave"
-          name="clave"
-          type="password"
-          minlength="8"
-          required
-          [attr.autocomplete]="modo() === 'registro' ? 'new-password' : 'current-password'"
-          [(ngModel)]="clave"
-        />
+        <div class="clave-fila">
+          <input
+            id="clave"
+            name="clave"
+            [type]="verClave() ? 'text' : 'password'"
+            [attr.minlength]="modo() === 'registro' ? 8 : null"
+            required
+            [attr.autocomplete]="modo() === 'registro' ? 'new-password' : 'current-password'"
+            [(ngModel)]="clave"
+          />
+          <button
+            type="button"
+            class="ojo"
+            (click)="verClave.set(!verClave())"
+            [attr.aria-pressed]="verClave()"
+            [attr.aria-label]="verClave() ? t('auth.ocultar_clave') : t('auth.ver_clave')"
+          >
+            {{ verClave() ? '🙈' : '👁' }}
+          </button>
+        </div>
         @if (modo() === 'registro') {
           <span class="suave">{{ t('auth.clave_ayuda') }}</span>
         }
