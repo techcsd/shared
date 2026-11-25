@@ -1,0 +1,145 @@
+<!-- Valor e historial de mejoras (solo socios) -->
+<div class="ae-pila">
+  <p class="ae-nota"><app-icono nombre="info" /> {{ t('activo.val.informativo') }}</p>
+
+  <!-- Valor -->
+  <section class="tarjeta ae-bloque">
+    <h2><app-icono nombre="moneda" /> {{ t('activo.val.titulo') }}</h2>
+    @if (!editando) {
+      @if (d.valor && (d.valor.precio_compra !== null || d.valor.valor_estimado !== null)) {
+        <dl class="ae-dl">
+          @if (d.valor.precio_compra !== null) {
+            <div>
+              <dt>{{ t('activo.val.compra') }}</dt>
+              <dd>{{ dinero(d.valor.precio_compra, d.valor.moneda_compra) }} @if (d.valor.fecha_compra) { <span class="suave">· {{ fecha(d.valor.fecha_compra) }}</span> }</dd>
+            </div>
+          }
+          @if (d.valor.valor_estimado !== null) {
+            <div>
+              <dt>{{ t('activo.val.estimado') }}</dt>
+              <dd>{{ dinero(d.valor.valor_estimado, d.valor.moneda_estimado) }} @if (d.valor.fecha_estimado) { <span class="suave">· {{ fecha(d.valor.fecha_estimado) }}</span> }</dd>
+            </div>
+          }
+          @if (variacion(); as v) {
+            <div>
+              <dt>{{ t('activo.val.variacion') }}</dt>
+              <dd [class.ae-sube]="v.monto >= 0" [class.ae-baja]="v.monto < 0">
+                {{ v.monto >= 0 ? '+' : '' }}{{ dinero(v.monto, v.moneda) }}
+                @if (v.pct !== null) {
+                  ({{ v.pct >= 0 ? '+' : '' }}{{ v.pct.toFixed(1) }} %)
+                }
+              </dd>
+            </div>
+          }
+        </dl>
+      } @else {
+        <p class="ae-vacio"><app-icono nombre="moneda" /> {{ t('activo.val.vacio') }}</p>
+      }
+    } @else {
+      <form (ngSubmit)="guardarValor()">
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="v-compra">{{ t('activo.val.compra') }}</label>
+            <input id="v-compra" name="compra" type="number" min="0" step="0.01" [(ngModel)]="val.compra" />
+          </div>
+          <div class="campo">
+            <label for="v-mcompra">{{ t('activo.val.moneda') }}</label>
+            <input id="v-mcompra" name="mcompra" maxlength="3" [(ngModel)]="val.monedaCompra" />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="v-fcompra">{{ t('activo.val.fecha_compra') }}</label>
+          <input id="v-fcompra" name="fcompra" type="date" [(ngModel)]="val.fechaCompra" />
+        </div>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="v-est">{{ t('activo.val.estimado') }}</label>
+            <input id="v-est" name="est" type="number" min="0" step="0.01" [(ngModel)]="val.estimado" />
+          </div>
+          <div class="campo">
+            <label for="v-mest">{{ t('activo.val.moneda') }}</label>
+            <input id="v-mest" name="mest" maxlength="3" [(ngModel)]="val.monedaEst" />
+          </div>
+        </div>
+        <div class="campo">
+          <label for="v-fest">{{ t('activo.val.fecha_estimado') }}</label>
+          <input id="v-fest" name="fest" type="date" [(ngModel)]="val.fechaEst" />
+        </div>
+        <button class="boton" type="submit" [disabled]="ocupado()">{{ t('app.guardar') }}</button>
+      </form>
+    }
+  </section>
+
+  <!-- Mejoras -->
+  <section class="tarjeta ae-bloque">
+    <h2><app-icono nombre="llave" /> {{ t('activo.mej.titulo') }}</h2>
+    @if (totales().length) {
+      <p class="ae-total">
+        @for (x of totales(); track x.moneda) {
+          <span class="chip">{{ t('activo.mej.total') }}: {{ dinero(x.total, x.moneda) }}</span>
+        }
+      </p>
+    }
+    @if (!editando) {
+      @if (filas.length === 0) {
+        <p class="ae-vacio"><app-icono nombre="llave" /> {{ t('activo.mej.vacio') }}</p>
+      } @else {
+        <ul class="ae-lista">
+          @for (m of d.mejoras; track m.id) {
+            <li>
+              <span>
+                <strong>{{ m.descripcion }}</strong>
+                <span class="suave ae-bloque-nota">{{ fecha(m.fecha) }}@if (m.proveedor) { · {{ m.proveedor }} }</span>
+              </span>
+              <strong>{{ dinero(m.costo, m.moneda) }}</strong>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      @for (f of filas; track f.id; let i = $index) {
+        <div class="ae-fila-edit">
+          <div class="campo">
+            <label [for]="'mj-d-' + i">{{ t('activo.mej.descripcion') }}</label>
+            <input [id]="'mj-d-' + i" [name]="'mj-d-' + i" maxlength="300" [(ngModel)]="f.descripcion" />
+          </div>
+          <div class="campo">
+            <label [for]="'mj-f-' + i">{{ t('activo.mej.fecha') }}</label>
+            <input [id]="'mj-f-' + i" [name]="'mj-f-' + i" type="date" [(ngModel)]="f.fecha" />
+          </div>
+          <div class="campo ae-corto">
+            <label [for]="'mj-c-' + i">{{ t('activo.mej.costo') }}</label>
+            <input [id]="'mj-c-' + i" [name]="'mj-c-' + i" type="number" min="0" step="0.01" [(ngModel)]="f.costo" />
+          </div>
+          <div class="campo ae-corto">
+            <label [for]="'mj-m-' + i">{{ t('activo.val.moneda') }}</label>
+            <input [id]="'mj-m-' + i" [name]="'mj-m-' + i" maxlength="3" [(ngModel)]="f.moneda" />
+          </div>
+          <div class="campo">
+            <label [for]="'mj-p-' + i">{{ t('activo.mej.proveedor') }}</label>
+            <input [id]="'mj-p-' + i" [name]="'mj-p-' + i" maxlength="80" [(ngModel)]="f.proveedor" />
+          </div>
+          <div class="ae-mini-acciones">
+            <button type="button" class="boton secundario" [disabled]="!sucia(f) || ocupado()" (click)="guardarMejora(f)">{{ t('app.guardar') }}</button>
+            <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(f)"><app-icono nombre="papelera" /></button>
+          </div>
+        </div>
+      }
+      <div class="ae-fila-edit ae-nueva">
+        <div class="campo">
+          <label for="mj-d-nueva">{{ t('activo.mej.nueva') }}</label>
+          <input id="mj-d-nueva" name="mj-d-nueva" maxlength="300" [placeholder]="t('activo.mej.ejemplo')" [(ngModel)]="nueva.descripcion" />
+        </div>
+        <div class="campo ae-corto">
+          <label for="mj-c-nueva">{{ t('activo.mej.costo') }}</label>
+          <input id="mj-c-nueva" name="mj-c-nueva" type="number" min="0" step="0.01" [(ngModel)]="nueva.costo" />
+        </div>
+        <div class="ae-mini-acciones">
+          <button type="button" class="boton" [disabled]="nueva.descripcion.trim().length < 2 || ocupado()" (click)="guardarMejora(nueva)">
+            <app-icono nombre="mas" /> {{ t('activo.mej.agregar') }}
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

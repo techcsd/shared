@@ -1,6 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import { Icono } from '../../ui/icono/icono';
 import { ActivoService } from '../../../app/core/activo.service';
+import { ClaveI18n } from '../../../app/core/i18n/es';
 import { t } from '../../../app/core/i18n/i18n';
 
 type Variante = 'hero' | 'normal' | 'mini';
@@ -26,6 +27,7 @@ export class ActivoTarjeta {
   @Input() imagenPath: string | null = null;
   @Input() capacidad: number | null = null;
   @Input() puntoEncuentro: string | null = null;
+  @Input() condicion: string | null = null;
   @Input() variante: Variante = 'normal';
 
   private fallo = signal<string | null>(null);
@@ -37,6 +39,10 @@ export class ActivoTarjeta {
     const path = this.imagenPath;
     if (!path || this.fallo() === path) return null;
     return this.activos.urlImagen(path);
+  }
+
+  textoCondicion(): string {
+    return this.condicion ? t(`activo.cond.${this.condicion}` as ClaveI18n) : '';
   }
 
   alFallar(): void {

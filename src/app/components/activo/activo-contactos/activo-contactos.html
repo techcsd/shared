@@ -1,0 +1,98 @@
+<!-- Contactos y proveedores -->
+<div class="ae-pila">
+  @if (!editando) {
+    @if (d.contactos.length === 0) {
+      <p class="ae-vacio tarjeta">
+        <app-icono nombre="telefono" />
+        <span>{{ t('activo.ct.vacio') }}</span>
+        <span class="suave">{{ t('activo.ct.vacio_ver') }}</span>
+      </p>
+    } @else {
+      <ul class="ae-contactos">
+        @for (c of d.contactos; track c.id) {
+          <li class="tarjeta ae-contacto" [class.emergencia]="c.categoria === 'emergencia'">
+            <span class="ae-doc-icono"><app-icono [nombre]="icono(c.categoria)" /></span>
+            <div class="ae-doc-cuerpo">
+              <strong>{{ c.nombre }}</strong>
+              <span class="suave">{{ tx('activo.ct.cat.' + c.categoria) }}</span>
+              @if (c.notas) {
+                <span class="suave">{{ c.notas }}</span>
+              }
+              <div class="ae-contacto-acciones">
+                @if (c.telefono) {
+                  <a class="boton secundario" [href]="tel(c)"><app-icono nombre="telefono" /> {{ t('activo.ct.llamar') }}</a>
+                  <a class="boton secundario" [href]="wa(c)" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                }
+                @if (c.correo) {
+                  <a class="boton secundario" [href]="'mailto:' + c.correo"><app-icono nombre="correo" /> {{ t('activo.ct.correo') }}</a>
+                }
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  } @else {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="telefono" /> {{ t('activo.ct.titulo') }}</h2>
+      <p class="suave">{{ t('activo.ct.ayuda') }}</p>
+      @for (f of filas; track f.id; let i = $index) {
+        <div class="ae-fila-edit">
+          <div class="campo">
+            <label [for]="'ct-n-' + i">{{ t('activo.ct.nombre') }}</label>
+            <input [id]="'ct-n-' + i" [name]="'ct-n-' + i" maxlength="80" [(ngModel)]="f.nombre" />
+          </div>
+          <div class="campo">
+            <label [for]="'ct-c-' + i">{{ t('activo.ct.categoria') }}</label>
+            <select [id]="'ct-c-' + i" [name]="'ct-c-' + i" [(ngModel)]="f.categoria">
+              @for (c of categorias; track c) {
+                <option [value]="c">{{ tx('activo.ct.cat.' + c) }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo">
+            <label [for]="'ct-t-' + i">{{ t('activo.ct.telefono') }}</label>
+            <input [id]="'ct-t-' + i" [name]="'ct-t-' + i" type="tel" maxlength="30" [(ngModel)]="f.telefono" />
+          </div>
+          <div class="campo">
+            <label [for]="'ct-e-' + i">{{ t('activo.ct.correo_campo') }}</label>
+            <input [id]="'ct-e-' + i" [name]="'ct-e-' + i" type="email" maxlength="120" [(ngModel)]="f.correo" />
+          </div>
+          <div class="campo">
+            <label [for]="'ct-o-' + i">{{ t('activo.eq.notas') }}</label>
+            <input [id]="'ct-o-' + i" [name]="'ct-o-' + i" maxlength="300" [(ngModel)]="f.notas" />
+          </div>
+          <div class="ae-mini-acciones">
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.subir_orden')" [disabled]="i === 0 || ocupado()" (click)="mover(i, -1)"><app-icono nombre="arriba" /></button>
+            <button type="button" class="ae-mini" [attr.aria-label]="t('activo.bajar_orden')" [disabled]="i === filas.length - 1 || ocupado()" (click)="mover(i, 1)"><app-icono nombre="abajo" /></button>
+            <button type="button" class="boton secundario" [disabled]="!sucia(f) || ocupado()" (click)="guardar(f)">{{ t('app.guardar') }}</button>
+            <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(f)"><app-icono nombre="papelera" /></button>
+          </div>
+        </div>
+      }
+      <div class="ae-fila-edit ae-nueva">
+        <div class="campo">
+          <label for="ct-n-nuevo">{{ t('activo.ct.nuevo') }}</label>
+          <input id="ct-n-nuevo" name="ct-n-nuevo" maxlength="80" [placeholder]="t('activo.ct.ejemplo')" [(ngModel)]="nueva.nombre" />
+        </div>
+        <div class="campo">
+          <label for="ct-c-nuevo">{{ t('activo.ct.categoria') }}</label>
+          <select id="ct-c-nuevo" name="ct-c-nuevo" [(ngModel)]="nueva.categoria">
+            @for (c of categorias; track c) {
+              <option [value]="c">{{ tx('activo.ct.cat.' + c) }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="ct-t-nuevo">{{ t('activo.ct.telefono') }}</label>
+          <input id="ct-t-nuevo" name="ct-t-nuevo" type="tel" maxlength="30" [(ngModel)]="nueva.telefono" />
+        </div>
+        <div class="ae-mini-acciones">
+          <button type="button" class="boton" [disabled]="nueva.nombre.trim().length < 2 || ocupado()" (click)="guardar(nueva)">
+            <app-icono nombre="mas" /> {{ t('activo.ct.agregar') }}
+          </button>
+        </div>
+      </div>
+    </section>
+  }
+</div>

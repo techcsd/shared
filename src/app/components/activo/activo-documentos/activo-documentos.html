@@ -1,0 +1,84 @@
+<!-- Documentos del activo -->
+<div class="ae-pila">
+  <p class="ae-nota"><app-icono nombre="candado" /> {{ t('activo.doc.privado') }}</p>
+
+  @if (editando) {
+    <form class="tarjeta ae-bloque ae-form" (ngSubmit)="subir()">
+      <h2><app-icono nombre="subir" /> {{ t('activo.doc.agregar') }}</h2>
+      <div class="campo">
+        <label for="doc-archivo">{{ t('activo.doc.archivo') }}</label>
+        <input id="doc-archivo" name="archivo" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" (change)="elegir($event)" />
+        <span class="suave">{{ t('activo.doc.archivo_ayuda') }}</span>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="doc-tipo">{{ t('activo.doc.tipo') }}</label>
+          <select id="doc-tipo" name="tipo" [(ngModel)]="nuevo.tipo">
+            @for (tp of tipos; track tp) {
+              <option [value]="tp">{{ tx('activo.doc.tipo.' + tp) }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="doc-titulo">{{ t('activo.doc.titulo') }}</label>
+          <input id="doc-titulo" name="titulo" maxlength="120" [(ngModel)]="nuevo.titulo" />
+        </div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="doc-emitido">{{ t('activo.doc.emitido') }}</label>
+          <input id="doc-emitido" name="emitido" type="date" [(ngModel)]="nuevo.emitido" />
+        </div>
+        <div class="campo">
+          <label for="doc-vence">{{ t('activo.doc.vence') }}</label>
+          <input id="doc-vence" name="vence" type="date" [(ngModel)]="nuevo.vence" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="doc-notas">{{ t('activo.doc.notas') }}</label>
+        <input id="doc-notas" name="notas" maxlength="500" [(ngModel)]="nuevo.notas" />
+      </div>
+      <button class="boton" type="submit" [disabled]="!archivo || nuevo.titulo.trim().length < 2 || subiendo()">
+        {{ subiendo() ? t('activo.foto_subiendo') : t('activo.doc.subir') }}
+      </button>
+    </form>
+  }
+
+  @if (d.documentos.length === 0) {
+    <p class="ae-vacio tarjeta">
+      <app-icono nombre="documento" />
+      <span>{{ t('activo.doc.vacio') }}</span>
+      <span class="suave">{{ editando ? t('activo.doc.vacio_editar') : t('activo.doc.vacio_ver') }}</span>
+    </p>
+  } @else {
+    <ul class="ae-docs">
+      @for (doc of d.documentos; track doc.id) {
+        <li class="tarjeta ae-doc">
+          <span class="ae-doc-icono"><app-icono nombre="documento" /></span>
+          <div class="ae-doc-cuerpo">
+            <strong>{{ doc.titulo }}</strong>
+            <span class="suave">{{ tx('activo.doc.tipo.' + doc.tipo) }}@if (doc.tamano_bytes) { · {{ tamano(doc.tamano_bytes) }} }</span>
+            @if (doc.vence_en) {
+              <span class="ae-vence {{ estadoVence(doc) }}">{{ textoVence(doc) }}</span>
+            }
+            @if (doc.notas) {
+              <span class="suave">{{ doc.notas }}</span>
+            }
+            @if (editando) {
+              <div class="campo ae-inline">
+                <label [for]="'dv-' + doc.id">{{ t('activo.doc.vence') }}</label>
+                <input [id]="'dv-' + doc.id" [name]="'dv-' + doc.id" type="date" [value]="doc.vence_en ?? ''" (change)="actualizarVence(doc, $any($event.target).value)" />
+              </div>
+            }
+          </div>
+          <div class="ae-mini-acciones">
+            <button type="button" class="boton secundario" [disabled]="abriendo() === doc.id" (click)="abrir(doc)">{{ t('activo.doc.abrir') }}</button>
+            @if (editando) {
+              <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(doc)"><app-icono nombre="papelera" /></button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

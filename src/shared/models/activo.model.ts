@@ -47,4 +47,5 @@ export interface ActivoResumen {
   capacidad_legal: number | null;
   tipo_clave: string;
   tipo_nombre: string;
+  condicion: string | null;
 }

@@ -99,3 +99,10 @@ Verificación: `npm run test:db` 16 archivos / 27 migraciones; unitarios 28; e2e
 |---|---|---|
 | Migración 33, test 20, bucket `activos` | ✅ dev y prod | `test:db` 20 archivos |
 | `/activo`, tarjeta, avatar, invitación, admin | ✅ | e2e `activo-vitrina` (ícono sin foto, foto tras subirla, invitado ve el activo) |
+
+## El activo como entidad editable
+| Pieza | Estado | Evidencia |
+|---|---|---|
+| Migración 34 (permisos, 8 tablas, RPC, buckets, alertas) | ✅ | test SQL 21 (matriz de permisos, validación de campos, galería, documentos, historial, dinero intacto) |
+| `/activo`: Resumen, Ficha técnica, Fotos, Documentos, Equipamiento, Valor, Contactos, Historial; modo edición | ✅ | e2e `activo-entidad` (6) y `activo-vitrina` |
+| Permiso delegable por el admin del grupo | ✅ | e2e: socio sin permiso solo lee; con permiso edita |
