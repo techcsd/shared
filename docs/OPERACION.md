@@ -39,3 +39,10 @@
 - Semanal: revisar «Salud del sistema» y fallos de correo.
 - Mensual: `npm audit`, revisar políticas de Auth, rotar claves si hubo salidas de personas.
 - Antes de cada lanzamiento: `node scripts/release-check.mjs --completo`.
+
+## Panel de administración (`/admin`)
+Solo administradores de plataforma (ver «Hacer a alguien administrador» arriba; entrada en Más y en «Mis grupos»).
+- **Usuarios:** crear (correo, nombre y contraseña ≥ 8; queda confirmado, sin correo), cambiar contraseña, bloquear/desbloquear (la sesión abierta puede durar hasta 1 h), hacer/quitar admin de plataforma, borrar (con motivos si no se puede; la alternativa es bloquear).
+- **Grupos:** lista (estado, activo, miembros, Σ %, movimientos); «Gestionar» permite agregar un usuario existente sin invitación (en un grupo activo con 0 % y luego repartir), repartir porcentajes (deben sumar 100) y quitar miembros (queda como `salido`).
+- **Plataforma:** directorio de propuestas (apagado por defecto), enlace a Salud del sistema y las últimas acciones del admin (`admin_acciones`).
+- Si algo falla: logs de la función `npx supabase functions logs admin-usuarios`; requiere el secret `APP_URL` para CORS. Para crear al primer admin sigue valiendo el `insert into plataforma_admins` en SQL.

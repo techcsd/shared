@@ -1,6 +1,9 @@
 <!-- Grupos del usuario -->
 <main class="grupos">
   <h1>{{ t('grupos.titulo') }}</h1>
+  @if (esAdminPlataforma()) {
+    <p><a class="boton secundario" routerLink="/admin">{{ t('mas.admin') }}</a></p>
+  }
 
   @if (!grupos.cargado()) {
     <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>

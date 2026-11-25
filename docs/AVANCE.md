@@ -78,3 +78,10 @@ Verificación: `npm run test:db` 14 archivos / 25 migraciones; e2e vivo P4 4/4 c
 Verificación: `npm run test:db` 16 archivos / 27 migraciones; unitarios 28; e2e vivo (smoke, P2–P5) 22/22 contra shared-dev.
 
 **Nota Lighthouse (F4):** NO se pudo medir. Lighthouse 12 contra el Chromium headless de Playwright en Windows devolvió error de protocolo (`Target closed`) y, tras ajustar flags, puntajes 0 que son de la corrida fallida, no del sitio. Queda **pendiente medir en un navegador Chrome real o desde PageSpeed Insights** con la URL de preview. Lo que sí se verificó: PWA instalable (manifest standalone, es), CSP sin violaciones, controles táctiles ≥ 44 px (`min-height: 2.75rem`), etiquetas en todos los campos, foco visible por defecto del navegador.
+
+## Panel de administración de plataforma (2026-11-25)
+| Pieza | Estado | Evidencia |
+|---|---|---|
+| Migración 29 (RPC + bitácora) y 30 (borrado con membresía) | ✅ | test SQL 17_admin_plataforma (no admin denegado en cada RPC, Σ % = 100, borrado seguro, bitácora inmutable) |
+| Edge function `admin-usuarios` | ✅ | e2e `admin-vivo`: usuario normal 403; admin crea, agrega, quita, bloquea, borra |
+| Pantalla `/admin` (Usuarios · Grupos · Plataforma) | ✅ | lint, build, verify:i18n (895 claves) |

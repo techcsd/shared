@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, grupoGuard, rolGuard } from './core/guards/guards';
+import { adminPlataformaGuard, authGuard, grupoGuard, rolGuard } from './core/guards/guards';
 
 // Rutas lazy. Finanzas y acuerdos: solo `socio` (SA16). El calendario es la pantalla principal (SA15).
 export const routes: Routes = [
@@ -26,6 +26,16 @@ export const routes: Routes = [
     path: 'mediar/:token',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/mediar/mediar').then((m) => m.MediarPage),
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminPlataformaGuard],
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.AdminPage),
+  },
+  {
+    path: 'admin/salud',
+    canActivate: [authGuard, adminPlataformaGuard],
+    loadComponent: () => import('./pages/salud/salud').then((m) => m.SaludPage),
   },
   {
     path: 'grupos',
