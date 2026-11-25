@@ -81,7 +81,7 @@
         }
       </article>
     } @empty {
-      <p class="suave">{{ t('app.vacio') }}</p>
+      <p class="suave vacio">{{ t('app.vacio') }}</p>
     }
 
     @if (puedeRegistrar()) {
@@ -119,7 +119,7 @@
         <p class="suave">{{ t('man.criterio') }}: {{ tk('man.criterio.' + (estados()[p.id]?.criterio ?? 'primero')) }} · {{ textoEstado(p) }}</p>
       </article>
     } @empty {
-      <p class="suave">{{ t('app.vacio') }}</p>
+      <p class="suave vacio">{{ t('app.vacio') }}</p>
     }
     @if (esSocio()) {
       <section class="tarjeta">
@@ -174,7 +174,7 @@
         <p class="suave">{{ s.fecha }}{{ s.proveedor ? ' · ' + s.proveedor : '' }}{{ s.lectura !== null ? ' · ' + s.lectura + ' h' : '' }}</p>
       </article>
     } @empty {
-      <p class="suave">{{ t('app.vacio') }}</p>
+      <p class="suave vacio">{{ t('app.vacio') }}</p>
     }
     @if (puedeRegistrar()) {
       <section class="tarjeta">

@@ -1,7 +1,7 @@
 <!-- Operación de una salida -->
 <main class="operacion">
   @if (cargando()) {
-    <p class="suave">{{ t('app.cargando') }}</p>
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
   } @else if (reserva(); as r) {
     <h1>{{ r.orden?.codigo ?? t('op.titulo') }}</h1>
     <p class="suave">{{ r.activo?.nombre }} · {{ rangoTexto() }}</p>

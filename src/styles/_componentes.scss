@@ -1,0 +1,283 @@
+// Piezas de interfaz compartidas por todas las pantallas (antes copiadas en cada .scss de página).
+
+// Rejillas y acciones
+.fila-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--espacio-3);
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin: var(--espacio-2) 0;
+}
+
+.cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+}
+
+// Pestañas y filtros tipo "píldora"
+.pestanas,
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin: var(--espacio-3) 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-pildora);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  padding: 0.2rem 0.85rem;
+  font-size: var(--texto-s);
+  font-weight: 600;
+  margin-right: var(--espacio-1);
+  cursor: default;
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease,
+    color var(--dur-2) ease,
+    transform var(--dur-1) var(--ease);
+
+  button#{&},
+  a#{&} {
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--color-primario);
+      color: var(--color-primario);
+    }
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+  &.activo {
+    border-color: var(--color-primario);
+    background: var(--color-primario-tenue);
+    color: var(--color-primario);
+    font-weight: 700;
+  }
+  &.alerta,
+  &.venc {
+    border-color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error) 10%, transparent);
+    color: var(--color-error);
+  }
+  &.prov {
+    border-style: dashed;
+  }
+}
+
+// Avisos
+.aviso {
+  border: 1px solid color-mix(in srgb, var(--color-primario) 40%, var(--color-borde));
+  border-left: 4px solid var(--color-primario);
+  background: var(--color-primario-tenue);
+  border-radius: var(--radio-1);
+  padding: var(--espacio-3) var(--espacio-4);
+  margin-bottom: var(--espacio-3);
+}
+
+.aviso-permanente,
+.faltan {
+  border: 1px solid color-mix(in srgb, var(--color-error) 45%, var(--color-borde));
+  border-left: 4px solid var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  border-radius: var(--radio-1);
+  padding: var(--espacio-3) var(--espacio-4);
+  margin-bottom: var(--espacio-3);
+
+  ul {
+    margin: var(--espacio-2) 0 0;
+    padding-left: var(--espacio-4);
+  }
+}
+
+// Tablas
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+
+  th,
+  td {
+    padding: var(--espacio-2);
+    border-bottom: 1px solid var(--color-borde);
+    text-align: left;
+  }
+  th {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--color-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  td.num,
+  th.num {
+    white-space: nowrap;
+  }
+  tbody tr {
+    transition: background-color var(--dur-1) ease;
+
+    &:hover {
+      background: var(--color-primario-tenue);
+    }
+  }
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .fondo td {
+    background: var(--color-superficie-2);
+  }
+}
+
+.positivo {
+  color: var(--color-exito);
+  font-weight: 600;
+}
+
+.negativo {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+// Cifras clave
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-4);
+
+  div {
+    padding: var(--espacio-4);
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-2);
+    box-shadow: var(--sombra-1);
+  }
+  strong {
+    display: block;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Listas de datos (término / valor)
+.resumen,
+.datos {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--espacio-2) var(--espacio-4);
+  margin: 0 0 var(--espacio-3);
+
+  dt {
+    color: var(--color-texto-suave);
+  }
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+// Movimientos y filas con separador
+.mov,
+.fila-g {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-3) 0;
+  border-bottom: 1px solid var(--color-borde);
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.caso {
+  border-top: 1px solid var(--color-borde);
+  margin-top: var(--espacio-3);
+  padding-top: var(--espacio-3);
+}
+
+.msg {
+  margin: var(--espacio-1) 0;
+
+  &.sistema {
+    color: var(--color-texto-suave);
+    font-style: italic;
+  }
+}
+
+// Opciones tipo botón de selección
+.opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espacio-2);
+  margin-bottom: var(--espacio-4);
+}
+
+.opcion {
+  min-height: 3rem;
+  padding: var(--espacio-2) var(--espacio-3);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-1);
+  cursor: pointer;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease,
+    color var(--dur-2) ease,
+    box-shadow var(--dur-2) ease,
+    transform var(--dur-1) var(--ease);
+
+  &:hover {
+    border-color: var(--color-primario);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--anillo-foco);
+  }
+  &.elegida {
+    border-color: var(--color-primario);
+    background: var(--color-primario-tenue);
+    color: var(--color-primario);
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--color-primario);
+  }
+}
+
+// Casillas de chequeo grandes (operación)
+.chequeo {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-height: 2.75rem;
+  padding: var(--espacio-1) 0;
+
+  input {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}

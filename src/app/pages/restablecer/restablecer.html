@@ -21,7 +21,17 @@
           [attr.aria-pressed]="verClave()"
           [attr.aria-label]="verClave() ? t('auth.ocultar_clave') : t('auth.ver_clave')"
         >
-          {{ verClave() ? '🙈' : '👁' }}
+          @if (verClave()) {
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3l18 18M10.6 6.2A9.8 9.8 0 0 1 12 6c5 0 8.5 4 9.5 6a12.6 12.6 0 0 1-2.9 3.5M6.5 7.6A12.6 12.6 0 0 0 2.5 12c1 2 4.5 6 9.5 6a9.6 9.6 0 0 0 3.6-.7" />
+              <path d="M9.9 10a3 3 0 0 0 4.1 4.1" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.5 12C3.5 10 7 6 12 6s8.5 4 9.5 6c-1 2-4.5 6-9.5 6s-8.5-4-9.5-6z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          }
         </button>
       </div>
       <span class="suave">{{ t('auth.clave_ayuda') }}</span>

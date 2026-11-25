@@ -2,7 +2,7 @@
 <main class="unirse">
   <h1>{{ t('unirse.titulo') }}</h1>
   @if (cargando()) {
-    <p class="suave">{{ t('app.cargando') }}</p>
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
   }
   @if (error()) {
     <p class="error-texto" role="alert">{{ error() }}</p>

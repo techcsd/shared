@@ -1,7 +1,12 @@
 .sin-conexion {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   background: var(--color-aviso);
   color: #fff;
   padding: var(--espacio-2) var(--espacio-4);
   font-size: var(--texto-s);
+  font-weight: 600;
   text-align: center;
+  animation: aparecer var(--dur-2) ease both;
 }
