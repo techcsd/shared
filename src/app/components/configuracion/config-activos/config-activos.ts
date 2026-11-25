@@ -1,5 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivoTarjeta } from '../../../../shared/components/activo-tarjeta/activo-tarjeta';
+import { ActivoService } from '../../../core/activo.service';
 import { ConfiguracionService } from '../../../core/configuracion.service';
 import { GrupoService } from '../../../core/grupo.service';
 import { t } from '../../../core/i18n/i18n';
@@ -14,7 +16,7 @@ import {
 @Component({
   selector: 'app-config-activos',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ActivoTarjeta],
   templateUrl: './config-activos.html',
   styleUrl: './config-activos.scss',
 })
@@ -35,13 +37,15 @@ export class ConfigActivos implements OnInit {
   cantidades: Record<string, number> = {};
 
   // edición
-  edit = { capacidad: null as number | null, punto: '', reglas: '', contacto: '' };
+  edit = { capacidad: null as number | null, punto: '', reglas: '', contacto: '', descripcion: '' };
+  subiendo = signal(false);
   valoresEdit: Record<string, unknown> = {};
   lecturas: Record<string, number> = {};
 
   constructor(
     private grupos: GrupoService,
     private config: ConfiguracionService,
+    private activosSvc: ActivoService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -134,6 +138,7 @@ export class ConfigActivos implements OnInit {
       punto: a.punto_encuentro ?? '',
       reglas: a.reglas_invitados ?? '',
       contacto: a.contacto_invitados ?? '',
+      descripcion: a.descripcion ?? '',
     };
     this.valoresEdit = { ...a.valores };
     const comps = await this.config.componentes(a.id);
@@ -154,6 +159,7 @@ export class ConfigActivos implements OnInit {
       punto_encuentro: this.edit.punto.trim() || null,
       reglas_invitados: this.edit.reglas.trim() || null,
       contacto_invitados: this.edit.contacto.trim() || null,
+      descripcion: this.edit.descripcion.trim() || null,
       valores: this.limpiar(this.valoresEdit),
     };
     if (activar === true) cambios.estado = 'activo';
@@ -175,6 +181,47 @@ export class ConfigActivos implements OnInit {
     }
     this.mensaje.set(t('app.guardado'));
     await this.recargar();
+  }
+
+  /** Elige una foto: se reduce en el navegador y se sube al bucket `activos` (solo socios). */
+  async elegirFoto(ev: Event): Promise<void> {
+    const input = ev.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    const a = this.seleccionado();
+    input.value = '';
+    if (!archivo || !a) return;
+    this.error.set(null);
+    this.mensaje.set(null);
+    this.subiendo.set(true);
+    const r = await this.activosSvc.subirImagen(a.grupo_id, a.id, archivo, a.imagen_path);
+    this.subiendo.set(false);
+    if (r.error) {
+      this.error.set(this.errorImagen(r.error));
+      return;
+    }
+    await this.recargar();
+    this.mensaje.set(t('app.guardado'));
+  }
+
+  async quitarFoto(): Promise<void> {
+    const a = this.seleccionado();
+    if (!a) return;
+    this.error.set(null);
+    this.subiendo.set(true);
+    const r = await this.activosSvc.quitarImagen(a.id, a.imagen_path);
+    this.subiendo.set(false);
+    if (r.error) this.error.set(r.error);
+    else {
+      await this.recargar();
+      this.mensaje.set(t('app.guardado'));
+    }
+  }
+
+  private errorImagen(c: string): string {
+    if (c === 'imagen_tipo_invalido') return t('activo.error.tipo');
+    if (c === 'imagen_ilegible') return t('activo.error.ilegible');
+    if (c === 'imagen_muy_grande') return t('activo.error.grande');
+    return c;
   }
 
   private traducir(msg: string): string {

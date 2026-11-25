@@ -145,3 +145,8 @@ erDiagram
 - **31:** `es_miembro`/`es_socio`/`comparte_grupo` incluyen `es_admin_plataforma()`; parches a `aceptar_version`, `proponer_cambio_politica` (exigen fila en `miembros`) y `capitan_guardar` (admite admin); políticas `admin_ver` (solo SELECT) en `propuestas_*` y `directorio_*`.
 - **32:** `invitaciones_pendientes_mias()` (solo las del correo de la sesión) y `aceptar_invitacion_por_id(uuid)` (mismas reglas que `aceptar_invitacion`).
 - **Edge function `admin-usuarios`:** acción `impersonar` (ver DF-102).
+
+## 16. Vitrina del activo — migración 33
+- `activos.descripcion`, `activos.imagen_path` (check: dentro de la carpeta del grupo). Bucket público `activos` (5 MB; jpeg/png/webp) con políticas de escritura solo para socios/admin de plataforma.
+- RPC: `activo_vitrina(grupo)` (miembros/admin), `activo_vista_por_token(token)` y `activo_vista_por_invitacion(id)` (subconjunto no sensible, solo al correo invitado). `activo_resumen_publico` es interna.
+- Frontend: `ActivoService`, componente `app-activo-tarjeta` (foto o ícono), página `/activo`, avatar en el encabezado, miniaturas en «Tus grupos», vista previa en la invitación y en el panel de administración, y editor de foto/descripción en Configuración → Activos.

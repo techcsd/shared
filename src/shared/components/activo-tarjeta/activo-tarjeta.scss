@@ -1,0 +1,161 @@
+// Tarjeta del activo: foto o ícono. Relación de aspecto reservada para no mover el diseño al cargar.
+:host {
+  display: block;
+}
+
+.vit {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-3);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-1);
+}
+
+.medio {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--degradado-marino);
+  color: rgb(255 255 255 / 92%);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--brillo);
+    pointer-events: none;
+  }
+
+  &[data-icono='carro'] {
+    background: linear-gradient(135deg, #2b2f3a 0%, #46526b 55%, #6b7a99 100%);
+  }
+
+  &[data-icono='otro'] {
+    background: linear-gradient(135deg, #3b2f5c 0%, #5a4a8a 55%, #8a78c4 100%);
+  }
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: vit-entrada var(--dur-3) var(--ease) both;
+  }
+}
+
+.icono {
+  display: grid;
+  place-items: center;
+  font-size: clamp(3rem, 22vw, 5.5rem);
+  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 28%));
+}
+
+.cuerpo {
+  display: grid;
+  gap: var(--espacio-2);
+  padding: var(--espacio-4);
+}
+
+.titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--espacio-2);
+
+  h3 {
+    margin: 0;
+    font-size: var(--texto-l);
+  }
+}
+
+.tipo {
+  color: var(--color-texto-suave);
+  font-size: var(--texto-s);
+}
+
+.desc {
+  margin: 0;
+  color: var(--color-texto-suave);
+  white-space: pre-line;
+
+  &.corta {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: var(--espacio-1) var(--espacio-3);
+  border-radius: var(--radio-pildora);
+  background: var(--color-primario-tenue);
+  color: var(--color-primario);
+  font-size: var(--texto-s);
+  font-weight: 600;
+}
+
+// Hero: foto grande en la vitrina
+.hero {
+  border-radius: var(--radio-3);
+  box-shadow: var(--sombra-2);
+
+  .medio {
+    aspect-ratio: 4 / 3;
+  }
+
+  .titulo h3 {
+    font-size: var(--texto-xl);
+  }
+}
+
+// Mini: avatar cuadrado del encabezado
+// El ancho lo da el contenedor (avatar del encabezado, miniatura de la lista)
+.mini {
+  width: 100%;
+  border: 0;
+  border-radius: var(--radio-1);
+  box-shadow: none;
+
+  .medio {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radio-1);
+  }
+
+  .icono {
+    font-size: 1.4rem;
+    filter: none;
+  }
+}
+
+@keyframes vit-entrada {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medio img {
+    animation: none;
+  }
+}

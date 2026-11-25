@@ -48,3 +48,20 @@
 .pegar {
   margin-top: var(--espacio-3);
 }
+
+.miniatura {
+  flex: none;
+  width: 3.5rem;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.activo-linea {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

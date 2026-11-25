@@ -1,27 +1,23 @@
-<!-- Entrar como: aviso permanente mientras el admin ve la app como otro usuario -->
-@if (auth.impersonando(); as imp) {
-  <div class="banner-impersonar" role="alert">
-    <span>{{ t('impersonar.viendo', { nombre: imp.nombre }) }}</span>
-    <button type="button" (click)="volver()">
-      {{ auth.puedeVolver() ? t('impersonar.volver') : t('auth.salir') }}
-    </button>
-  </div>
-}
-
 <!-- Encabezado -->
 <header class="encabezado" [class.bajo-banner]="auth.impersonando()">
-  <a class="grupo-actual" routerLink="/grupos" [attr.aria-label]="t('mas.cambiar_grupo')">
-    <span class="marca-icono" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="5" r="2.2" />
-        <path d="M12 7.2V21M8 11h8M4 14c0 4 3.6 7 8 7s8-3 8-7M4 14l-1.5 1.5M20 14l1.5 1.5" />
+  <div class="grupo-barra">
+    <!-- Avatar del activo + nombre del grupo: abre la vitrina del activo -->
+    <a class="grupo-actual" routerLink="/activo" [attr.aria-label]="t('activo.ir')">
+      <span class="avatar-activo">
+        @if (activo(); as a) {
+          <app-activo-tarjeta variante="mini" [nombre]="a.nombre" [tipoClave]="a.tipo_clave" [tipoNombre]="a.tipo_nombre" [imagenPath]="a.imagen_path" />
+        } @else {
+          <app-activo-tarjeta variante="mini" [nombre]="grupos.grupo()?.nombre ?? ''" tipoClave="otro" />
+        }
+      </span>
+      <span class="nombre">{{ grupos.grupo()?.nombre }}</span>
+    </a>
+    <a class="cambiar-grupo" routerLink="/grupos" [attr.aria-label]="t('mas.cambiar_grupo')">
+      <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m6 9 6 6 6-6" />
       </svg>
-    </span>
-    <span class="nombre">{{ grupos.grupo()?.nombre }}</span>
-    <svg class="chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  </a>
+    </a>
+  </div>
 </header>
 
 <!-- Vista de administrador de plataforma (sin ser miembro del grupo) -->

@@ -82,3 +82,6 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 ## Tarea C (2026-11-25)
 - Migraciones 31 (acceso total del admin) y 32 (invitaciones pendientes a mi correo) + `admin-usuarios` con `impersonar`.
 - Grupo de Xaviel en shared-prod («Grupo Test X»): Tech CSD 30 %, Felipe Demo 30 %, Socio Demo 1 15 %, Socio Demo 2 15 %, Socio Demo 3 5 %, Socio Demo 4 5 %; activo «Bote Demo 32'» con 2 motores (lecturas iniciales 120,0 y 118,5), destinos Playa cercana (fee 5.000) e Isla Saona (12.000), tarifa por hora 1.500, correos a tecnologia@constructorasd.com, capitán demo con licencia a un año y póliza demo. Sin movimientos de dinero.
+
+## Vitrina del activo (2026-11-25)
+- Migración 33 aplicada en dev y prod. `/activo` muestra foto o ícono, descripción y datos. La foto se sube en Configuración → Activos (socio) o desde Admin → Grupos (admin de plataforma, entrando al grupo).

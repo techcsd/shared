@@ -119,3 +119,9 @@ on conflict (activo_id, clave, indice) do nothing;
 insert into destinos (id, grupo_id, nombre, orden)
 values ('30000000-0000-4000-8000-000000000011', '10000000-0000-4000-8000-000000000002', 'Ciudad', 1)
 on conflict (id) do nothing;
+
+-- Vitrina del activo (mig. 33): descripciones de demostración. Sin fotos: se muestra el ícono por tipo.
+update activos set descripcion = 'Bote de demostración de 32 pies con dos motores. Sale desde la marina, ideal para paseos familiares y salidas de pesca de un día. Datos de prueba.'
+ where id = '20000000-0000-4000-8000-000000000001';
+update activos set descripcion = 'Sedán de demostración para cinco personas, compartido entre los socios del grupo. Datos de prueba.'
+ where id = '20000000-0000-4000-8000-000000000002';

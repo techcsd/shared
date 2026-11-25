@@ -93,3 +93,9 @@ Verificación: `npm run test:db` 16 archivos / 27 migraciones; unitarios 28; e2e
 | Acceso total sin impersonar | ✅ | migración 31; test SQL 18 (lee y configura; no actúa como socio ni toca el libro) |
 | Bienvenida sin grupo | ✅ | migración 32, test SQL 19, e2e `bienvenida-vivo` |
 | Grupo de Xaviel en prod preparado | ✅ | 5 usuarios demo como socios (30/30/15/15/5/5), Bote Demo 32', destinos, tarifas, correos, capitán y póliza demo; checklist de lanzamiento completo |
+
+## Vitrina del activo
+| Pieza | Estado | Evidencia |
+|---|---|---|
+| Migración 33, test 20, bucket `activos` | ✅ dev y prod | `test:db` 20 archivos |
+| `/activo`, tarjeta, avatar, invitación, admin | ✅ | e2e `activo-vitrina` (ícono sin foto, foto tras subirla, invitado ve el activo) |

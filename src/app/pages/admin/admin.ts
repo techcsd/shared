@@ -1,6 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ActivoTarjeta } from '../../../shared/components/activo-tarjeta/activo-tarjeta';
+import { ActivoResumen } from '../../../shared/models/activo.model';
+import { ActivoService } from '../../core/activo.service';
 import { AuthService } from '../../core/auth.service';
 import { GrupoService } from '../../core/grupo.service';
 import { AdminBitacora, AdminGrupo, AdminMiembro, AdminService, AdminUsuario, RespuestaAdmin } from '../../core/admin.service';
@@ -15,7 +18,7 @@ type Pestana = 'usuarios' | 'grupos' | 'plataforma';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ActivoTarjeta],
   templateUrl: './admin.html',
   styleUrl: '../p4-comun.scss',
 })
@@ -50,12 +53,14 @@ export class AdminPage implements OnInit {
   agRol: RolMiembro = 'socio';
   agPct = 0;
   edicion: Record<string, number> = {};
+  resumenActivos = signal<Record<string, ActivoResumen>>({});
 
   constructor(
     private admin: AdminService,
     private auth: AuthService,
     private grupoSvc: GrupoService,
     private router: Router,
+    private activosSvc: ActivoService,
   ) {}
 
   /** Mi propio id: no se puede «entrar como» uno mismo. */
@@ -77,6 +82,7 @@ export class AdminPage implements OnInit {
     }
     this.usuarios.set(u.datos ?? []);
     this.grupos.set(g.datos ?? []);
+    this.resumenActivos.set(await this.activosSvc.resumenes((g.datos ?? []).map((x) => x.id)));
     this.bitacora.set(b.datos ?? []);
     this.directorio.set(await this.admin.directorioHabilitado());
     const sel = this.grupoSel();
