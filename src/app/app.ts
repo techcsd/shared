@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BannerImpersonar } from '../shared/components/banner-impersonar/banner-impersonar';
 import { AvisoActualizacion } from '../shared/components/aviso-actualizacion/aviso-actualizacion';
 import { ConexionService } from './core/conexion.service';
 import { t } from './core/i18n/i18n';
@@ -8,7 +9,7 @@ import { OfflineService } from './core/offline.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AvisoActualizacion],
+  imports: [RouterOutlet, AvisoActualizacion, BannerImpersonar],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

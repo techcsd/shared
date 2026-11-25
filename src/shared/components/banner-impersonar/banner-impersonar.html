@@ -1,0 +1,9 @@
+<!-- Entrar como: aviso permanente mientras el admin ve la app como otro usuario -->
+@if (auth.impersonando(); as imp) {
+  <div class="banner-impersonar" role="alert">
+    <span>{{ t('impersonar.viendo', { nombre: imp.nombre }) }}</span>
+    <button type="button" (click)="volver()">
+      {{ auth.puedeVolver() ? t('impersonar.volver') : t('auth.salir') }}
+    </button>
+  </div>
+}

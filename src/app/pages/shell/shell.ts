@@ -22,13 +22,6 @@ export class Shell implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  /** Vuelve a la cuenta del administrador (o cierra sesión si la copia de su sesión se perdió). */
-  async volver(): Promise<void> {
-    const r = await this.auth.volverACuentaAdmin();
-    this.grupos.limpiar();
-    await this.router.navigateByUrl(r.error ? '/login' : '/admin');
-  }
-
   ngOnInit(): void {
     this.notif.iniciar();
   }
