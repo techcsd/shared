@@ -1,62 +1,103 @@
-// Tokens de diseño (variables CSS). Sin ornamento: funcional y sobrio (DF-35).
+// Tokens de diseño (variables CSS). Náutico, limpio y seguro de sí mismo (UI moderna aprobada por Xaviel).
+// Todo color, sombra, radio y duración sale de aquí: nada se escribe a mano en las páginas.
 :root {
-  --color-primario: #0f4c5c;
+  // Marca
+  --color-primario: #0a5c74;
+  --color-primario-2: #0f7fa0;
   --color-primario-texto: #ffffff;
-  --color-acento: #e36414;
-  --color-fondo: #f6f7f8;
+  --color-primario-tenue: color-mix(in srgb, var(--color-primario) 10%, transparent);
+  --color-primario-medio: color-mix(in srgb, var(--color-primario) 22%, transparent);
+  --color-acento: #e0561a;
+  --color-acento-tenue: color-mix(in srgb, var(--color-acento) 14%, transparent);
+
+  // Superficies y texto
+  --color-fondo: #eef4f7;
   --color-superficie: #ffffff;
-  --color-borde: #d9dde1;
-  --color-texto: #1b1f23;
-  --color-texto-suave: #5b6670;
-  --color-exito: #2e7d32;
-  --color-aviso: #b26a00;
+  --color-superficie-2: #f6fafc;
+  --color-borde: #d6e2e8;
+  --color-texto: #0e1c25;
+  --color-texto-suave: #4d5f6b;
+
+  // Estados
+  --color-exito: #1b7a3a;
+  --color-aviso: #a35f00;
   --color-error: #b3261e;
   --color-demo: #6a1b9a;
 
+  // Degradados y brillos
+  --degradado-marino: linear-gradient(135deg, #07384b 0%, #0a5c74 52%, #0f8aa8 100%);
+  --degradado-acento: linear-gradient(135deg, #e0561a, #f08a3c);
+  --brillo: radial-gradient(120% 80% at 100% 0%, rgb(255 255 255 / 22%), transparent 60%);
+
+  // Espaciado
   --espacio-1: 0.25rem;
   --espacio-2: 0.5rem;
   --espacio-3: 0.75rem;
   --espacio-4: 1rem;
+  --espacio-5: 1.25rem;
   --espacio-6: 1.5rem;
   --espacio-8: 2rem;
+  --espacio-10: 2.5rem;
 
-  --radio-1: 6px;
-  --radio-2: 12px;
-  --sombra-1: 0 1px 2px rgb(0 0 0 / 8%);
-  --sombra-2: 0 4px 12px rgb(0 0 0 / 12%);
+  // Forma y elevación
+  --radio-1: 10px;
+  --radio-2: 16px;
+  --radio-3: 24px;
+  --radio-pildora: 999px;
+  --sombra-1: 0 1px 2px rgb(10 40 55 / 6%), 0 1px 1px rgb(10 40 55 / 4%);
+  --sombra-2: 0 6px 18px rgb(10 40 55 / 10%), 0 2px 4px rgb(10 40 55 / 6%);
+  --sombra-3: 0 18px 40px rgb(10 40 55 / 18%), 0 4px 10px rgb(10 40 55 / 8%);
+  --anillo-foco: 0 0 0 3px color-mix(in srgb, var(--color-primario-2) 45%, transparent);
 
-  --fuente-cuerpo: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  // Tipografía (pila del sistema: nada que descargar, CSP intacta)
+  --fuente-cuerpo: system-ui, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --fuente-titulo: var(--fuente-cuerpo);
   --texto-s: 0.8125rem;
   --texto-m: 1rem;
   --texto-l: 1.25rem;
-  --texto-xl: 1.625rem;
+  --texto-xl: 1.75rem;
+  --texto-2xl: 2.25rem;
 
-  --alto-nav-inferior: 3.5rem;
+  // Navegación
+  --alto-nav-inferior: 4.25rem;
+  --alto-encabezado: 3.5rem;
+
+  // Movimiento
+  --ease: cubic-bezier(0.2, 0.75, 0.2, 1);
+  --dur-1: 140ms;
+  --dur-2: 260ms;
+  --dur-3: 420ms;
   --transicion: all 0.3s ease;
   color-scheme: light dark;
 }
 
+@mixin tema-oscuro {
+  --color-primario: #56c3de;
+  --color-primario-2: #7ad6ec;
+  --color-primario-texto: #04161d;
+  --color-acento: #ff8a4d;
+  --color-fondo: #081015;
+  --color-superficie: #111b22;
+  --color-superficie-2: #16232c;
+  --color-borde: #24343f;
+  --color-texto: #e8f0f4;
+  --color-texto-suave: #98abb7;
+  --color-exito: #5cd08a;
+  --color-aviso: #f0b04a;
+  --color-error: #ff8a80;
+  --color-demo: #ce93d8;
+  --degradado-marino: linear-gradient(135deg, #04202c 0%, #0a4a60 55%, #0e7a96 100%);
+  --sombra-1: 0 1px 2px rgb(0 0 0 / 40%);
+  --sombra-2: 0 8px 22px rgb(0 0 0 / 40%), 0 2px 4px rgb(0 0 0 / 30%);
+  --sombra-3: 0 20px 44px rgb(0 0 0 / 55%), 0 4px 10px rgb(0 0 0 / 35%);
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema='claro']) {
-    --color-primario: #5fb3c6;
-    --color-primario-texto: #0b1a1f;
-    --color-fondo: #111417;
-    --color-superficie: #1a1f24;
-    --color-borde: #2d343b;
-    --color-texto: #e8ebee;
-    --color-texto-suave: #9aa5af;
-    --color-demo: #ce93d8;
+    @include tema-oscuro;
   }
 }
 
 :root[data-tema='oscuro'] {
-  --color-primario: #5fb3c6;
-  --color-primario-texto: #0b1a1f;
-  --color-fondo: #111417;
-  --color-superficie: #1a1f24;
-  --color-borde: #2d343b;
-  --color-texto: #e8ebee;
-  --color-texto-suave: #9aa5af;
-  --color-demo: #ce93d8;
+  @include tema-oscuro;
 }

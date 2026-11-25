@@ -2,7 +2,7 @@
 export const BRAND = {
   nombre: 'Shared',
   eslogan: 'Activos compartidos, reglas claras',
-  colorTema: '#0f4c5c',
-  colorFondo: '#f6f7f8',
+  colorTema: '#07384b',
+  colorFondo: '#eef4f7',
   correoSoporte: '',
 } as const;

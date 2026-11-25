@@ -10,18 +10,53 @@
   padding: 0;
 
   li a {
-    display: block;
-    padding: var(--espacio-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-3);
+    min-height: 3.5rem;
+    padding: var(--espacio-3) var(--espacio-4);
     margin-bottom: var(--espacio-2);
     background: var(--color-superficie);
     border: 1px solid var(--color-borde);
     border-radius: var(--radio-2);
+    box-shadow: var(--sombra-1);
     color: var(--color-texto);
+    font-weight: 600;
     text-decoration: none;
-    transition: var(--transicion);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform var(--dur-1) var(--ease),
+      border-color var(--dur-2) ease,
+      box-shadow var(--dur-2) var(--ease),
+      background-color var(--dur-2) ease;
+
+    // Flecha
+    &::after {
+      content: '';
+      flex: none;
+      width: 1.1rem;
+      height: 1.1rem;
+      background: var(--color-texto-suave);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition:
+        transform var(--dur-2) var(--ease),
+        background-color var(--dur-2) ease;
+    }
 
     &:hover {
       border-color: var(--color-primario);
+      box-shadow: var(--sombra-2);
+      background: var(--color-primario-tenue);
+
+      &::after {
+        transform: translateX(3px);
+        background: var(--color-primario);
+      }
+    }
+    &:active {
+      transform: scale(0.985);
     }
   }
 }

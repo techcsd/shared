@@ -21,9 +21,9 @@
   }
 
   @if (!activos.cargado()) {
-    <p class="suave">{{ t('app.cargando') }}</p>
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
   } @else if (!activos.activo()) {
-    <p class="suave">{{ t('cal.sin_activos') }}</p>
+    <p class="suave vacio">{{ t('cal.sin_activos') }}</p>
   } @else {
     <!-- Barra de vista -->
     <div class="barra">
@@ -134,7 +134,7 @@
     <section class="tarjeta panel-dia" aria-live="polite">
       <h2>{{ nombreDiaTxt(diaSel()) }}</h2>
       @if (cargando()) {
-        <p class="suave">{{ t('app.cargando') }}</p>
+        <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
       }
       @if (!itemsDe(diaSel()).length && !cargando()) {
         <p class="suave">{{ t('cal.dia_libre') }}</p>
