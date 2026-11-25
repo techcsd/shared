@@ -1,5 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AccesoInvitacion } from '../../components/grupos/acceso-invitacion/acceso-invitacion';
+import { TourPlataforma } from '../../components/grupos/tour-plataforma/tour-plataforma';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { FormacionService } from '../../core/formacion.service';
@@ -11,7 +13,7 @@ import { estadoGrupoTexto, rolTexto } from '../../core/i18n/textos';
 @Component({
   selector: 'app-grupos',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, AccesoInvitacion, TourPlataforma],
   templateUrl: './grupos.html',
   styleUrl: './grupos.scss',
 })
@@ -26,6 +28,8 @@ export class GruposPage implements OnInit {
   prefijo = 'ORD';
   porcentaje = 100;
   esAdminPlataforma = signal(false);
+  directorio = signal(false);
+  mostrarForm = signal(false);
   ocupado = signal(false);
   error = signal<string | null>(null);
 
@@ -39,6 +43,7 @@ export class GruposPage implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.auth.listo;
     this.esAdminPlataforma.set(await this.formacion.esAdminPlataforma());
+    this.directorio.set(await this.formacion.directorioHabilitado());
     try {
       await this.grupos.cargar();
     } catch {

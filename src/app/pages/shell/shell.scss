@@ -198,3 +198,61 @@
     text-align: center;
   }
 }
+
+// Entrar como: franja fija y llamativa arriba de todo (no se puede pasar por alto)
+.banner-impersonar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  height: 2.75rem;
+  box-sizing: border-box;
+  padding: 0 var(--espacio-4);
+  background: var(--color-acento);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--texto-s);
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  button {
+    flex: none;
+    min-height: 2.25rem;
+    padding: 0 var(--espacio-3);
+    border: 2px solid #fff;
+    border-radius: var(--radio-2);
+    background: transparent;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      background: #fff;
+      color: var(--color-acento);
+    }
+  }
+}
+
+.banner-admin {
+  padding: var(--espacio-2) var(--espacio-4);
+  background: color-mix(in srgb, var(--color-primario) 12%, var(--color-superficie));
+  color: var(--color-primario);
+  border-bottom: 1px solid var(--color-primario-medio);
+  font-size: var(--texto-s);
+  font-weight: 600;
+  text-align: center;
+}
+
+.encabezado.bajo-banner {
+  top: 2.75rem;
+}

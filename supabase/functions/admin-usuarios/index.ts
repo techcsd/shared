@@ -111,6 +111,23 @@ Deno.serve(async (req) => {
       await bitacora('usuario_borrar', usuario);
       return json({ ok: true });
     }
+    case 'impersonar': {
+      // «Entrar como»: genera un enlace de un solo uso SIN enviar correo y devuelve solo su token_hash;
+      // el cliente lo canjea con verifyOtp. El token nunca se registra ni se guarda; solo queda la bitácora.
+      if (!UUID.test(usuario)) return json({ error: 'usuario_invalido' }, 400);
+      if (usuario === quien) return json({ error: 'es_el_mismo' }, 409);
+      const { data: obj, error: eObj } = await svc.auth.admin.getUserById(usuario);
+      if (eObj || !obj.user || !obj.user.email) return json({ error: 'usuario_no_existe' }, 404);
+      const bloqueado = obj.user.banned_until ? new Date(obj.user.banned_until).getTime() > Date.now() : false;
+      if (bloqueado) return json({ error: 'usuario_bloqueado' }, 409);
+      const { data: esOtroAdmin } = await svc.from('plataforma_admins').select('usuario_id').eq('usuario_id', usuario).maybeSingle();
+      if (esOtroAdmin) return json({ error: 'no_a_otro_admin' }, 409);
+      const { data: enlace, error: eEnl } = await svc.auth.admin.generateLink({ type: 'magiclink', email: obj.user.email });
+      const tokenHash = enlace?.properties?.hashed_token;
+      if (eEnl || !tokenHash) return json({ error: 'no_se_pudo_entrar' }, 400);
+      await bitacora('usuario_entrar_como', usuario, { correo: obj.user.email });
+      return json({ ok: true, token_hash: tokenHash, correo: obj.user.email });
+    }
     default:
       return json({ error: 'accion_invalida' }, 400);
   }
