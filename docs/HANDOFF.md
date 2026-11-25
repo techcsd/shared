@@ -72,3 +72,5 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 ## Produccion (2026-11-24)
 - P4 y P5 desplegados en shared-prod por OK de Xaviel: migraciones 23-27, funciones guest-view, exportar-reporte y enviar-notificaciones, merge dev->main (PR #19, deploy READY).
 - Repo vuelto a enlazar con shared-dev.
+
+- Migración 28 (revocar ejecución de funciones de trigger a anon) aplicada en dev y prod; advisor de seguridad de Supabase sin avisos de anon.
