@@ -1,22 +1,121 @@
 <!-- Más -->
 <main class="mas">
-  <h1>{{ t('mas.titulo') }}</h1>
-  <ul class="lista">
-    @for (e of visibles(); track e.ruta) {
-      <li>
-        <a [routerLink]="e.ruta">{{ t(e.etiqueta) }}</a>
-      </li>
+  <h1 class="titulo">{{ t('mas.titulo') }}</h1>
+
+  <!-- Quién soy y en qué grupo estoy -->
+  <section class="yo" aria-label="{{ t('mas.sec.cuenta') }}">
+    <span class="avatar" aria-hidden="true">{{ iniciales() }}</span>
+    <div class="yo-datos">
+      <p class="yo-nombre">{{ nombre() }}</p>
+      <p class="yo-grupo">{{ grupos.grupo()?.nombre ?? t('mas.sin_grupo') }}</p>
+      <p class="yo-chips">
+        @if (rol(); as r) {
+          <span class="pildora">{{ r }}</span>
+        }
+        @if (grupos.modoDemo()) {
+          <span class="pildora pildora-demo">{{ t('mas.demo') }}</span>
+        }
+      </p>
+    </div>
+    <nav class="yo-acciones" aria-label="{{ t('mas.sec.cuenta') }}">
+      <a class="accion" routerLink="/mas/perfil">
+        <app-icono nombre="usuario" />
+        <span>{{ t('mas.perfil_corto') }}</span>
+      </a>
+      <a class="accion" routerLink="/grupos">
+        <app-icono nombre="cambiar" />
+        <span>{{ t('mas.cambiar_corto') }}</span>
+      </a>
+    </nav>
+  </section>
+
+  <!-- Buscador -->
+  <div class="buscador" role="search">
+    <label class="solo-lectores" for="mas-buscar">{{ t('mas.buscar_label') }}</label>
+    <app-icono class="buscador-icono" nombre="buscar" />
+    <input
+      id="mas-buscar"
+      type="search"
+      name="q"
+      autocomplete="off"
+      enterkeyhint="search"
+      [placeholder]="t('mas.buscar_ph')"
+      [value]="consulta()"
+      (input)="escribir($event)"
+      (keydown.escape)="limpiar()"
+    />
+    @if (buscando()) {
+      <button type="button" class="buscador-limpiar" (click)="limpiar()" [attr.aria-label]="t('mas.limpiar')">
+        <app-icono nombre="cerrar" />
+      </button>
     }
-    @if (esAdminPlataforma()) {
-      <li>
-        <a routerLink="/mas/salud">{{ t('mas.salud') }}</a>
-      </li>
-      <li>
-        <a routerLink="/admin">{{ t('mas.admin') }}</a>
-      </li>
-    }
-    <li>
-      <a routerLink="/grupos">{{ t('mas.cambiar_grupo') }}</a>
-    </li>
-  </ul>
+  </div>
+
+  <!-- Accesos rápidos -->
+  @if (rapidas().length > 0) {
+    <section class="bloque" aria-labelledby="mas-rapidos">
+      <h2 id="mas-rapidos" class="bloque-titulo">{{ t('mas.rapidos') }}</h2>
+      <ul class="rapidas">
+        @for (e of rapidas(); track e.ruta; let i = $index) {
+          <li [style.--i]="i">
+            <a class="rapida" [routerLink]="e.ruta">
+              <span class="ficha">
+                <app-icono [nombre]="e.icono" />
+                @if (insignia(e) > 0) {
+                  <span class="insignia" [attr.aria-label]="t('mas.sin_leer', { n: insignia(e) })">{{ insignia(e) }}</span>
+                }
+              </span>
+              <span class="rapida-texto">{{ t(e.etiqueta) }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Secciones -->
+  @for (g of secciones(); track g.seccion; let s = $index) {
+    <section class="bloque sec-{{ g.seccion }}" [attr.aria-labelledby]="'mas-sec-' + g.seccion">
+      <h2 class="bloque-titulo" [id]="'mas-sec-' + g.seccion">{{ t(g.titulo) }}</h2>
+      <ul class="lista">
+        @for (e of g.entradas; track e.ruta; let i = $index) {
+          <li [style.--i]="s * 3 + i">
+            <a class="entrada" [routerLink]="e.ruta">
+              <span class="ficha">
+                <app-icono [nombre]="e.icono" />
+                @if (insignia(e) > 0) {
+                  <span class="insignia" [attr.aria-label]="t('mas.sin_leer', { n: insignia(e) })">{{ insignia(e) }}</span>
+                }
+              </span>
+              <span class="entrada-texto">
+                <span class="entrada-titulo">{{ t(e.etiqueta) }}</span>
+                <span class="entrada-detalle">{{ t(e.detalle) }}</span>
+              </span>
+              <app-icono class="entrada-flecha" nombre="chevron" />
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Nada coincide -->
+  @if (sinResultados()) {
+    <div class="vacio-busqueda" role="status">
+      <app-icono nombre="buscar" />
+      <p>{{ t('mas.sin_resultados', { q: consulta().trim() }) }}</p>
+      <button type="button" class="enlace" (click)="limpiar()">{{ t('mas.limpiar') }}</button>
+    </div>
+  }
+
+  <!-- Cerrar sesión: aparte y tranquilo -->
+  @if (mostrarSalir()) {
+    <button type="button" class="salir" (click)="salir()">
+      <span class="ficha"><app-icono nombre="salir" /></span>
+      <span class="entrada-texto">
+        <span class="entrada-titulo">{{ t('mas.salir') }}</span>
+        <span class="entrada-detalle">{{ t('mas.salir_desc') }}</span>
+      </span>
+    </button>
+  }
 </main>
