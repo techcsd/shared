@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Session, User } from '@supabase/supabase-js';
+import { t } from './i18n/i18n';
 import { OfflineService } from './offline.service';
 import { SupabaseService } from './supabase.service';
 
@@ -28,8 +29,17 @@ export class AuthService {
     supabase.cliente.auth.onAuthStateChange((_evento, sesion) => this._sesion.set(sesion));
   }
 
-  private resultado(error: { message: string } | null): ResultadoAuth {
-    return { error: error ? error.message : null };
+  private resultado(error: { message: string; code?: string } | null): ResultadoAuth {
+    if (!error) return { error: null };
+    const c = error.code ?? '';
+    const m = error.message.toLowerCase();
+    if (c === 'weak_password' || (m.includes('password') && (m.includes('character') || m.includes('weak'))))
+      return { error: t('auth.clave_debil') };
+    if (c === 'user_already_exists') return { error: t('auth.ya_existe') };
+    if (c === 'invalid_credentials') return { error: t('auth.credenciales') };
+    if (c === 'over_email_send_rate_limit' || c === 'over_request_rate_limit')
+      return { error: t('auth.limite') };
+    return { error: error.message };
   }
 
   async entrar(correo: string, clave: string): Promise<ResultadoAuth> {

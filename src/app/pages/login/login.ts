@@ -21,6 +21,7 @@ export class LoginPage {
   modo = signal<Modo>('entrar');
   correo = '';
   clave = '';
+  verClave = signal(false);
   nombre = '';
   ocupado = signal(false);
   error = signal<string | null>(null);
@@ -56,7 +57,14 @@ export class LoginPage {
           break;
         case 'registro':
           resultado = await this.auth.registrar(this.correo, this.clave, this.nombre);
-          if (!resultado.error) this.aviso.set(t('auth.revisa_correo'));
+          if (!resultado.error) {
+            // Con confirmación de correo apagada Supabase abre sesión al registrar
+            if (this.auth.autenticado()) {
+              await this.router.navigateByUrl('/');
+              return;
+            }
+            this.aviso.set(t('auth.revisa_correo'));
+          }
           break;
         case 'magico':
           resultado = await this.auth.enlaceMagico(this.correo);
