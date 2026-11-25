@@ -85,3 +85,8 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 
 ## Vitrina del activo (2026-11-25)
 - Migración 33 aplicada en dev y prod. `/activo` muestra foto o ícono, descripción y datos. La foto se sube en Configuración → Activos (socio) o desde Admin → Grupos (admin de plataforma, entrando al grupo).
+
+## En espera (2026-11-25)
+- Dominio y Resend: esperan que Felipe apruebe el nombre del sistema y pague el dominio; hasta entonces las invitaciones por correo no funcionan (se usa el panel admin: agregar usuarios al grupo, Entrar como).
+- Convertir techcsd en organización de GitHub: pospuesto.
+- Confirmar correo en Supabase Auth: activar cuando haya dominio y SMTP.
