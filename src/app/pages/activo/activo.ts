@@ -63,7 +63,7 @@ export class ActivoPage implements OnInit {
 
   dinero(monto: number | null, moneda: string): string {
     if (monto === null || monto === undefined) return '—';
-    return `${Number(monto).toLocaleString('es', { maximumFractionDigits: 2 })} ${moneda}`;
+    return `${Number(monto).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${moneda}`;
   }
 
   estadoTexto(e: VitrinaActivo['estado']): string {

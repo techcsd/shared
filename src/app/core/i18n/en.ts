@@ -1054,4 +1054,5 @@ export const EN: Record<ClaveI18n, string> = {
   'activo.error.grande': 'The image is still over 5 MB. Try another one.',
   'activo.invitacion_titulo': 'The asset you would share',
   'mas.d.activo': 'Photo, description and details of the asset the group shares',
+  'activo.capitanes_uno': '1 registered.',
 };

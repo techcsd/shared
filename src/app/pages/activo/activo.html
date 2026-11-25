@@ -117,7 +117,7 @@
     <div class="tarjeta ficha">
       <h2>{{ t('activo.capitanes') }}</h2>
       <p>
-        {{ v.capitanes > 0 ? t('activo.capitanes_n', { n: v.capitanes }) : t('activo.capitanes_ninguno') }}
+        {{ v.capitanes === 0 ? t('activo.capitanes_ninguno') : v.capitanes === 1 ? t('activo.capitanes_uno') : t('activo.capitanes_n', { n: v.capitanes }) }}
         <a routerLink="/mas/capitanes">{{ t('activo.ver') }}</a>
       </p>
     </div>

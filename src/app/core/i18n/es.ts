@@ -1056,6 +1056,7 @@ export const ES = {
   'activo.error.grande': 'La imagen sigue pesando más de 5 MB. Prueba con otra.',
   'activo.invitacion_titulo': 'El activo que compartirías',
   'mas.d.activo': 'Foto, descripción y datos del activo que comparte el grupo',
+  'activo.capitanes_uno': '1 registrado.',
 } as const;
 
 export type ClaveI18n = keyof typeof ES;
