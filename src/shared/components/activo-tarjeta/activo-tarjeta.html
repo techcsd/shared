@@ -1,0 +1,39 @@
+<!-- Foto del activo, o ícono SVG por tipo si no hay foto -->
+<article class="vit" [class.hero]="variante === 'hero'" [class.mini]="variante === 'mini'">
+  <div class="medio" [attr.data-icono]="icono()">
+    @if (url(); as src) {
+      <img
+        [src]="src"
+        [alt]="t('activo.foto_alt', { nombre: nombre })"
+        loading="lazy"
+        decoding="async"
+        (error)="alFallar()"
+      />
+    } @else {
+      <span class="icono" role="img" [attr.aria-label]="tipoNombre || nombre"><app-icono [nombre]="trazo()" /></span>
+    }
+  </div>
+  @if (variante !== 'mini') {
+    <div class="cuerpo">
+      <div class="titulo">
+        <h3>{{ nombre }}</h3>
+        @if (tipoNombre) {
+          <span class="tipo">{{ tipoNombre }}</span>
+        }
+      </div>
+      @if (descripcion) {
+        <p class="desc" [class.corta]="variante === 'normal'">{{ descripcion }}</p>
+      }
+      @if (capacidad || puntoEncuentro) {
+        <ul class="chips">
+          @if (capacidad) {
+            <li class="chip">{{ t('activo.capacidad', { n: capacidad }) }}</li>
+          }
+          @if (puntoEncuentro) {
+            <li class="chip">{{ puntoEncuentro }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</article>

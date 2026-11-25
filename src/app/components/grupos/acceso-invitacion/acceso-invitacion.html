@@ -18,8 +18,16 @@
       <h3>{{ t('bienvenida.inv_pendientes') }}</h3>
       @for (i of pendientes(); track i.invitacion_id) {
         <div class="pendiente">
-          <div>
+          @if (vistas()[i.invitacion_id]?.activos?.[0]; as a) {
+            <div class="miniatura">
+              <app-activo-tarjeta variante="mini" [nombre]="a.nombre" [tipoClave]="a.tipo.clave" [tipoNombre]="a.tipo.nombre" [imagenPath]="a.imagen_path" />
+            </div>
+          }
+          <div class="info">
             <strong>{{ i.grupo_nombre }}</strong>
+            @if (vistas()[i.invitacion_id]?.activos?.[0]; as a) {
+              <p class="suave activo-linea">{{ a.nombre }}@if (a.descripcion) { · {{ a.descripcion }} }</p>
+            }
             <p class="suave">
               {{ rolTexto(i.rol) }}@if (i.rol === 'socio') { · {{ i.porcentaje }} % }
             </p>

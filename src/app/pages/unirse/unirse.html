@@ -8,6 +8,22 @@
     <p class="error-texto" role="alert">{{ error() }}</p>
   }
   @if (vista(); as v) {
+    <!-- El activo que se compartiría: foto o ícono, descripción y datos no sensibles -->
+    @if (activo(); as av) {
+      <section class="activo-previo" [attr.aria-label]="t('activo.invitacion_titulo')">
+        @for (a of av.activos; track a.nombre) {
+          <app-activo-tarjeta
+            [nombre]="a.nombre"
+            [tipoClave]="a.tipo.clave"
+            [tipoNombre]="a.tipo.nombre"
+            [descripcion]="a.descripcion"
+            [imagenPath]="a.imagen_path"
+            [capacidad]="a.capacidad_legal"
+            [puntoEncuentro]="a.punto_encuentro"
+          />
+        }
+      </section>
+    }
     <section class="tarjeta">
       <p>{{ t('unirse.detalle', { grupo: v.grupo_nombre, rol: rolTexto(v.rol) }) }}</p>
       @if (v.rol === 'socio') {

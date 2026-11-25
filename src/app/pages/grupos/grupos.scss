@@ -16,6 +16,28 @@
   }
 }
 
+.miniatura {
+  flex: none;
+  width: 4.5rem;
+}
+
+.datos-grupo {
+  flex: 1;
+  min-width: 0;
+}
+
+.activo-nombre {
+  font-weight: 600;
+}
+
+.desc-corta {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .portada {
   margin-bottom: var(--espacio-4);
 

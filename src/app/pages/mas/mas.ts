@@ -75,6 +75,7 @@ export class MasPage implements OnInit {
     { ruta: '/mas/reportes', etiqueta: 'mas.reportes', detalle: 'mas.d.reportes', icono: 'grafica', seccion: 'operacion', soloSocio: false },
     { ruta: '/mas/seguro', etiqueta: 'mas.seguro', detalle: 'mas.d.seguro', icono: 'escudo', seccion: 'operacion', soloSocio: false },
     { ruta: '/mas/capitanes', etiqueta: 'mas.capitanes', detalle: 'mas.d.capitanes', icono: 'ancla', seccion: 'operacion', soloSocio: false },
+    { ruta: '/activo', etiqueta: 'mas.activo', detalle: 'mas.d.activo', icono: 'activo', seccion: 'grupo', soloSocio: false },
     { ruta: '/mas/grupo', etiqueta: 'mas.grupo', detalle: 'mas.d.grupo', icono: 'usuarios', seccion: 'grupo', soloSocio: false },
     { ruta: '/mas/configuracion', etiqueta: 'mas.configuracion', detalle: 'mas.d.configuracion', icono: 'ajustes', seccion: 'grupo', soloSocio: true },
     { ruta: '/mas/estatuto', etiqueta: 'mas.estatuto', detalle: 'mas.d.estatuto', icono: 'documento', seccion: 'grupo', soloSocio: true },

@@ -44,6 +44,8 @@ const TRAZOS: Record<string, string[]> = {
   check: ['M5 12.5l4.5 4.5L19 7.5'],
   info: [c(12, 12, 9), 'M12 11v5M12 8h.01'],
   mas: ['M12 5v14M5 12h14'],
+  carro: ['M5 16V12l2-5h10l2 5v4', 'M3 16h18v3H3z', 'M5 12h14', c(7.5, 19, 1.4), c(16.5, 19, 1.4)],
+  caja: ['M12 3l8 4.5v9L12 21l-8-4.5v-9z', 'M4 7.5l8 4.5 8-4.5M12 12v9'],
 };
 
 /** Icono SVG en línea. Hereda el color (`currentColor`) y el tamaño (`font-size`) del contenedor. */

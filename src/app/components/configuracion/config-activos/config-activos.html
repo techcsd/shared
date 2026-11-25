@@ -22,6 +22,48 @@
 @if (seleccionado(); as a) {
   <section class="tarjeta">
     <h2>{{ a.nombre }} · {{ estadoTexto(a.estado) }}</h2>
+
+    <!-- Foto y descripción (vitrina del activo) -->
+    <div class="foto-editor">
+      <app-activo-tarjeta
+        variante="normal"
+        [nombre]="a.nombre"
+        [tipoClave]="tipo(a.tipo_id)?.clave ?? ''"
+        [tipoNombre]="tipo(a.tipo_id)?.nombre ?? ''"
+        [imagenPath]="a.imagen_path"
+      />
+      <p class="suave">{{ a.imagen_path ? t('activo.foto_ayuda') : t('activo.foto_sin') }}</p>
+      <div class="acciones-foto">
+        <label class="boton secundario" for="a-foto" [class.deshabilitado]="subiendo()">
+          {{ subiendo() ? t('activo.foto_subiendo') : a.imagen_path ? t('activo.foto_cambiar') : t('activo.foto_subir') }}
+        </label>
+        <input
+          id="a-foto"
+          class="oculto"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          [disabled]="subiendo()"
+          (change)="elegirFoto($event)"
+        />
+        @if (a.imagen_path) {
+          <button class="boton secundario" type="button" [disabled]="subiendo()" (click)="quitarFoto()">
+            {{ t('activo.foto_quitar') }}
+          </button>
+        }
+      </div>
+    </div>
+    <div class="campo">
+      <label for="a-desc">{{ t('activo.descripcion') }}</label>
+      <textarea
+        id="a-desc"
+        rows="4"
+        maxlength="2000"
+        [placeholder]="t('activo.descripcion_ayuda')"
+        [(ngModel)]="edit.descripcion"
+        [ngModelOptions]="{ standalone: true }"
+      ></textarea>
+    </div>
+
     <div class="campo">
       <label for="a-cap">{{ t('activos.capacidad') }}</label>
       <input

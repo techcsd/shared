@@ -52,6 +52,8 @@ export interface ActivoModel {
   punto_encuentro: string | null;
   reglas_invitados: string | null;
   contacto_invitados: string | null;
+  descripcion: string | null;
+  imagen_path: string | null;
   estado: 'borrador' | 'activo' | 'inactivo';
 }
 

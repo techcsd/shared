@@ -25,3 +25,36 @@ textarea {
   border-radius: var(--radio-1);
   padding: var(--espacio-2);
 }
+
+// Foto y descripción del activo
+.foto-editor {
+  display: grid;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-4);
+}
+
+.acciones-foto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+
+  label.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .deshabilitado {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}

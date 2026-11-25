@@ -1,0 +1,125 @@
+<!-- Nuestro activo -->
+<main class="activo">
+  <header class="portada">
+    <h1>{{ t('activo.titulo') }}</h1>
+    @if (vitrina(); as v) {
+      <p class="suave">{{ v.grupo.nombre }}</p>
+    }
+  </header>
+
+  @if (cargando()) {
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
+  }
+  @if (error()) {
+    <p class="error-texto" role="alert">{{ error() }}</p>
+  }
+
+  @if (vitrina(); as v) {
+    @for (a of v.activos; track a.id) {
+      <section class="bloque" [attr.aria-label]="a.nombre">
+        <app-activo-tarjeta
+          variante="hero"
+          [nombre]="a.nombre"
+          [tipoClave]="a.tipo.clave"
+          [tipoNombre]="a.tipo.nombre"
+          [descripcion]="a.descripcion"
+          [imagenPath]="a.imagen_path"
+          [capacidad]="a.capacidad_legal"
+          [puntoEncuentro]="a.punto_encuentro"
+        />
+
+        @if (!a.descripcion) {
+          <p class="suave sin-desc">
+            {{ t('activo.sin_descripcion') }}
+            @if (grupos.esSocio()) {
+              <a routerLink="/mas/configuracion">{{ t('activo.agregar') }}</a>
+            }
+          </p>
+        }
+
+        <!-- Datos -->
+        <div class="tarjeta ficha">
+          <h2>{{ t('activo.datos') }}</h2>
+          <dl>
+            <div>
+              <dt>{{ t('activo.estado') }}</dt>
+              <dd>{{ estadoTexto(a.estado) }}</dd>
+            </div>
+            @if (a.capacidad_legal) {
+              <div>
+                <dt>{{ t('activo.capacidad_legal') }}</dt>
+                <dd>{{ a.capacidad_legal }}</dd>
+              </div>
+            }
+            @for (d of datos(a); track d.etiqueta) {
+              <div>
+                <dt>{{ d.etiqueta }}</dt>
+                <dd>{{ d.valor }}</dd>
+              </div>
+            }
+            @if (componentes(a).length) {
+              <div>
+                <dt>{{ t('activo.componentes') }}</dt>
+                <dd>{{ componentes(a).join(' · ') }}</dd>
+              </div>
+            }
+            <div>
+              <dt>{{ t('activo.seguro') }}</dt>
+              <dd>
+                <span class="estado" [class.bien]="a.poliza_vigente" [class.mal]="!a.poliza_vigente">
+                  {{ a.poliza_vigente ? t('activo.seguro_vigente') : t('activo.seguro_sin') }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Encuentro y reglas -->
+        @if (a.punto_encuentro || a.reglas_invitados) {
+          <div class="tarjeta ficha">
+            <h2>{{ t('activo.encuentro') }}</h2>
+            @if (a.punto_encuentro) {
+              <p>{{ a.punto_encuentro }}</p>
+            }
+            @if (a.reglas_invitados) {
+              <h3>{{ t('activo.reglas') }}</h3>
+              <p class="texto-largo">{{ a.reglas_invitados }}</p>
+            }
+          </div>
+        }
+      </section>
+    } @empty {
+      <p class="tarjeta suave">{{ t('activo.ninguno') }}</p>
+    }
+
+    <!-- Destinos y tarifas -->
+    @if (v.destinos.length || v.tarifa_hora) {
+      <div class="tarjeta ficha">
+        <h2>{{ t('activo.destinos_tarifas') }}</h2>
+        <ul class="lista">
+          @for (d of v.destinos; track d.nombre) {
+            <li>
+              <span>{{ d.nombre }}</span>
+              <strong>{{ dinero(d.fee, v.grupo.moneda) }}</strong>
+            </li>
+          }
+          @if (v.tarifa_hora; as h) {
+            <li>
+              <span>{{ t('activo.tarifa_hora') }}</span>
+              <strong>{{ dinero(h.monto, h.moneda) }}</strong>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Capitanes -->
+    <div class="tarjeta ficha">
+      <h2>{{ t('activo.capitanes') }}</h2>
+      <p>
+        {{ v.capitanes > 0 ? t('activo.capitanes_n', { n: v.capitanes }) : t('activo.capitanes_ninguno') }}
+        <a routerLink="/mas/capitanes">{{ t('activo.ver') }}</a>
+      </p>
+    </div>
+  }
+</main>

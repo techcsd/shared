@@ -3,6 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { AccesoInvitacion } from '../../components/grupos/acceso-invitacion/acceso-invitacion';
 import { TourPlataforma } from '../../components/grupos/tour-plataforma/tour-plataforma';
 import { Router, RouterLink } from '@angular/router';
+import { ActivoTarjeta } from '../../../shared/components/activo-tarjeta/activo-tarjeta';
+import { ActivoResumen } from '../../../shared/models/activo.model';
+import { ActivoService } from '../../core/activo.service';
 import { AuthService } from '../../core/auth.service';
 import { FormacionService } from '../../core/formacion.service';
 import { GrupoService } from '../../core/grupo.service';
@@ -13,7 +16,7 @@ import { estadoGrupoTexto, rolTexto } from '../../core/i18n/textos';
 @Component({
   selector: 'app-grupos',
   standalone: true,
-  imports: [FormsModule, RouterLink, AccesoInvitacion, TourPlataforma],
+  imports: [FormsModule, RouterLink, AccesoInvitacion, TourPlataforma, ActivoTarjeta],
   templateUrl: './grupos.html',
   styleUrl: './grupos.scss',
 })
@@ -30,6 +33,7 @@ export class GruposPage implements OnInit {
   esAdminPlataforma = signal(false);
   directorio = signal(false);
   mostrarForm = signal(false);
+  activos = signal<Record<string, ActivoResumen>>({});
   ocupado = signal(false);
   error = signal<string | null>(null);
 
@@ -38,6 +42,7 @@ export class GruposPage implements OnInit {
     private auth: AuthService,
     private router: Router,
     private formacion: FormacionService,
+    private activosSvc: ActivoService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -46,6 +51,7 @@ export class GruposPage implements OnInit {
     this.directorio.set(await this.formacion.directorioHabilitado());
     try {
       await this.grupos.cargar();
+      this.activos.set(await this.activosSvc.resumenes(this.grupos.membresias().map((m) => m.grupo.id)));
     } catch {
       this.error.set(t('app.error.generico'));
     }

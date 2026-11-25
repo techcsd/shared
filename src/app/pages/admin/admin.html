@@ -114,6 +114,17 @@
       <h2>{{ t('admin.g.lista') }}</h2>
       @for (g of grupos(); track g.id) {
         <article class="tarjeta">
+          @if (resumenActivos()[g.id]; as ra) {
+            <app-activo-tarjeta
+              variante="normal"
+              [nombre]="ra.nombre"
+              [tipoClave]="ra.tipo_clave"
+              [tipoNombre]="ra.tipo_nombre"
+              [descripcion]="ra.descripcion"
+              [imagenPath]="ra.imagen_path"
+              [capacidad]="ra.capacidad_legal"
+            />
+          }
           <header class="cab">
             <div>
               <strong>{{ g.nombre }}</strong>
