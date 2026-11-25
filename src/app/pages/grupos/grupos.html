@@ -1,11 +1,14 @@
 <!-- Grupos del usuario -->
 <main class="grupos">
   <h1>{{ t('grupos.titulo') }}</h1>
+  @if (esAdminPlataforma()) {
+    <p><a class="boton secundario" routerLink="/admin">{{ t('mas.admin') }}</a></p>
+  }
 
   @if (!grupos.cargado()) {
-    <p class="suave">{{ t('app.cargando') }}</p>
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
   } @else if (grupos.membresias().length === 0) {
-    <p class="suave">{{ t('grupos.sin_grupos') }}</p>
+    <p class="suave vacio">{{ t('grupos.sin_grupos') }}</p>
   }
 
   @for (m of grupos.membresias(); track m.id) {

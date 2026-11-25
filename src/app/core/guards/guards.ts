@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { RolMiembro, rolPermitido } from '../../../shared/models/grupo.model';
 import { AuthService } from '../auth.service';
+import { FormacionService } from '../formacion.service';
 import { GrupoService } from '../grupo.service';
 
 /** Exige sesión; si no hay, manda a /login conservando el destino. */
@@ -39,3 +40,13 @@ export function rolGuard(permitidos: RolMiembro[]): CanActivateFn {
     return rolPermitido(grupos.rol(), permitidos) ? true : router.createUrlTree(['/mas']);
   };
 }
+
+/** Solo administradores de plataforma (la base lo vuelve a exigir en cada RPC). No requiere grupo. */
+export const adminPlataformaGuard: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const formacion = inject(FormacionService);
+  const router = inject(Router);
+  await auth.listo;
+  if (!auth.autenticado()) return true; // authGuard redirige a /login
+  return (await formacion.esAdminPlataforma()) ? true : router.createUrlTree(['/']);
+};

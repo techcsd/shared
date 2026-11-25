@@ -1,56 +1,181 @@
+// Encabezado marino con el grupo actual
 .encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
+  min-height: var(--alto-encabezado);
   padding: var(--espacio-2) var(--espacio-4);
-  background: var(--color-superficie);
-  border-bottom: 1px solid var(--color-borde);
+  padding-top: calc(var(--espacio-2) + env(safe-area-inset-top));
+  color: #fff;
+  background: var(--degradado-marino);
+  box-shadow: 0 4px 18px rgb(7 56 75 / 28%);
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--brillo);
+    pointer-events: none;
+  }
 }
 
 .grupo-actual {
-  font-weight: 600;
-  color: var(--color-texto);
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: 2.75rem;
+  max-width: 100%;
+  padding: 0 var(--espacio-3) 0 var(--espacio-2);
+  color: #fff;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   text-decoration: none;
+  border-radius: var(--radio-pildora);
+  transition:
+    background-color var(--dur-2) ease,
+    transform var(--dur-1) var(--ease);
+
+  &:hover {
+    background: rgb(255 255 255 / 14%);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
+  &:focus-visible {
+    outline: 2px solid #fff;
+  }
+
+  .marca-icono {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 18%);
+    flex: none;
+  }
+  .nombre {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .chevron {
+    flex: none;
+    opacity: 0.8;
+  }
 }
 
 .banner-demo {
-  background: var(--color-demo);
-  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  background: color-mix(in srgb, var(--color-demo) 12%, var(--color-superficie));
+  color: var(--color-demo);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-demo) 30%, transparent);
   padding: var(--espacio-2) var(--espacio-4);
   font-size: var(--texto-s);
+  font-weight: 600;
   text-align: center;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-demo);
+    animation: latido 2s ease-in-out infinite;
+  }
 }
 
 .contenido {
-  padding-bottom: calc(var(--alto-nav-inferior) + var(--espacio-4));
+  padding-bottom: calc(var(--alto-nav-inferior) + var(--espacio-6) + env(safe-area-inset-bottom));
 }
 
+// Menú inferior flotante con indicador de la sección activa
 .menu-inferior {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--alto-nav-inferior);
+  left: var(--espacio-2);
+  right: var(--espacio-2);
+  bottom: calc(var(--espacio-3) + env(safe-area-inset-bottom));
+  z-index: 30;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  background: var(--color-superficie);
-  border-top: 1px solid var(--color-borde);
-  z-index: 10;
+  grid-template-columns: 1.05fr 1fr 0.75fr 1.4fr 0.6fr;
+  height: calc(var(--alto-nav-inferior) - var(--espacio-2));
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--espacio-1);
+  background: color-mix(in srgb, var(--color-superficie) 95%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  backdrop-filter: saturate(1.4) blur(14px);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-3);
+  box-shadow: var(--sombra-3);
 
   a {
+    position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 var(--espacio-1);
-    font-size: var(--texto-s);
+    gap: 2px;
+    padding: 0 2px;
+    min-width: 0;
     color: var(--color-texto-suave);
     text-decoration: none;
     text-align: center;
-    transition: var(--transicion);
+    border-radius: var(--radio-2);
+    transition: color var(--dur-2) ease;
+    -webkit-tap-highlight-color: transparent;
+
+    .icono {
+      display: grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 1.75rem;
+      border-radius: var(--radio-pildora);
+      transition:
+        background-color var(--dur-2) var(--ease),
+        transform var(--dur-2) var(--ease);
+
+      svg {
+        width: 1.35rem;
+        height: 1.35rem;
+      }
+    }
+    .etiqueta {
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.625rem;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    &:hover {
+      color: var(--color-texto);
+    }
+    &:active .icono {
+      transform: scale(0.9);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--color-primario-2);
+      outline-offset: -2px;
+    }
 
     &.activo {
       color: var(--color-primario);
-      font-weight: 600;
-      box-shadow: inset 0 3px 0 var(--color-primario);
+
+      .icono {
+        background: var(--color-primario-medio);
+        transform: translateY(-1px);
+      }
     }
   }
 }

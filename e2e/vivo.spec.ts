@@ -6,7 +6,7 @@ test.skip(!process.env['E2E_VIVO'], 'Requiere E2E_VIVO=1 y shared-dev con seed d
 async function entrar(page: import('@playwright/test').Page, correo: string) {
   await page.goto('/login');
   await page.getByLabel('Correo').fill(correo);
-  await page.getByLabel('Contraseña').fill('Demo1234!');
+  await page.getByLabel('Contraseña', { exact: true }).fill('Demo1234!');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 }
 

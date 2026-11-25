@@ -126,7 +126,7 @@
 
   <!-- Lista -->
   @if (cargando()) {
-    <p class="suave">{{ t('app.cargando') }}</p>
+    <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
   }
   @for (g of filtrados(); track g.id) {
     <article class="tarjeta gasto" [class.anulado]="g.estado === 'anulado'">
@@ -172,7 +172,7 @@
     </article>
   } @empty {
     @if (!cargando()) {
-      <p class="suave">{{ t('app.vacio') }}</p>
+      <p class="suave vacio">{{ t('app.vacio') }}</p>
     }
   }
 </main>

@@ -29,7 +29,7 @@ let miembroXaviel = '';
 async function entrar(page: Page, correo: string) {
   await page.goto('/login');
   await page.getByLabel('Correo').fill(correo);
-  await page.getByLabel('Contraseña').fill('Demo1234!');
+  await page.getByLabel('Contraseña', { exact: true }).fill('Demo1234!');
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page).toHaveURL(/\/calendario/);
 }

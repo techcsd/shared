@@ -27,7 +27,7 @@
     @for (e of s.errores_recientes; track e.momento) {
       <p class="suave">{{ e.momento.slice(0, 16) }} · {{ e.ruta }} · {{ e.mensaje }}</p>
     } @empty {
-      <p class="suave">{{ t('app.vacio') }}</p>
+      <p class="suave vacio">{{ t('app.vacio') }}</p>
     }
 
     <h2>{{ t('salud.reservas_dia') }}</h2>

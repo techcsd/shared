@@ -74,3 +74,7 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Repo vuelto a enlazar con shared-dev.
 
 - Migración 28 (revocar ejecución de funciones de trigger a anon) aplicada en dev y prod; advisor de seguridad de Supabase sin avisos de anon.
+
+## Panel de administración (2026-11-25)
+- `/admin` para administradores de plataforma: usuarios (crear/clave/bloquear/borrar/admin), grupos (agregar miembros sin invitación, repartir %, quitar) y plataforma (directorio, bitácora). Función `admin-usuarios` desplegada; migraciones 29–30.
+- Usuarios demo en shared-prod: ver el informe del fork (la contraseña NO se guarda en el repo).
