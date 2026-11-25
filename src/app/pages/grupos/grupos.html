@@ -1,21 +1,31 @@
 <!-- Grupos del usuario -->
 <main class="grupos">
-  <h1>{{ t('grupos.titulo') }}</h1>
+  <header class="portada">
+    <h1>{{ grupos.membresias().length === 0 ? t('bienvenida.titulo') : t('grupos.titulo') }}</h1>
+    @if (grupos.cargado() && grupos.membresias().length === 0) {
+      <p class="suave">{{ t('bienvenida.subtitulo') }}</p>
+    }
+  </header>
   @if (esAdminPlataforma()) {
     <p><a class="boton secundario" routerLink="/admin">{{ t('mas.admin') }}</a></p>
   }
 
   @if (!grupos.cargado()) {
     <p class="suave cargando" role="status">{{ t('app.cargando') }}</p>
-  } @else if (grupos.membresias().length === 0) {
-    <p class="suave vacio">{{ t('grupos.sin_grupos') }}</p>
   }
 
-  @for (m of grupos.membresias(); track m.id) {
+  @for (m of grupos.membresias(); track m.grupo.id) {
     <article class="tarjeta grupo">
       <div>
         <h2>{{ m.grupo.nombre }}</h2>
-        <p class="suave">{{ rolTexto(m.rol) }} · {{ estadoGrupoTexto(m.grupo.estado) }}</p>
+        <p class="suave">
+          @if (m.vistaAdmin) {
+            {{ t('admin.vista.etiqueta') }}
+          } @else {
+            {{ rolTexto(m.rol) }}
+          }
+          · {{ estadoGrupoTexto(m.grupo.estado) }}
+        </p>
       </div>
       <button class="boton" type="button" (click)="abrir(m.grupo.id)">
         {{ t('grupos.abrir') }}
@@ -23,65 +33,94 @@
     </article>
   }
 
-  <!-- Crear grupo -->
-  <form class="tarjeta" (ngSubmit)="crear()" #f="ngForm">
-    <h2>{{ t('grupos.crear_titulo') }}</h2>
-    <div class="campo">
-      <label for="nombre">{{ t('grupos.nombre') }}</label>
-      <input
-        id="nombre"
-        name="nombre"
-        type="text"
-        required
-        minlength="2"
-        maxlength="80"
-        [(ngModel)]="nombre"
-      />
-    </div>
-    <div class="campo">
-      <label for="moneda">{{ t('grupos.moneda') }}</label>
-      <select id="moneda" name="moneda" [(ngModel)]="moneda">
-        <option value="DOP">DOP (RD$)</option>
-        <option value="USD">USD (US$)</option>
-      </select>
-    </div>
-    <div class="campo">
-      <label for="zona">{{ t('grupos.zona') }}</label>
-      <input id="zona" name="zona" type="text" required [(ngModel)]="zonaHoraria" />
-    </div>
-    <div class="campo">
-      <label for="prefijo">{{ t('grupos.prefijo') }}</label>
-      <input
-        id="prefijo"
-        name="prefijo"
-        type="text"
-        required
-        pattern="[A-Za-z]{2,5}"
-        maxlength="5"
-        [(ngModel)]="prefijo"
-      />
-    </div>
-    <div class="campo">
-      <label for="porcentaje">{{ t('grupos.porcentaje') }}</label>
-      <input
-        id="porcentaje"
-        name="porcentaje"
-        type="number"
-        min="1"
-        max="100"
-        step="0.01"
-        required
-        [(ngModel)]="porcentaje"
-      />
-      <span class="suave">{{ t('grupos.porcentaje_ayuda') }}</span>
-    </div>
-    @if (error()) {
-      <p class="error-texto" role="alert">{{ error() }}</p>
-    }
-    <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
-      {{ t('grupos.crear') }}
-    </button>
-  </form>
+  <!-- Cómo empezar: invitación · explorar · crear -->
+  @if (grupos.cargado()) {
+    <div class="opciones">
+      <app-acceso-invitacion />
+      <app-tour-plataforma [directorio]="directorio()" />
 
-  <button class="boton secundario" type="button" (click)="salir()">{{ t('auth.salir') }}</button>
+      <!-- Crear un grupo (el formulario queda oculto hasta pedirlo) -->
+      <section class="tarjeta opcion" aria-labelledby="op-crear">
+        <header class="opcion-cab">
+          <span class="opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v8M8 12h8" />
+            </svg>
+          </span>
+          <div>
+            <h2 id="op-crear">{{ t('bienvenida.crear_titulo') }}</h2>
+            <p class="suave">{{ t('bienvenida.crear_ayuda') }}</p>
+          </div>
+        </header>
+        @if (!mostrarForm()) {
+          <button class="boton" type="button" (click)="mostrarForm.set(true)">{{ t('bienvenida.crear_mostrar') }}</button>
+        } @else {
+    <form class="crear-form" (ngSubmit)="crear()" #f="ngForm">
+      <div class="campo">
+        <label for="nombre">{{ t('grupos.nombre') }}</label>
+        <input
+          id="nombre"
+          name="nombre"
+          type="text"
+          required
+          minlength="2"
+          maxlength="80"
+          [(ngModel)]="nombre"
+        />
+      </div>
+      <div class="campo">
+        <label for="moneda">{{ t('grupos.moneda') }}</label>
+        <select id="moneda" name="moneda" [(ngModel)]="moneda">
+          <option value="DOP">DOP (RD$)</option>
+          <option value="USD">USD (US$)</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="zona">{{ t('grupos.zona') }}</label>
+        <input id="zona" name="zona" type="text" required [(ngModel)]="zonaHoraria" />
+      </div>
+      <div class="campo">
+        <label for="prefijo">{{ t('grupos.prefijo') }}</label>
+        <input
+          id="prefijo"
+          name="prefijo"
+          type="text"
+          required
+          pattern="[A-Za-z]{2,5}"
+          maxlength="5"
+          [(ngModel)]="prefijo"
+        />
+      </div>
+      <div class="campo">
+        <label for="porcentaje">{{ t('grupos.porcentaje') }}</label>
+        <input
+          id="porcentaje"
+          name="porcentaje"
+          type="number"
+          min="1"
+          max="100"
+          step="0.01"
+          required
+          [(ngModel)]="porcentaje"
+        />
+        <span class="suave">{{ t('grupos.porcentaje_ayuda') }}</span>
+      </div>
+      @if (error()) {
+        <p class="error-texto" role="alert">{{ error() }}</p>
+      }
+      <button class="boton" type="submit" [disabled]="ocupado() || f.invalid">
+        {{ t('grupos.crear') }}
+      </button>
+    </form>
+          <button class="boton secundario" type="button" (click)="mostrarForm.set(false)">{{ t('bienvenida.crear_ocultar') }}</button>
+        }
+      </section>
+    </div>
+  }
+
+  <div class="pie">
+    <a class="boton secundario" routerLink="/perfil">{{ t('bienvenida.perfil') }}</a>
+    <button class="boton secundario" type="button" (click)="salir()">{{ t('auth.salir') }}</button>
+  </div>
 </main>

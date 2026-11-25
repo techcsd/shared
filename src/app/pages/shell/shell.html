@@ -1,5 +1,15 @@
+<!-- Entrar como: aviso permanente mientras el admin ve la app como otro usuario -->
+@if (auth.impersonando(); as imp) {
+  <div class="banner-impersonar" role="alert">
+    <span>{{ t('impersonar.viendo', { nombre: imp.nombre }) }}</span>
+    <button type="button" (click)="volver()">
+      {{ auth.puedeVolver() ? t('impersonar.volver') : t('auth.salir') }}
+    </button>
+  </div>
+}
+
 <!-- Encabezado -->
-<header class="encabezado">
+<header class="encabezado" [class.bajo-banner]="auth.impersonando()">
   <a class="grupo-actual" routerLink="/grupos" [attr.aria-label]="t('mas.cambiar_grupo')">
     <span class="marca-icono" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -13,6 +23,11 @@
     </svg>
   </a>
 </header>
+
+<!-- Vista de administrador de plataforma (sin ser miembro del grupo) -->
+@if (grupos.vistaAdmin() && !auth.impersonando()) {
+  <div class="banner-admin" role="status">{{ t('admin.vista.banner') }}</div>
+}
 
 <!-- Banner de modo demo (DF-40) -->
 @if (grupos.modoDemo()) {

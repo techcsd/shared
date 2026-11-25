@@ -140,3 +140,8 @@ erDiagram
 - **Edge function `admin-usuarios`:** `crear`, `clave`, `bloquear`, `borrar` (API de administración de Auth).
 - **Migración 30:** `validar_porcentajes()` `security definer` (borrado de usuarios con membresía).
 - **Hallazgos:** `text[] || 'literal'` intenta leer el literal como arreglo (`malformed array literal`): usar `array_append(v, 'x'::text)`; el trigger diferido corre con el rol de la sesión (no con el dueño) salvo que la función sea `security definer`.
+
+## 15. Acceso total del admin, «Entrar como» e invitaciones a mi correo — migraciones 31–32
+- **31:** `es_miembro`/`es_socio`/`comparte_grupo` incluyen `es_admin_plataforma()`; parches a `aceptar_version`, `proponer_cambio_politica` (exigen fila en `miembros`) y `capitan_guardar` (admite admin); políticas `admin_ver` (solo SELECT) en `propuestas_*` y `directorio_*`.
+- **32:** `invitaciones_pendientes_mias()` (solo las del correo de la sesión) y `aceptar_invitacion_por_id(uuid)` (mismas reglas que `aceptar_invitacion`).
+- **Edge function `admin-usuarios`:** acción `impersonar` (ver DF-102).

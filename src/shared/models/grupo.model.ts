@@ -17,6 +17,8 @@ export interface MembresiaModel {
   rol: RolMiembro;
   porcentaje: number;
   grupo: GrupoModel;
+  /** Grupo al que el administrador de plataforma accede sin ser miembro (solo vista/configuración). */
+  vistaAdmin?: boolean;
 }
 
 export interface MiembroModel {

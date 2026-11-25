@@ -78,3 +78,7 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 ## Panel de administración (2026-11-25)
 - `/admin` para administradores de plataforma: usuarios (crear/clave/bloquear/borrar/admin), grupos (agregar miembros sin invitación, repartir %, quitar) y plataforma (directorio, bitácora). Función `admin-usuarios` desplegada; migraciones 29–30.
 - Usuarios demo en shared-prod: ver el informe del fork (la contraseña NO se guarda en el repo).
+
+## Tarea C (2026-11-25)
+- Migraciones 31 (acceso total del admin) y 32 (invitaciones pendientes a mi correo) + `admin-usuarios` con `impersonar`.
+- Grupo de Xaviel en shared-prod («Grupo Test X»): Tech CSD 30 %, Felipe Demo 30 %, Socio Demo 1 15 %, Socio Demo 2 15 %, Socio Demo 3 5 %, Socio Demo 4 5 %; activo «Bote Demo 32'» con 2 motores (lecturas iniciales 120,0 y 118,5), destinos Playa cercana (fee 5.000) e Isla Saona (12.000), tarifa por hora 1.500, correos a tecnologia@constructorasd.com, capitán demo con licencia a un año y póliza demo. Sin movimientos de dinero.

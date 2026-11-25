@@ -1,0 +1,52 @@
+<!-- Tengo una invitación -->
+<section class="tarjeta opcion" aria-labelledby="op-inv">
+  <header class="opcion-cab">
+    <span class="opcion-icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="14" rx="3" />
+        <path d="m4 8 8 6 8-6" />
+      </svg>
+    </span>
+    <div>
+      <h2 id="op-inv">{{ t('bienvenida.inv_titulo') }}</h2>
+      <p class="suave">{{ t('bienvenida.inv_ayuda') }}</p>
+    </div>
+  </header>
+
+  @if (pendientes().length > 0) {
+    <div class="pendientes">
+      <h3>{{ t('bienvenida.inv_pendientes') }}</h3>
+      @for (i of pendientes(); track i.invitacion_id) {
+        <div class="pendiente">
+          <div>
+            <strong>{{ i.grupo_nombre }}</strong>
+            <p class="suave">
+              {{ rolTexto(i.rol) }}@if (i.rol === 'socio') { · {{ i.porcentaje }} % }
+            </p>
+          </div>
+          <button class="boton" type="button" [disabled]="ocupado()" (click)="aceptar(i)">{{ t('unirse.aceptar') }}</button>
+        </div>
+      }
+    </div>
+  }
+
+  <form class="pegar" (ngSubmit)="abrir()" #f="ngForm">
+    <div class="campo">
+      <label for="enlace-inv">{{ t('bienvenida.inv_campo') }}</label>
+      <input
+        id="enlace-inv"
+        name="enlace"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        [placeholder]="t('bienvenida.inv_placeholder')"
+        [(ngModel)]="texto"
+      />
+    </div>
+    @if (error()) {
+      <p class="error-texto" role="alert">{{ error() }}</p>
+    }
+    <button class="boton secundario" type="submit" [disabled]="ocupado() || !texto.trim()">{{ t('bienvenida.inv_abrir') }}</button>
+  </form>
+</section>

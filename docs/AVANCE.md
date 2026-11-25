@@ -85,3 +85,11 @@ Verificación: `npm run test:db` 16 archivos / 27 migraciones; unitarios 28; e2e
 | Migración 29 (RPC + bitácora) y 30 (borrado con membresía) | ✅ | test SQL 17_admin_plataforma (no admin denegado en cada RPC, Σ % = 100, borrado seguro, bitácora inmutable) |
 | Edge function `admin-usuarios` | ✅ | e2e `admin-vivo`: usuario normal 403; admin crea, agrega, quita, bloquea, borra |
 | Pantalla `/admin` (Usuarios · Grupos · Plataforma) | ✅ | lint, build, verify:i18n (895 claves) |
+
+## Tarea C — «Entrar como», acceso total del admin, bienvenida sin grupo (2026-11-25)
+| Parte | Estado | Evidencia |
+|---|---|---|
+| Entrar como | ✅ | edge `admin-usuarios` (impersonar), banner, e2e `admin-entrar-como` |
+| Acceso total sin impersonar | ✅ | migración 31; test SQL 18 (lee y configura; no actúa como socio ni toca el libro) |
+| Bienvenida sin grupo | ✅ | migración 32, test SQL 19, e2e `bienvenida-vivo` |
+| Grupo de Xaviel en prod preparado | ✅ | 5 usuarios demo como socios (30/30/15/15/5/5), Bote Demo 32', destinos, tarifas, correos, capitán y póliza demo; checklist de lanzamiento completo |

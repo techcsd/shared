@@ -38,6 +38,17 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/salud/salud').then((m) => m.SaludPage),
   },
   {
+    // Alcanzables sin grupo (perfil y propuestas/directorio): el shell exige un grupo activo
+    path: 'perfil',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/perfil/perfil').then((m) => m.PerfilPage),
+  },
+  {
+    path: 'propuestas',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/propuestas/propuestas').then((m) => m.PropuestasPage),
+  },
+  {
     path: 'grupos',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/grupos/grupos').then((m) => m.GruposPage),

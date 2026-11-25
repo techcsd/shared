@@ -51,6 +51,8 @@ export interface RespuestaAdmin {
   id?: string;
   error?: string;
   motivos?: string[];
+  token_hash?: string;
+  correo?: string;
 }
 
 /** Administración de la plataforma (solo administrador de plataforma). Las reglas viven en la base y en la edge function. */
@@ -157,6 +159,11 @@ export class AdminService {
 
   bloquear(usuario: string, bloquear: boolean): Promise<RespuestaAdmin> {
     return this.llamar({ accion: 'bloquear', usuario_id: usuario, bloquear });
+  }
+
+  /** Pide un token de un solo uso para «Entrar como» (la base y la función exigen ser admin de plataforma). */
+  impersonar(usuario: string): Promise<RespuestaAdmin> {
+    return this.llamar({ accion: 'impersonar', usuario_id: usuario });
   }
 
   borrar(usuario: string): Promise<RespuestaAdmin> {
