@@ -1,0 +1,50 @@
+<!-- Explorar la plataforma -->
+<section class="tarjeta opcion" aria-labelledby="op-tour">
+  <header class="opcion-cab">
+    <span class="opcion-icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="m15.5 8.5-2 5-5 2 2-5z" />
+      </svg>
+    </span>
+    <div>
+      <h2 id="op-tour">{{ t('bienvenida.tour_titulo') }}</h2>
+      <p class="suave">{{ t('bienvenida.tour_ayuda') }}</p>
+    </div>
+  </header>
+
+  <button class="boton secundario" type="button" [attr.aria-expanded]="abierto()" (click)="alternar()">
+    {{ abierto() ? t('bienvenida.tour_ocultar') : t('bienvenida.tour_ver') }}
+  </button>
+
+  @if (abierto()) {
+    <div class="tour" role="group" [attr.aria-label]="t('bienvenida.tour_titulo')">
+      @for (p of pasos; track p.clave; let i = $index) {
+        @if (i === paso()) {
+          <article class="paso">
+            <span class="paso-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path [attr.d]="p.icono" />
+              </svg>
+            </span>
+            <h3>{{ titulo(p) }}</h3>
+            <p>{{ texto(p) }}</p>
+          </article>
+        }
+      }
+      <div class="tour-nav">
+        <button class="boton secundario" type="button" (click)="ir(-1)" [attr.aria-label]="t('bienvenida.tour_anterior')">‹</button>
+        <span class="puntos" aria-hidden="true">
+          @for (p of pasos; track p.clave; let i = $index) {
+            <i [class.activo]="i === paso()"></i>
+          }
+        </span>
+        <span class="suave" role="status">{{ paso() + 1 }} / {{ pasos.length }}</span>
+        <button class="boton secundario" type="button" (click)="ir(1)" [attr.aria-label]="t('bienvenida.tour_siguiente')">›</button>
+      </div>
+      @if (directorio) {
+        <a class="boton secundario" routerLink="/propuestas">{{ t('bienvenida.directorio') }}</a>
+      }
+    </div>
+  }
+</section>

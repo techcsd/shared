@@ -1,6 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
+import { GrupoService } from '../../core/grupo.service';
 import { AdminBitacora, AdminGrupo, AdminMiembro, AdminService, AdminUsuario, RespuestaAdmin } from '../../core/admin.service';
 import { t } from '../../core/i18n/i18n';
 import { estadoGrupoTexto, rolTexto } from '../../core/i18n/textos';
@@ -49,7 +51,19 @@ export class AdminPage implements OnInit {
   agPct = 0;
   edicion: Record<string, number> = {};
 
-  constructor(private admin: AdminService) {}
+  constructor(
+    private admin: AdminService,
+    private auth: AuthService,
+    private grupoSvc: GrupoService,
+    private router: Router,
+  ) {}
+
+  /** Mi propio id: no se puede «entrar como» uno mismo. */
+  yoId = (): string | null => this.auth.usuario()?.id ?? null;
+
+  puedeEntrarComo(u: { id: string; es_admin: boolean; bloqueado: boolean }): boolean {
+    return !u.es_admin && !u.bloqueado && u.id !== this.yoId();
+  }
 
   async ngOnInit(): Promise<void> {
     await this.recargar();
@@ -113,6 +127,9 @@ export class AdminPage implements OnInit {
     if (x.includes('correo_invalido')) return t('admin.err.correo');
     if (x.includes('nombre_invalido')) return t('admin.err.nombre');
     if (x.includes('es_el_mismo')) return t('admin.err.es_el_mismo');
+    if (x.includes('no_a_otro_admin')) return t('admin.err.no_a_otro_admin');
+    if (x.includes('usuario_bloqueado')) return t('admin.err.usuario_bloqueado');
+    if (x.includes('no_se_pudo_entrar')) return t('admin.err.no_se_pudo_entrar');
     if (x === 'red') return t('admin.err.red');
     return t('app.error.generico');
   }
@@ -163,6 +180,43 @@ export class AdminPage implements OnInit {
 
   async alternarAdmin(u: AdminUsuario): Promise<void> {
     await this.correr(() => this.admin.asignarAdmin(u.id, !u.es_admin), 'admin.u.admin_ok');
+  }
+
+  /** «Entrar como»: el admin ve la app exactamente como ese usuario (con sus permisos) y puede volver con un clic. */
+  async entrarComo(usuarioId: string, nombre: string): Promise<void> {
+    this.ocupado.set(true);
+    this.error.set(null);
+    this.aviso.set(null);
+    const r = await this.admin.impersonar(usuarioId);
+    if (r.error || !r.token_hash) {
+      this.ocupado.set(false);
+      this.error.set(this.mensajeError(r.error ?? 'no_se_pudo_entrar'));
+      return;
+    }
+    const e = await this.auth.entrarComo(r.token_hash, { id: usuarioId, nombre: nombre || r.correo || '' });
+    this.ocupado.set(false);
+    if (e.error) {
+      this.error.set(t('admin.err.no_se_pudo_entrar'));
+      return;
+    }
+    this.grupoSvc.limpiar();
+    await this.router.navigateByUrl('/');
+  }
+
+  /** Abre el grupo en la app tal como lo ve un administrador de plataforma (sin ser miembro). */
+  async abrirGrupo(g: AdminGrupo): Promise<void> {
+    this.grupoSvc.seleccionar(g.id);
+    this.grupoSvc.limpiar();
+    await this.router.navigateByUrl('/calendario');
+  }
+
+  usuarioDe(id: string): AdminUsuario | undefined {
+    return this.usuarios().find((u) => u.id === id);
+  }
+
+  puedeEntrarComoMiembro(m: AdminMiembro): boolean {
+    const u = this.usuarioDe(m.usuario_id);
+    return m.estado === 'activo' && !!u && this.puedeEntrarComo(u);
   }
 
   // ---------------- grupos

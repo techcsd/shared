@@ -95,6 +95,9 @@
           }
 
           <div class="acciones">
+            @if (puedeEntrarComo(u)) {
+              <button class="boton" type="button" [disabled]="ocupado()" (click)="entrarComo(u.id, u.nombre || u.correo || '')">{{ t('admin.u.entrar_como') }}</button>
+            }
             <button class="boton secundario" type="button" (click)="claveDe.set(u.id); claveNueva = ''">{{ t('admin.u.cambiar_clave') }}</button>
             <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="bloquear(u)">{{ u.bloqueado ? t('admin.u.desbloquear') : t('admin.u.bloquear') }}</button>
             <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="alternarAdmin(u)">{{ u.es_admin ? t('admin.u.quitar_admin') : t('admin.u.hacer_admin') }}</button>
@@ -126,6 +129,7 @@
           <p class="suave">{{ t('admin.g.suma') }}: {{ g.suma_porcentajes }} %</p>
           <div class="acciones">
             <button class="boton secundario" type="button" (click)="gestionar(g)">{{ t('admin.g.ver') }}</button>
+            <button class="boton" type="button" (click)="abrirGrupo(g)">{{ t('admin.g.abrir') }}</button>
           </div>
 
           @if (grupoSel()?.id === g.id) {
@@ -158,6 +162,9 @@
                           [(ngModel)]="edicion[m.usuario_id]"
                         />
                         <span>%</span>
+                      }
+                      @if (puedeEntrarComoMiembro(m)) {
+                        <button class="boton" type="button" [disabled]="ocupado()" (click)="entrarComo(m.usuario_id, m.nombre || m.correo || '')">{{ t('admin.u.entrar_como') }}</button>
                       }
                       @if (m.estado === 'activo') {
                         <button class="boton secundario" type="button" [disabled]="ocupado()" (click)="quitar(m)">{{ t('admin.g.quitar') }}</button>

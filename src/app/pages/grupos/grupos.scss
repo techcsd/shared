@@ -15,3 +15,59 @@
     margin: 0;
   }
 }
+
+.portada {
+  margin-bottom: var(--espacio-4);
+
+  h1 {
+    margin: 0 0 var(--espacio-1);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.opciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-4);
+  margin-top: var(--espacio-4);
+}
+
+.opcion-cab {
+  display: flex;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+  margin-bottom: var(--espacio-3);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.opcion-icono {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radio-2);
+  background: var(--color-primario-tenue);
+  color: var(--color-primario);
+}
+
+.crear-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-3);
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-6);
+}

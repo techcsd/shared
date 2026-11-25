@@ -46,3 +46,9 @@ Solo administradores de plataforma (ver «Hacer a alguien administrador» arriba
 - **Grupos:** lista (estado, activo, miembros, Σ %, movimientos); «Gestionar» permite agregar un usuario existente sin invitación (en un grupo activo con 0 % y luego repartir), repartir porcentajes (deben sumar 100) y quitar miembros (queda como `salido`).
 - **Plataforma:** directorio de propuestas (apagado por defecto), enlace a Salud del sistema y las últimas acciones del admin (`admin_acciones`).
 - Si algo falla: logs de la función `npx supabase functions logs admin-usuarios`; requiere el secret `APP_URL` para CORS. Para crear al primer admin sigue valiendo el `insert into plataforma_admins` en SQL.
+
+## Panel de administración: «Entrar como» y acceso total
+- **Administración → Usuarios → «Entrar como»:** ves la app exactamente como ese usuario (con sus permisos). Banner naranja fijo con «Volver a mi cuenta». No se puede entrar como uno mismo, como otro admin ni como un usuario bloqueado. Cada uso queda en la bitácora (`admin_acciones`: `usuario_entrar_como`).
+- **Administración → Grupos → «Abrir como administrador»:** abre el grupo sin ser miembro (lectura y configuración). Para reservar, registrar gastos, pagar o votar como socio usa «Entrar como».
+- **Sesión perdida:** si cierras la pestaña mientras entras como otro, la copia de tu sesión desaparece; el banner ofrecerá «Salir» y vuelves a entrar con tu cuenta.
+- **Revisar quién entró como quién:** `select momento, accion, objetivo from admin_acciones where accion = 'usuario_entrar_como' order by momento desc;`
