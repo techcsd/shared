@@ -1,0 +1,62 @@
+<!-- Galería de fotos -->
+<div class="ae-pila">
+  @if (editando) {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="camara" /> {{ t('activo.fotos_agregar') }}</h2>
+      <p class="suave">{{ t('activo.foto_ayuda') }}</p>
+      <label class="boton secundario" for="fotos-in" [class.deshabilitado]="subiendo()">
+        <app-icono nombre="subir" /> {{ subiendo() ? t('activo.foto_subiendo') : t('activo.fotos_elegir') }}
+      </label>
+      <input id="fotos-in" class="oculto" type="file" multiple accept="image/jpeg,image/png,image/webp" [disabled]="subiendo()" (change)="elegir($event)" />
+    </section>
+  }
+
+  @if (d.fotos.length === 0) {
+    <p class="ae-vacio tarjeta">
+      <app-icono nombre="imagen" />
+      <span>{{ t('activo.fotos_vacio') }}</span>
+      <span class="suave">{{ editando ? t('activo.fotos_vacio_editar') : t('activo.fotos_vacio_ver') }}</span>
+    </p>
+  } @else {
+    <ul class="ae-galeria">
+      @for (f of d.fotos; track f.id; let i = $index) {
+        <li class="ae-foto" [class.portada]="f.es_portada">
+          <button type="button" class="ae-foto-img" (click)="abrir(i)" [attr.aria-label]="t('activo.foto_ampliar')">
+            <img [src]="url(f)" [alt]="f.descripcion || t('activo.foto_alt', { nombre: d.activo.nombre })" loading="lazy" decoding="async" />
+            @if (f.es_portada) {
+              <span class="ae-insignia"><app-icono nombre="estrella" /> {{ t('activo.portada') }}</span>
+            }
+          </button>
+          @if (!editando && f.descripcion) {
+            <p class="ae-pie">{{ f.descripcion }}</p>
+          }
+          @if (editando) {
+            <div class="campo">
+              <label [for]="'pie-' + f.id">{{ t('activo.foto_pie') }}</label>
+              <input [id]="'pie-' + f.id" [name]="'pie-' + f.id" maxlength="200" [(ngModel)]="pies[f.id]" (blur)="guardarPie(f)" />
+            </div>
+            <div class="ae-mini-acciones">
+              <button type="button" class="ae-mini" [attr.aria-label]="t('activo.subir_orden')" [disabled]="i === 0 || ocupado()" (click)="mover(i, -1)"><app-icono nombre="arriba" /></button>
+              <button type="button" class="ae-mini" [attr.aria-label]="t('activo.bajar_orden')" [disabled]="i === d.fotos.length - 1 || ocupado()" (click)="mover(i, 1)"><app-icono nombre="abajo" /></button>
+              <button type="button" class="boton secundario" [disabled]="f.es_portada || ocupado()" (click)="portada(f)">
+                <app-icono nombre="estrella" /> {{ t('activo.poner_portada') }}
+              </button>
+              <button type="button" class="ae-mini peligro" [attr.aria-label]="t('activo.quitar')" [disabled]="ocupado()" (click)="quitar(f)"><app-icono nombre="papelera" /></button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Visor ampliado -->
+  @if (fotoVisor(); as f) {
+    <div class="ae-visor" role="dialog" aria-modal="true" tabindex="-1" [attr.aria-label]="t('activo.foto_ampliar')" (click)="visor.set(null)" (keydown.escape)="visor.set(null)">
+      <img [src]="url(f)" [alt]="f.descripcion || d.activo.nombre" />
+      @if (f.descripcion) {
+        <p>{{ f.descripcion }}</p>
+      }
+      <button type="button" class="ae-visor-cerrar" [attr.aria-label]="t('app.cerrar')" (click)="visor.set(null)"><app-icono nombre="cerrar" /></button>
+    </div>
+  }
+</div>

@@ -1,0 +1,8 @@
+<!-- Avisos breves -->
+<div class="toasts" aria-live="polite">
+  @for (a of toast.items(); track a.id) {
+    <div class="toast" [class.error]="a.tipo === 'error'" [attr.role]="a.tipo === 'error' ? 'alert' : 'status'">
+      {{ a.texto }}
+    </div>
+  }
+</div>

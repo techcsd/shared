@@ -90,3 +90,8 @@ PROMPT-1 completo en local (F0–F5). Todo verde: build, lint, 17 tests unitario
 - Dominio y Resend: esperan que Felipe apruebe el nombre del sistema y pague el dominio; hasta entonces las invitaciones por correo no funcionan (se usa el panel admin: agregar usuarios al grupo, Entrar como).
 - Convertir techcsd en organización de GitHub: pospuesto.
 - Confirmar correo en Supabase Auth: activar cuando haya dominio y SMTP.
+
+## El activo como entidad (2026-11-25)
+- Migración 34 y la página `/activo` ampliada. Edita el admin del grupo y los socios con permiso (el admin lo concede en Resumen → «Quién puede editar el activo»); el admin de plataforma también. Para actuar como socio sigue valiendo «Entrar como».
+- Valor y mejoras son informativos (no tocan el libro mayor). Documentos privados con URL firmada.
+- Configuración → Activos ya no sube fotos ni descripción: enlaza a la ficha completa.

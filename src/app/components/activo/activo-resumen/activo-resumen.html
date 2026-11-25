@@ -1,0 +1,180 @@
+<!-- Resumen del activo -->
+<div class="ae-pila">
+  <app-activo-tarjeta
+    variante="hero"
+    [nombre]="d.activo.nombre"
+    [tipoClave]="d.activo.tipo.clave"
+    [tipoNombre]="d.activo.tipo.nombre"
+    [descripcion]="d.activo.descripcion"
+    [imagenPath]="d.activo.imagen_path"
+    [capacidad]="d.activo.capacidad_legal"
+    [puntoEncuentro]="d.activo.punto_encuentro"
+    [condicion]="d.ficha?.condicion ?? null"
+  />
+
+  @if (!d.activo.descripcion && !editando) {
+    <p class="suave">{{ t('activo.sin_descripcion') }}</p>
+  }
+
+  @if (d.ficha?.condicion; as c) {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="pulso" /> {{ t('activo.condicion') }}</h2>
+      <p>
+        <span class="chip cond-{{ c }}">{{ tx('activo.cond.' + c) }}</span>
+        @if (d.ficha?.condicion_actualizada_en) {
+          <span class="suave">
+            {{ t('activo.actualizado_por', { quien: d.condicion_por ?? '—', cuando: fecha(d.ficha?.condicion_actualizada_en) }) }}
+          </span>
+        }
+      </p>
+      @if (d.ficha?.condicion_notas) {
+        <p class="ae-texto">{{ d.ficha?.condicion_notas }}</p>
+      }
+    </section>
+  }
+
+  @if (d.ficha?.ubicacion_texto || d.ficha?.ubicacion_url) {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="mapa" /> {{ t('activo.ubicacion') }}</h2>
+      @if (d.ficha?.ubicacion_texto) {
+        <p>{{ d.ficha?.ubicacion_texto }}</p>
+      }
+      @if (d.ficha?.ubicacion_url) {
+        <a class="boton secundario" [href]="d.ficha?.ubicacion_url" target="_blank" rel="noopener noreferrer">
+          <app-icono nombre="mapa" /> {{ t('activo.abrir_mapa') }}
+        </a>
+      }
+    </section>
+  }
+
+  @if (d.activo.punto_encuentro || d.activo.reglas_invitados) {
+    <section class="tarjeta ae-bloque">
+      <h2>{{ t('activo.encuentro') }}</h2>
+      @if (d.activo.punto_encuentro) {
+        <p>{{ d.activo.punto_encuentro }}</p>
+      }
+      @if (d.activo.reglas_invitados) {
+        <h3>{{ t('activo.reglas') }}</h3>
+        <p class="ae-texto">{{ d.activo.reglas_invitados }}</p>
+      }
+    </section>
+  }
+
+  @if (vit; as v) {
+    <section class="tarjeta ae-bloque">
+      <h2>{{ t('activo.datos') }}</h2>
+      <dl class="ae-dl">
+        <div>
+          <dt>{{ t('activo.estado') }}</dt>
+          <dd>{{ tx('activos.estado.' + d.activo.estado) }}</dd>
+        </div>
+        <div>
+          <dt>{{ t('activo.seguro') }}</dt>
+          <dd>
+            <span class="chip" [class.cond-excelente]="polizaVigente()" [class.cond-atencion]="!polizaVigente()">
+              {{ polizaVigente() ? t('activo.seguro_vigente') : t('activo.seguro_sin') }}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt>{{ t('activo.capitanes') }}</dt>
+          <dd>
+            {{ v.capitanes === 0 ? t('activo.capitanes_ninguno') : v.capitanes === 1 ? t('activo.capitanes_uno') : t('activo.capitanes_n', { n: v.capitanes }) }}
+            <a routerLink="/mas/capitanes">{{ t('activo.ver') }}</a>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    @if (v.destinos.length || v.tarifa_hora) {
+      <section class="tarjeta ae-bloque">
+        <h2>{{ t('activo.destinos_tarifas') }}</h2>
+        <ul class="ae-lista">
+          @for (x of v.destinos; track x.nombre) {
+            <li>
+              <span>{{ x.nombre }}</span>
+              <strong>{{ dinero(x.fee, v.grupo.moneda) }}</strong>
+            </li>
+          }
+          @if (v.tarifa_hora; as h) {
+            <li>
+              <span>{{ t('activo.tarifa_hora') }}</span>
+              <strong>{{ dinero(h.monto, h.moneda) }}</strong>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+
+  <!-- Edición -->
+  @if (editando) {
+    <form class="tarjeta ae-bloque ae-form" (ngSubmit)="guardar()">
+      <h2><app-icono nombre="lapiz" /> {{ t('activo.editar_resumen') }}</h2>
+      <div class="campo">
+        <label for="r-desc">{{ t('activo.descripcion') }}</label>
+        <textarea id="r-desc" name="desc" rows="4" maxlength="2000" [placeholder]="t('activo.descripcion_ayuda')" [(ngModel)]="edit.descripcion"></textarea>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="r-cond">{{ t('activo.condicion') }}</label>
+          <select id="r-cond" name="cond" [(ngModel)]="edit.condicion">
+            <option value="">{{ t('activo.cond.ninguna') }}</option>
+            @for (c of condiciones; track c) {
+              <option [value]="c">{{ tx('activo.cond.' + c) }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="r-punto">{{ t('activo.encuentro') }}</label>
+          <input id="r-punto" name="punto" maxlength="300" [(ngModel)]="edit.punto" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="r-notas">{{ t('activo.condicion_notas') }}</label>
+        <textarea id="r-notas" name="notas" rows="2" maxlength="500" [(ngModel)]="edit.notas"></textarea>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="r-ub">{{ t('activo.ubicacion') }}</label>
+          <input id="r-ub" name="ub" maxlength="200" [(ngModel)]="edit.ubicacion" />
+        </div>
+        <div class="campo">
+          <label for="r-url">{{ t('activo.mapa_url') }}</label>
+          <input id="r-url" name="url" type="url" maxlength="500" placeholder="https://" [(ngModel)]="edit.url" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="r-reglas">{{ t('activo.reglas') }}</label>
+        <textarea id="r-reglas" name="reglas" rows="3" maxlength="2000" [(ngModel)]="edit.reglas"></textarea>
+      </div>
+      <button class="boton" type="submit" [disabled]="ocupado()">{{ t('app.guardar') }}</button>
+    </form>
+  }
+
+  <!-- Quién puede editar (solo el admin del grupo) -->
+  @if (d.permisos.admin && d.socios; as socios) {
+    <section class="tarjeta ae-bloque">
+      <h2><app-icono nombre="candado" /> {{ t('activo.permisos') }}</h2>
+      <p class="suave">{{ t('activo.permisos_ayuda') }}</p>
+      <ul class="ae-lista">
+        @for (s of socios; track s.miembro_id) {
+          <li>
+            <label class="ae-check">
+              <input
+                type="checkbox"
+                [checked]="s.puede_editar"
+                [disabled]="s.es_creador || ocupado()"
+                (change)="permiso(s.miembro_id, !s.puede_editar)"
+              />
+              <span>{{ s.nombre }}</span>
+            </label>
+            @if (s.es_creador) {
+              <span class="chip">{{ t('activo.creador') }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

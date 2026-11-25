@@ -1,0 +1,34 @@
+<!-- Historial del activo -->
+<div class="ae-pila">
+  <p class="ae-nota"><app-icono nombre="historia" /> {{ t('activo.h.ayuda') }}</p>
+  @if (entradas() === null) {
+    <p class="suave" role="status">{{ t('app.cargando') }}</p>
+  } @else if (error()) {
+    <p class="error-texto" role="alert">{{ t('app.error.generico') }}</p>
+  } @else if (entradas()!.length === 0) {
+    <p class="ae-vacio tarjeta"><app-icono nombre="historia" /> <span>{{ t('activo.h.vacio') }}</span></p>
+  } @else {
+    <ol class="ae-linea">
+      @for (e of entradas(); track e.id) {
+        <li class="ae-evento {{ e.accion.toLowerCase() }}">
+          <span class="ae-punto"><app-icono [nombre]="icono(e)" /></span>
+          <div>
+            <p class="ae-frase">{{ frase(e) }}</p>
+            <time class="suave" [attr.datetime]="e.momento">{{ cuando(e.momento) }}</time>
+            @if (e.cambios.length) {
+              <ul class="ae-cambios">
+                @for (c of e.cambios; track c.campo) {
+                  <li>
+                    <strong>{{ campo(c.campo) }}:</strong>
+                    <span class="suave">{{ valor(c.antes) }}</span> →
+                    <span>{{ valor(c.despues) }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</div>

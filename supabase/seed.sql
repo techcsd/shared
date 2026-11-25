@@ -125,3 +125,30 @@ update activos set descripcion = 'Bote de demostración de 32 pies con dos motor
  where id = '20000000-0000-4000-8000-000000000001';
 update activos set descripcion = 'Sedán de demostración para cinco personas, compartido entre los socios del grupo. Datos de prueba.'
  where id = '20000000-0000-4000-8000-000000000002';
+
+-- Activo como entidad (mig. 34): contenido de demostración del Bote Demo (sin fotos ni documentos).
+insert into activo_ficha (activo_id, grupo_id, condicion, condicion_notas, ubicacion_texto)
+select '20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'buena',
+       'Casco limpio y motores revisados antes de la última salida (datos de prueba).', 'Marina (demo), muelle 4'
+ where not exists (select 1 from activo_ficha where activo_id = '20000000-0000-4000-8000-000000000001');
+insert into activo_equipo (grupo_id, activo_id, nombre, cantidad, condicion, orden)
+select '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', v.nombre, v.cantidad, v.cond, v.orden
+  from (values ('Chalecos salvavidas', 15, 'bueno', 0), ('Ancla y cabo', 1, 'nuevo', 1), ('Botiquín de primeros auxilios', 1, 'regular', 2),
+               ('GPS / plotter', 1, 'bueno', 3), ('Bengalas', 3, 'reparar', 4)) as v(nombre, cantidad, cond, orden)
+ where not exists (select 1 from activo_equipo where activo_id = '20000000-0000-4000-8000-000000000001');
+insert into activo_contactos (grupo_id, activo_id, categoria, nombre, telefono, orden)
+select '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', v.cat, v.nombre, v.tel, v.orden
+  from (values ('marina', 'Marina (demo)', '+1 809-555-0100', 0), ('mecanico', 'Taller náutico (demo)', '+1 809-555-0101', 1),
+               ('emergencia', 'Guardacostas (demo)', '+1 809-555-0911', 2)) as v(cat, nombre, tel, orden)
+ where not exists (select 1 from activo_contactos where activo_id = '20000000-0000-4000-8000-000000000001');
+insert into activo_campos (grupo_id, activo_id, etiqueta, tipo, unidad, valor, orden)
+select '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', v.etiqueta, v.tipo, v.unidad, v.valor::jsonb, v.orden
+  from (values ('Año de fabricación', 'numero', null, '2019', 0), ('Combustible', 'texto', null, '"Gasolina"', 1),
+               ('Última revisión', 'fecha', null, '"2026-10-15"', 2)) as v(etiqueta, tipo, unidad, valor, orden)
+ where not exists (select 1 from activo_campos where activo_id = '20000000-0000-4000-8000-000000000001');
+insert into activo_valor (activo_id, grupo_id, precio_compra, moneda_compra, fecha_compra, valor_estimado, moneda_estimado, fecha_estimado)
+select '20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 2500000, 'DOP', '2024-01-15', 2300000, 'DOP', current_date
+ where not exists (select 1 from activo_valor where activo_id = '20000000-0000-4000-8000-000000000001');
+insert into activo_mejoras (grupo_id, activo_id, fecha, descripcion, costo, moneda)
+select '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '2025-06-01', 'Cambio de GPS y sonda', 18500, 'DOP'
+ where not exists (select 1 from activo_mejoras where activo_id = '20000000-0000-4000-8000-000000000001');

@@ -150,3 +150,10 @@ erDiagram
 - `activos.descripcion`, `activos.imagen_path` (check: dentro de la carpeta del grupo). Bucket público `activos` (5 MB; jpeg/png/webp) con políticas de escritura solo para socios/admin de plataforma.
 - RPC: `activo_vitrina(grupo)` (miembros/admin), `activo_vista_por_token(token)` y `activo_vista_por_invitacion(id)` (subconjunto no sensible, solo al correo invitado). `activo_resumen_publico` es interna.
 - Frontend: `ActivoService`, componente `app-activo-tarjeta` (foto o ícono), página `/activo`, avatar en el encabezado, miniaturas en «Tus grupos», vista previa en la invitación y en el panel de administración, y editor de foto/descripción en Configuración → Activos.
+
+## 17. El activo como entidad editable — migración 34
+- **Permisos:** `miembros.puede_editar_activo`; `es_admin_grupo(g)`, `puede_editar_activo(g)`; RPC `activo_permiso_editar(grupo, miembro, permitir)` (solo admin del grupo); trigger que da el permiso al creador. `activos` (UPDATE) y todo lo de abajo se escribe con `puede_editar_activo`.
+- **Tablas** (todas con `grupo_id`, FK compuesta al activo, RLS, auditoría): `activo_fotos` (portada única), `activo_documentos` (tipo, vencimiento, archivo privado), `activo_equipo`, `activo_ficha`, `activo_valor` (socios), `activo_mejoras` (socios), `activo_contactos`, `activo_campos`.
+- **RPC:** `activo_detalle(activo)` (todo en una llamada, con `permisos`), `activo_historial(activo, limite)`, `activo_foto_portada(foto)`, `activo_reordenar(tabla, ids)`; `activo_vitrina` incorpora `condicion`.
+- **Storage:** `activos` (público, uuid) y `activo-documentos` (privado, URL firmada); subir, reemplazar y borrar exigen `puede_editar_activo`.
+- **Alertas:** `activo_documentos_evaluar()` dentro de `cron_mantenimiento`.

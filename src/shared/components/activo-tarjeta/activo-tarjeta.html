@@ -24,8 +24,11 @@
       @if (descripcion) {
         <p class="desc" [class.corta]="variante === 'normal'">{{ descripcion }}</p>
       }
-      @if (capacidad || puntoEncuentro) {
+      @if (capacidad || puntoEncuentro || condicion) {
         <ul class="chips">
+          @if (condicion) {
+            <li class="chip cond-{{ condicion }}">{{ textoCondicion() }}</li>
+          }
           @if (capacidad) {
             <li class="chip">{{ t('activo.capacidad', { n: capacidad }) }}</li>
           }

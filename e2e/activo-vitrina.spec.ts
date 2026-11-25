@@ -83,14 +83,13 @@ test('sin foto, la vitrina muestra el ícono SVG, la descripción y los datos', 
   await expect(page.locator('.avatar-activo app-activo-tarjeta')).toBeVisible();
 });
 
-test('un socio sube una foto y la vitrina la muestra', async ({ page }) => {
+test('un socio sube una foto a la galería y la vitrina la muestra', async ({ page }) => {
   await entrar(page, DUENO);
-  await page.goto('/mas/configuracion');
-  await page.getByRole('tab', { name: 'Activos' }).click();
-  await page.getByRole('button', { name: 'Abrir' }).first().click();
-  await page.locator('#a-foto').setInputFiles({ name: 'ferrari.png', mimeType: 'image/png', buffer: PNG });
-  await expect(page.getByText('Guardado.')).toBeVisible();
-  await page.goto('/activo');
+  await page.goto('/activo?editar=1&tab=fotos');
+  await page.locator('#fotos-in').setInputFiles({ name: 'ferrari.png', mimeType: 'image/png', buffer: PNG });
+  await expect(page.locator('.ae-foto')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Terminar edición' }).click();
+  await page.getByRole('tab', { name: 'Resumen' }).click();
   const foto = page.locator('app-activo-tarjeta img').first();
   await expect(foto).toBeVisible();
   await expect(foto).toHaveAttribute('src', new RegExp(`/storage/v1/object/public/activos/${grupoId}/`));
